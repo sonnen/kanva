@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2017",
+    "lib": ["es2018", "dom"],
+    "jsx": "react",
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "importHelpers": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": false
+  },
+  "include": [
+    "./packages/**/*.ts",
+    "./packages/**/*.tsx",
+    "./packages/**/*.json"
+  ]
+}

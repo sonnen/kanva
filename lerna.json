@@ -1,0 +1,8 @@
+{
+  "packages": [
+    "packages/core",
+    "packages/react",
+    "packages/charts"
+  ],
+  "version": "0.1.1"
+}

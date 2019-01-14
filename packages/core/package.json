@@ -1,0 +1,33 @@
+{
+  "name": "@kanva/core",
+  "version": "0.1.1",
+  "description": "Draw on HTML5 Canvas element using views",
+  "keywords": [
+    "canvas",
+    "html5",
+    "js",
+    "views",
+    "kanva"
+  ],
+  "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
+  "homepage": "https://github.com/headline-1/kanva",
+  "bugs": "https://github.com/headline-1/kanva/issues",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "start": "yarn watch",
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "lint": "tslint --config ../../tslint.json --project ./",
+    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage",
+    "test:watch": "jest --config='./jest.config.js' --watch",
+    "prepack": "cp ../../README.md ./"
+  },
+  "files": [
+    "dist/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
