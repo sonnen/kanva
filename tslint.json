@@ -9,6 +9,10 @@
     "curly": true,
     "eofline": false,
     "forin": true,
+    "array-type": [
+      true,
+      "array"
+    ],
     "align": [
       true,
       "parameters",
@@ -100,7 +104,7 @@
           "PascalCase"
         ]
       },
-       {
+      {
         "type": "parameter",
         "format": [
           "camelCase",

@@ -1,8 +1,8 @@
 {
+  "version": "0.1.1",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
   "packages": [
-    "packages/core",
-    "packages/react",
-    "packages/charts"
-  ],
-  "version": "0.1.1"
+    "packages/*"
+  ]
 }

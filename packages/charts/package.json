@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "yarn watch",
+    "start": "tsc --watch",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",
@@ -34,8 +34,9 @@
     "@kanva/react": "^0.1.1"
   },
   "devDependencies": {
+    "@kanva/core": "^0.1.1",
+    "@kanva/react": "^0.1.1",
     "@types/react": "^16.7.18",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0"
+    "react": "^16.7.0"
   }
 }

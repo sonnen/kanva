@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "yarn watch",
+    "start": "tsc --watch",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",

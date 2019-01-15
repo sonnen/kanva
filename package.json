@@ -6,11 +6,13 @@
   "bugs": "https://github.com/headline-1/kanva/issues",
   "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
   "license": "MIT",
-  "private": false,
+  "private": true,
   "scripts": {
     "postinstall": "lerna exec -- yarn && lerna bootstrap",
     "build": "lerna exec --concurrency 1 -- yarn build",
+    "start": "lerna exec -- yarn start",
     "clean": "rimraf packages/*/{dist,.jest,reports}",
+    "purge": "yarn clean && rimraf packages/*/{node_modules}",
     "lint": "lerna exec -- yarn lint",
     "link:all": "lerna exec -- yarn link",
     "unlink:all": "lerna exec -- yarn unlink",
@@ -39,5 +41,8 @@
     "tslint-config-prettier": "^1.17.0",
     "tslint-consistent-codestyle": "^1.15.0",
     "typescript": "^3.2.2"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

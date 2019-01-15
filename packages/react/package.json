@@ -16,21 +16,22 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "yarn watch",
+    "start": "tsc --watch",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",
     "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage",
     "test:watch": "jest --config='./jest.config.js' --watch"
   },
-  "peerDependencies": {
-    "@kanva/core": "^0.1.1",
-    "react": "*"
-  },
   "dependencies": {
     "resize-observer-polyfill": "^1.5.1"
   },
+  "peerDependencies": {
+    "@kanva/core": "^0.1.1",
+    "react": "^16.4.0"
+  },
   "devDependencies": {
+    "@kanva/core": "^0.1.1",
     "@types/react": "^16.7.18",
     "react": "^16.7.0",
     "react-dom": "^16.7.0"
