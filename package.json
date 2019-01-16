@@ -1,6 +1,6 @@
 {
   "name": "kanva",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "description": "Draw on canvas using views",
   "homepage": "https://github.com/headline-1/kanva",
   "bugs": "https://github.com/headline-1/kanva/issues",
@@ -19,7 +19,7 @@
     "unlink:all": "lerna exec -- yarn unlink",
     "test": "lerna exec -- yarn test",
     "test:watch": "lerna exec -- yarn test:watch",
-    "version:bump": "lerna exec -- yarn version --patch --no-git-tag-version --no-commit-hooks && git add package.json"
+    "version:bump": "yarn version --patch --no-git-tag-version --no-commit-hooks && lerna version patch --yes --no-git-tag-version --no-commit-hooks && git add */package.json package.json lerna.json"
   },
   "husky": {
     "hooks": {

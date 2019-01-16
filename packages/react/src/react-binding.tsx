@@ -80,10 +80,9 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
 
     componentWillUnmount() {
       const { parent } = this.internalProps;
-      if (!parent) {
-        return;
+      if (this.view.hasParent()) {
+        return parent.removeChild(this.view);
       }
-      parent.removeChild(this.view);
       this.view.destroy();
     }
 
