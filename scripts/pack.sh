@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
+set -e
+DIST_DIR=./dist
 
 function pack(){
   DIR=$1
-  DIST_DIR=./dist
   PACKAGE_NAME=$(cd ${DIR} && npm pack 2>&1 | grep filename | awk -F ': *' '{print $2}')
   mv ${DIR}/${PACKAGE_NAME} ${DIST_DIR}
   echo Packed ${DIR} to ${DIST_DIR}/${PACKAGE_NAME}
 }
+
+mkdir ${DIST_DIR}
 pack ./packages/core
 pack ./packages/react
 pack ./packages/charts
