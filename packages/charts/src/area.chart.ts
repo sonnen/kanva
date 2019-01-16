@@ -7,7 +7,7 @@ export interface AreaChartProps<DataPoint> {
   data: DataPoint[][];
   pointAccessor?: PointAccessor<DataPoint>;
   xScaleType?: DataScaleType;
-  yScaletype?: DataScaleType;
+  yScaleType?: DataScaleType;
 }
 
 export class AreaChartView<DataPoint> extends View<AreaChartProps<DataPoint>> {

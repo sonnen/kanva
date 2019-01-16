@@ -1,0 +1,30 @@
+image: node:10
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+  - node_modules
+
+stages:
+- build
+- deploy
+
+build:
+  stage: build
+  artifacts:
+    paths:
+    - dist/
+  script:
+  - yarn
+  - yarn test
+  - yarn build
+  - yarn dist
+
+deploy:
+  stage: deploy
+  image: python:latest
+  cache: {}
+  script:
+  - chmod 755 ./scripts/deploy.sh && ./scripts/deploy.sh
+  only:
+  - master
