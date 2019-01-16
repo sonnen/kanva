@@ -84,7 +84,7 @@ export class LayoutParams {
     return this.toEndOf(id);
   }
 
-  alignTop(id: Id){
+  alignTop(id: Id) {
     if (this.topId === id) {
       return this;
     }
@@ -97,7 +97,7 @@ export class LayoutParams {
     return this.alignTop(PARENT_ID);
   }
 
-  alignBottom(id: Id){
+  alignBottom(id: Id) {
     if (this.bottomId === id) {
       return this;
     }
@@ -110,7 +110,7 @@ export class LayoutParams {
     return this.alignBottom(PARENT_ID);
   }
 
-  alignStart(id: Id){
+  alignStart(id: Id) {
     if (this.startId === id) {
       return this;
     }
