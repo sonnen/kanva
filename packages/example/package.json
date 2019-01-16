@@ -23,7 +23,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "echo 'CRA tests do not work here 💩'",
     "eject": "react-scripts eject"
   },
   "directories": {
