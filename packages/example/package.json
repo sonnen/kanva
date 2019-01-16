@@ -1,6 +1,6 @@
 {
   "name": "example",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Usage example for Kanva",
   "keywords": [
     "kanva",
@@ -21,6 +21,7 @@
     "url": "https://github.com/headline-1/kanva/issues"
   },
   "scripts": {
+    "lint": "tslint --config ../../tslint.json --project ./",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "echo 'CRA tests do not work here 💩'",
@@ -40,9 +41,9 @@
     "@kanva/react": "^0.1.1"
   },
   "devDependencies": {
-    "@kanva/charts": "^0.1.6",
-    "@kanva/core": "^0.1.6",
-    "@kanva/react": "^0.1.6",
+    "@kanva/charts": "^0.1.7",
+    "@kanva/core": "^0.1.7",
+    "@kanva/react": "^0.1.7",
     "@types/jest": "^23.3.12",
     "@types/react": "^16.7.18",
     "@types/react-dom": "^16.0.11"

@@ -20,7 +20,7 @@ export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Cont
 
 export const resolveDimensionDependencies = (
   children: View[],
-  dependencySelector: (lp: LayoutParams) => Array<undefined | number>,
+  dependencySelector: (lp: LayoutParams) => (undefined | number)[],
 ): number[] => {
   const dimension = children.map(child => ({
     id: child.id,

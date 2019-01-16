@@ -16,6 +16,7 @@ build:
     - dist/
   script:
   - yarn
+  - yarn lint
   - yarn test
   - yarn build
   - yarn dist
