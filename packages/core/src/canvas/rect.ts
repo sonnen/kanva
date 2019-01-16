@@ -63,47 +63,66 @@ export class Rect {
     return Math.abs(this.b - this.t);
   }
 
-  inset = (rect: Rect) => new Rect({
-    right: this.r - rect.r,
-    left: this.l + rect.l,
-    top: this.t + rect.t,
-    bottom: this.b - rect.b,
-  });
+  inset(rect: Rect) {
+    return new Rect({
+      right: this.r - rect.r,
+      left: this.l + rect.l,
+      top: this.t + rect.t,
+      bottom: this.b - rect.b,
+    });
+  }
 
-  expand = (rect: Rect) => new Rect({
-    right: this.r + rect.r,
-    left: this.l - rect.l,
-    top: this.t - rect.t,
-    bottom: this.b + rect.b,
-  });
+  expand(rect: Rect) {
+    return new Rect({
+      right: this.r + rect.r,
+      left: this.l - rect.l,
+      top: this.t - rect.t,
+      bottom: this.b + rect.b,
+    });
+  }
 
-  setRight = (right: number) => new Rect({
-    right,
-    left: this.l,
-    top: this.t,
-    bottom: this.b,
-  });
+  setRight(right: number) {
+    return new Rect({
+      right,
+      left: this.l,
+      top: this.t,
+      bottom: this.b,
+    });
+  }
 
-  setLeft = (left: number) => new Rect({
-    right: this.r,
-    left,
-    top: this.t,
-    bottom: this.b,
-  });
+  setLeft(left: number) {
+    return new Rect({
+      right: this.r,
+      left,
+      top: this.t,
+      bottom: this.b,
+    });
+  }
 
-  setTop = (top: number) => new Rect({
-    right: this.r,
-    left: this.l,
-    top,
-    bottom: this.b,
-  });
+  setTop(top: number) {
+    return new Rect({
+      right: this.r,
+      left: this.l,
+      top,
+      bottom: this.b,
+    });
+  }
 
-  setBottom = (bottom: number) => new Rect({
-    right: this.r,
-    left: this.l,
-    top: this.t,
-    bottom,
-  });
+  setBottom(bottom: number) {
+    return new Rect({
+      right: this.r,
+      left: this.l,
+      top: this.t,
+      bottom,
+    });
+  }
+
+  intersects(rect: Rect) {
+    return (
+      this.l < rect.r && this.r > rect.l &&
+      this.t > rect.b && this.b < rect.t
+    );
+  }
 }
 
 export const ZERO_RECT = new Rect(0);

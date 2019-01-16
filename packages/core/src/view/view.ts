@@ -38,8 +38,6 @@ export interface ViewProps {
 }
 
 export class View<Props extends {} = ViewProps> {
-  // @TODO: idCounter & idMap should be delegated to common context held in view tree root
-  // (to avoid conflicts between multiple canvas)
   private static idCounter: number = 0;
 
   public readonly id: number;
@@ -55,7 +53,7 @@ export class View<Props extends {} = ViewProps> {
 
   protected backgroundColor?: string;
 
-  constructor(public readonly name: string = 'View', private readonly context: Context) {
+  constructor(public readonly context: Context, public readonly name: string = 'View') {
     this.id = View.idCounter++;
   }
 

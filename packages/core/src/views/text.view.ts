@@ -1,6 +1,5 @@
 import { ViewCanvas } from '../canvas';
-import { RequiredViewChanges, View } from '../view';
-import { Context } from '../view/context';
+import { Context, RequiredViewChanges, View } from '../view';
 import { WRAP_CONTENT } from '../view/layout-params';
 
 export enum TextAlign {
@@ -36,7 +35,7 @@ export class TextView extends View<TextViewProps> {
   private y: number = 0;
 
   constructor(context: Context) {
-    super('TextView', context);
+    super(context, 'TextView');
   }
 
   getFontSize() {

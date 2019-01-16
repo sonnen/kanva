@@ -31,6 +31,7 @@ const getAllGettersAndSetters = (obj: object) => {
 export const createReactView = <Props extends {}>(viewClass: (new (...args: any[]) => View<Props>)) => {
   type ReactViewProps = Partial<ViewProps & Props>;
   return class ReactViewComponent extends React.Component<ReactViewProps> {
+    static displayName: string;
     readonly view: View;
     readonly propNames: string[] = [];
     readonly propHandlers: Record<string, { set: (value: any) => void, get: () => any }> = {};
@@ -38,6 +39,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     constructor(props: ReactViewProps, context?: any) {
       super(props, context);
       const view = this.view = new viewClass(this.internalProps.context);
+      ReactViewComponent.displayName = view.name;
       const gettersAndSetters = getAllGettersAndSetters(view);
 
       for (const { name, get, set } of gettersAndSetters) {

@@ -9,10 +9,10 @@ describe('View Layout Utils', () => {
   describe('#resolveDimensionDependencies', () => {
     it('resolves dependencies between views', () => {
       const context = new Context();
-      const a = new View('A', context);
-      const b = new View('B', context);
-      const c = new View('C', context);
-      const d = new View('D', context);
+      const a = new View(context, 'A');
+      const b = new View(context, 'B');
+      const c = new View(context, 'C');
+      const d = new View(context, 'D');
       a.getLayoutParams().alignParentStart();
       b.getLayoutParams().toEndOf(a.id);
       c.getLayoutParams().toEndOf(b.id).toStartOf(d.id);
@@ -32,8 +32,8 @@ describe('View Layout Utils', () => {
     });
     it('throws an error in case of missing dependency', () => {
       const context = new Context();
-      const a = new View('A', context);
-      const b = new View('B', context);
+      const a = new View(context, 'A');
+      const b = new View(context, 'B');
       a.getLayoutParams().alignParentStart();
       b.getLayoutParams().toEndOf(a.id);
       expect(
@@ -45,8 +45,8 @@ describe('View Layout Utils', () => {
     });
     it('throws an error in case of circular dependency', () => {
       const context = new Context();
-      const a = new View('A', context);
-      const b = new View('B', context);
+      const a = new View(context, 'A');
+      const b = new View(context, 'B');
       a.getLayoutParams().toStartOf(b.id);
       b.getLayoutParams().toEndOf(a.id);
       expect(

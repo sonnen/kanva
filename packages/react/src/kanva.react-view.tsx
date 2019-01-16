@@ -23,7 +23,7 @@ export class Kanva extends React.Component<Props, State> {
 
   componentDidMount() {
     if (!this.state.view && this.htmlCanvasElement && this.htmlDivElement) {
-      const view = new RootCanvasView(this.htmlCanvasElement, this.ctx);
+      const view = new RootCanvasView(this.ctx, this.htmlCanvasElement);
       this.setState({
         view,
       });

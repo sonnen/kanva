@@ -84,40 +84,56 @@ export class LayoutParams {
     return this.toEndOf(id);
   }
 
-  alignParentTop() {
-    if (this.topId === PARENT_ID) {
+  alignTop(id: Id){
+    if (this.topId === id) {
       return this;
     }
     this.dependenciesModified = true;
-    this.topId = PARENT_ID;
+    this.topId = id;
+    return this;
+  }
+
+  alignParentTop() {
+    return this.alignTop(PARENT_ID);
+  }
+
+  alignBottom(id: Id){
+    if (this.bottomId === id) {
+      return this;
+    }
+    this.dependenciesModified = true;
+    this.bottomId = id;
     return this;
   }
 
   alignParentBottom() {
-    if (this.bottomId === PARENT_ID) {
+    return this.alignBottom(PARENT_ID);
+  }
+
+  alignStart(id: Id){
+    if (this.startId === id) {
       return this;
     }
     this.dependenciesModified = true;
-    this.bottomId = PARENT_ID;
+    this.startId = id;
     return this;
   }
 
   alignParentStart() {
-    if (this.startId === PARENT_ID) {
+    return this.alignStart(PARENT_ID);
+  }
+
+  alignEnd(id: Id) {
+    if (this.endId === id) {
       return this;
     }
     this.dependenciesModified = true;
-    this.startId = PARENT_ID;
+    this.endId = id;
     return this;
   }
 
   alignParentEnd() {
-    if (this.endId === PARENT_ID) {
-      return this;
-    }
-    this.dependenciesModified = true;
-    this.endId = PARENT_ID;
-    return this;
+    return this.alignEnd(PARENT_ID);
   }
 
   center(center?: boolean) {

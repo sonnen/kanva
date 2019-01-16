@@ -7,8 +7,8 @@ export class RootCanvasView extends View {
   private dpr: number = 1;
   private isRequired: boolean = true;
 
-  constructor(canvas: Canvas, context: Context) {
-    super('RootCanvasView', context);
+  constructor(context: Context, canvas: Canvas) {
+    super(context, 'RootCanvasView');
     this.canvas = new ViewCanvas(canvas);
   }
 
@@ -19,10 +19,15 @@ export class RootCanvasView extends View {
 
     const ctx = this.canvas.context;
     const canvas = ctx.canvas;
-    const dpr = window.devicePixelRatio || 1;
     const parent = canvas.parentElement;
 
-    const { width, height } = (parent || canvas).getBoundingClientRect();
+    if (!canvas.style || !parent || !window) {
+      // In Node environment we have canvas of constant size
+      return;
+    }
+
+    const dpr = window && window.devicePixelRatio || 1;
+    const { width, height } = parent.getBoundingClientRect();
 
     if (this.rect.r === width && this.rect.b === height && this.dpr === dpr) {
       return;

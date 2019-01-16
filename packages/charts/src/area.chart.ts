@@ -1,4 +1,4 @@
-import { RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
+import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
 import { createReactView } from '@kanva/react';
 import { DataDisplayType, DataScaleType, DataSeries, PointAccessor } from './chart.types';
 import { getContinuousNumericScale, isXYArray } from './utils';
@@ -25,6 +25,10 @@ export class AreaChartView<DataPoint> extends View<AreaChartProps<DataPoint>> {
 
   // Computed values
   private series: DataSeries[] = [];
+
+  constructor(context: Context) {
+    super(context, 'AreaChartView');
+  }
 
   getData() {
     return this.rawData;
@@ -115,7 +119,8 @@ export class AreaChartView<DataPoint> extends View<AreaChartProps<DataPoint>> {
   }
 
   onDraw(canvas: ViewCanvas) {
-    const {series} = this;
+    /*
+    const { series } = this;
     const ctx = canvas.context;
 
     for(let i=0, l=series.length; i<l;i++) {
@@ -125,6 +130,7 @@ export class AreaChartView<DataPoint> extends View<AreaChartProps<DataPoint>> {
       ctx.closePath();
       ctx.fill();
     }
+    */
   }
 
 }
