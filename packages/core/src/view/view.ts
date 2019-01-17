@@ -2,7 +2,6 @@ import { Rect, ViewCanvas } from '../canvas';
 import { Context } from './context';
 import {
   horizontalLayoutDependencies,
-  isRelativeDimension,
   LayoutParams,
   MATCH_PARENT,
   PARENT_ID,
@@ -34,7 +33,7 @@ export interface ViewProps {
   id: string;
   layoutParams: LayoutParams;
   backgroundColor?: string;
-  children: any[];
+  children: any;
 }
 
 export class View<Props extends {} = ViewProps> {
@@ -65,14 +64,13 @@ export class View<Props extends {} = ViewProps> {
       return;
     }
     this.requiredChanges--;
+    const { children, childrenMap: map, context, innerHeight, innerWidth } = this;
 
-    console.log(`${this.name}: layout()`);
+    if (context.debugEnabled) {
+      console.log(`${this.name}[${this.id}]: layout()`);
+    }
 
-    const children = this.children;
-    const map = this.childrenMap;
     const getFromChildrenMap = (id: number) => map[id];
-    const innerHeight = this.innerHeight;
-    const innerWidth = this.innerWidth;
 
     // Horizontal layout
     const horizontallyOrderedChildren = this.childrenOrdered.h.map(getFromChildrenMap);
@@ -101,9 +99,11 @@ export class View<Props extends {} = ViewProps> {
         } else if (lp.startId !== undefined) {
           l = lp.startId === PARENT_ID ? 0 : map[lp.startId].rect.l;
         }
+        console.log('lr', l, r);
         if (r === undefined && l === undefined) {
           l = 0;
           r = child.width;
+          console.log('both lr undefined', l, r);
         } else if (r === undefined) {
           r = l! + child.width;
         } else if (l === undefined) {
@@ -156,11 +156,9 @@ export class View<Props extends {} = ViewProps> {
     // Retrigger nested layout if dimensions changed
     for (let i = 0, l = children.length; i < l; i++) {
       const child = children[i];
-      if (child.width !== child.rect.width || child.height !== child.rect.height) {
-        child.width = child.rect.width;
-        child.height = child.rect.height;
-        child.layout();
-      }
+      child.width = child.rect.width;
+      child.height = child.rect.height;
+      child.layout();
     }
 
     this.onLayout();
@@ -184,8 +182,11 @@ export class View<Props extends {} = ViewProps> {
       return;
     }
     this.requiredChanges--;
-    console.log(`${this.name}: resolvePositionDependencies()`);
     const { children, context } = this;
+
+    if (context.debugEnabled) {
+      console.log(`${this.name}[${this.id}]: resolvePositionDependencies()`);
+    }
 
     for (let i = 0, l = children.length; i < l; i++) {
       resolveLayoutParamsIds(children[i].lp, context);
@@ -208,10 +209,12 @@ export class View<Props extends {} = ViewProps> {
     this.resolvePositionDependencies();
 
     this.requiredChanges--;
-    console.log(`${this.name}: measure()`);
+    const { context, children, lp } = this;
+    const { w, h, minH, minW, maxH, maxW, visibility } = lp;
 
-    const children = this.children;
-    const { w, h, minH, minW, maxH, maxW, visibility } = this.lp;
+    if (context.debugEnabled) {
+      console.log(`${this.name}[${this.id}]: measure()`);
+    }
     if (visibility === Visibility.GONE) {
       this.width = this.height = 0;
       return;
@@ -323,7 +326,7 @@ export class View<Props extends {} = ViewProps> {
   getMatchParentWidth() {
     let p = this.parent;
     while (p) {
-      if (!isRelativeDimension(p.lp.w)) {
+      if (p.lp.w !== WRAP_CONTENT) {
         return p.innerWidth;
       }
       p = p.parent;
@@ -334,7 +337,7 @@ export class View<Props extends {} = ViewProps> {
   getMatchParentHeight() {
     let p = this.parent;
     while (p) {
-      if (!isRelativeDimension(p.lp.w)) {
+      if (p.lp.w !== WRAP_CONTENT) {
         return p.innerHeight;
       }
       p = p.parent;
@@ -346,16 +349,23 @@ export class View<Props extends {} = ViewProps> {
     if (!this.requires(RequiredViewChanges.DRAW) || this.lp.visibility !== Visibility.VISIBLE) {
       return;
     }
-    console.log(`${this.name}: draw()`);
+
+    const {
+      context,
+      rect,
+      lp: { marginRect: margin, paddingRect: padding },
+    } = this;
+    let { l, t, r, b } = rect;
 
     const ctx = canvas.context;
 
-    let { l, t, r, b } = this.rect;
-    const { marginRect: margin, paddingRect: padding } = this.lp;
+    if (context.debugEnabled) {
+      console.log(`${this.name}[${this.id}]: draw()`);
+    }
 
     ctx.save();
 
-    if (canvas.debugEnabled) {
+    if (context.debugEnabled) {
       // Draw margin bounds
       ctx.rect(l, t, r - l, b - t);
       ctx.strokeStyle = '#FF00FF';
@@ -375,7 +385,7 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillRect(l, t, r - l, b - t);
     }
 
-    if (canvas.debugEnabled) {
+    if (context.debugEnabled) {
       // Draw padding bounds
       ctx.strokeStyle = '#00FF00';
       ctx.lineWidth = 1;
@@ -388,7 +398,7 @@ export class View<Props extends {} = ViewProps> {
     r -= padding.r;
     b -= padding.b;
 
-    if (canvas.debugEnabled) {
+    if (context.debugEnabled) {
       // Draw view bounds
       ctx.strokeStyle = '#FF0000';
       ctx.lineWidth = 1;

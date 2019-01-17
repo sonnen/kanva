@@ -62,7 +62,7 @@ export class RootCanvasView extends View {
 
   setDebugEnabled(enabled: boolean) {
     if (this.canvas) {
-      this.canvas.debug(enabled);
+      this.context.debugEnabled = enabled;
     }
   }
 

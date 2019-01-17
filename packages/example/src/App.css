@@ -12,3 +12,8 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+.c-sample-canvas {
+  width: 50%;
+  height: 400px;
+}

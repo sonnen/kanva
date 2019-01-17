@@ -168,7 +168,7 @@ export class LayoutParams {
   }
 
   height(height: number) {
-    this.w = height;
+    this.h = height;
     return this;
   }
 

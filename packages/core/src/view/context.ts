@@ -1,4 +1,5 @@
 export class Context {
+  public debugEnabled = false;
   private idMap: Record<string, number> & Record<number, string> = {};
 
   registerView(id: number, idName: string) {
