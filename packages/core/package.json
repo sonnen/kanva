@@ -1,6 +1,6 @@
 {
   "name": "@kanva/core",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Draw on HTML5 Canvas element using views",
   "keywords": [
     "canvas",
@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsc --watch",
+    "start": "tsc -w",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",

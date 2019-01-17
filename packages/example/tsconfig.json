@@ -1,6 +1,20 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
+    "target": "es2017",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "jsx": "preserve",
+    "sourceMap": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "importHelpers": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": false,
     "typeRoots": [
       "./node_modules/@types",
       "../../node_modules/@types"
@@ -12,8 +26,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve"
+    "noEmit": true
   },
   "include": [
     "./src"

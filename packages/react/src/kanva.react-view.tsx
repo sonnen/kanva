@@ -6,7 +6,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 interface Props {
   className?: string;
   style?: CSSProperties;
-  children?: React.ReactElement<ViewProps>;
+  children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
   debug?: boolean;
 }
 

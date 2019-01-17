@@ -7,7 +7,6 @@ export interface Canvas {
 
 export class ViewCanvas {
   public readonly context: CanvasRenderingContext2D;
-  public debugEnabled: boolean = false;
 
   constructor(protected readonly canvas: Canvas) {
     this.context = this.canvas.getContext('2d')!;
@@ -121,10 +120,6 @@ export class ViewCanvas {
         c.strokeText(text, x, y);
       }
     }
-  }
-
-  debug(enable: boolean) {
-    this.debugEnabled = enable;
   }
 
   private draw({

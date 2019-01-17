@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Chart views for Kanva",
   "keywords": [
     "canvas",
@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsc --watch",
+    "start": "tsc -w",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",
@@ -37,8 +37,8 @@
     "d3-scale": "^2.1.2"
   },
   "devDependencies": {
-    "@kanva/core": "^0.1.7",
-    "@kanva/react": "^0.1.7",
+    "@kanva/core": "^0.1.8",
+    "@kanva/react": "^0.1.8",
     "@types/react": "^16.7.18",
     "react": "^16.7.0"
   }
