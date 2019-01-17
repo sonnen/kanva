@@ -99,11 +99,9 @@ export class View<Props extends {} = ViewProps> {
         } else if (lp.startId !== undefined) {
           l = lp.startId === PARENT_ID ? 0 : map[lp.startId].rect.l;
         }
-        console.log('lr', l, r);
         if (r === undefined && l === undefined) {
           l = 0;
           r = child.width;
-          console.log('both lr undefined', l, r);
         } else if (r === undefined) {
           r = l! + child.width;
         } else if (l === undefined) {
@@ -356,6 +354,11 @@ export class View<Props extends {} = ViewProps> {
       lp: { marginRect: margin, paddingRect: padding },
     } = this;
     let { l, t, r, b } = rect;
+
+    if (l >= r || t >= b) {
+      // Rectangle is empty, don't draw anything
+      return;
+    }
 
     const ctx = canvas.context;
 

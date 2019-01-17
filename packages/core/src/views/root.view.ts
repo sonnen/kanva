@@ -66,6 +66,15 @@ export class RootCanvasView extends View {
     }
   }
 
+  draw(canvas: ViewCanvas) {
+    const { width, height } = this;
+    if (!this.requires(RequiredViewChanges.DRAW)) {
+      return;
+    }
+    canvas.context.clearRect(0, 0, width, height);
+    super.draw(canvas);
+  }
+
   require(requiredChanges: RequiredViewChanges) {
     super.require(requiredChanges);
     if (this.isRequired) {
