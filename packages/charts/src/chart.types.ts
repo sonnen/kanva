@@ -3,7 +3,7 @@ export interface XYPoint {
   y: number;
 }
 
-export type PointAccessor<DataPoint> = (point: DataPoint, index: number, series: DataPoint[]) => XYPoint;
+export type PointAccessor = <DataPoint>(point: DataPoint, index: number, series: DataPoint[]) => XYPoint;
 
 export enum DataDisplayType {
   POINTS,
@@ -15,13 +15,7 @@ export enum DataScaleType {
   LINEAR,
 }
 
-export interface DataSeries {
-  data: XYPoint[];
-}
-
-export interface DataSeriesStyle {
-  type: DataDisplayType;
-  strokeColor?: string;
-  lineThickness?: number;
-  fillColor?: string;
+export interface DataSeries<DataPoint> {
+  name: string;
+  data: DataPoint[];
 }

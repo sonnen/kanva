@@ -1,138 +1,123 @@
 import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
 import { createReactView } from '@kanva/react';
-import { DataDisplayType, DataScaleType, DataSeries, PointAccessor } from './chart.types';
-import { getContinuousNumericScale, isXYArray } from './utils';
+import { DataDisplayType } from './chart.types';
+import { DataContainer } from './data-container';
 
-export interface AreaChartProps<DataPoint> {
-  data: DataPoint[][];
-  pointAccessor?: PointAccessor<DataPoint>;
-  xScaleType?: DataScaleType;
-  yScaleType?: DataScaleType;
+export interface AreaChartStyle {
+  type: DataDisplayType;
+  strokeColor?: string;
+  lineThickness?: number;
+  fillColor?: string;
 }
 
-export class AreaChartView<DataPoint> extends View<AreaChartProps<DataPoint>> {
-  // Data properties
-  private rawData?: DataPoint[][];
-  private pointAccessor?: PointAccessor<DataPoint>;
-  private xScaleType: DataScaleType = DataScaleType.LINEAR;
-  private yScaleType: DataScaleType = DataScaleType.LINEAR;
+export interface AreaChartProps {
+  dataContainer?: DataContainer<any>;
+  dataSeries: string;
+  style?: AreaChartStyle;
+}
 
-  // Style properties
-  private type: DataDisplayType = DataDisplayType.LINE;
-  private strokeColor?: string;
-  private lineThickness?: number;
-  private fillColor?: string;
+const DEFAULT_STYLE = {
+  type: DataDisplayType.LINE,
+  strokeColor: '#000',
+  lineThickness: 1.5,
+};
 
-  // Computed values
-  private series: DataSeries[] = [];
+export class AreaChartView<DataPoint> extends View<AreaChartProps> {
+  private dataContainer?: DataContainer<any>;
+  private dataSeries?: string;
+  private style: AreaChartStyle = DEFAULT_STYLE;
 
   constructor(context: Context) {
     super(context, 'AreaChartView');
   }
 
-  getData() {
-    return this.rawData;
+  getStyle() {
+    return this.style;
   }
 
-  setData(data: DataPoint[][]) {
-    this.rawData = data;
-    this.require(RequiredViewChanges.LAYOUT);
+  setStyle(style: AreaChartStyle | undefined) {
+    this.style = style || DEFAULT_STYLE;
+    this.require(RequiredViewChanges.DRAW);
   }
 
-  getPointAccessor() {
-    return this.pointAccessor;
+  getDataSeries() {
+    return this.dataSeries;
   }
 
-  setPointAccessor(pointAccessor: PointAccessor<DataPoint> | undefined) {
-    this.pointAccessor = pointAccessor;
-    this.require(RequiredViewChanges.LAYOUT);
+  setDataSeries(series: string) {
+    this.dataSeries = series;
+    this.require(RequiredViewChanges.DRAW);
   }
 
-  getXScaleType() {
-    return this.xScaleType;
+  getDataContainer() {
+    return this.dataContainer;
   }
 
-  setXScaleType(scaleType: DataScaleType) {
-    this.xScaleType = scaleType;
-    this.require(RequiredViewChanges.LAYOUT);
-  }
-
-  getYScaleType() {
-    return this.yScaleType;
-  }
-
-  setYScaleType(scaleType: DataScaleType) {
-    this.yScaleType = scaleType;
-    this.require(RequiredViewChanges.LAYOUT);
-  }
-
-  onLayout() {
-    const { pointAccessor, rawData, innerHeight, innerWidth, xScaleType, yScaleType } = this;
-    if (!rawData) {
-      this.series = [];
-      return;
-    }
-
-    const series = new Array(rawData.length);
-    let minX: number | undefined;
-    let maxX: number | undefined;
-    let minY: number | undefined;
-    let maxY: number | undefined;
-    for (let i = 0, l = rawData.length; i < l; i++) {
-      const rawSeries = rawData[i];
-      const data = pointAccessor ? rawSeries.map(pointAccessor) : isXYArray(rawSeries) ? rawSeries : [];
-
-      if (data.length) {
-        if (minX === undefined || maxX === undefined || minY === undefined || maxY === undefined) {
-          minX = maxX = data[0].x;
-          minY = maxY = data[0].y;
-        }
-        for (let i = 1, l = data.length; i < l; i++) {
-          const point = data[i];
-          if (point.y < minY) {
-            minY = point.y;
-          }
-          if (point.y > maxY) {
-            maxY = point.y;
-          }
-          if (point.x < minX) {
-            minX = point.x;
-          }
-          if (point.x > maxX) {
-            maxX = point.x;
-          }
-        }
-      }
-
-      this.series[i] = {
-        data,
-      };
-    }
-
-    const xScale = getContinuousNumericScale(xScaleType)
-      .range([0, innerWidth])
-      .domain([minX || 0, maxX || 1]);
-    const yScale = getContinuousNumericScale(yScaleType)
-      .range([0, innerHeight])
-      .domain([minY || 0, maxY || 1]);
-
+  setDataContainer(dataContainer: DataContainer<any>) {
+    this.dataContainer = dataContainer;
+    this.require(RequiredViewChanges.DRAW);
   }
 
   onDraw(canvas: ViewCanvas) {
-    /*
-    const { series } = this;
-    const ctx = canvas.context;
+    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    const series = dataContainer && dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
+    const { type, fillColor, lineThickness, strokeColor } = style;
 
-    for(let i=0, l=series.length; i<l;i++) {
-      ctx.beginPath();
-
-      ctx.lineTo();
-      ctx.closePath();
-      ctx.fill();
+    if (!series || !series.data.length) {
+      return;
     }
-    */
+
+    const ctx = canvas.context;
+    const data = series.data;
+
+    ctx.beginPath();
+    switch (type) {
+      case DataDisplayType.AREA:
+        ctx.moveTo(data[0].x, innerHeight);
+        for (let i = 0, l = data.length; i < l; i++) {
+          ctx.lineTo(data[i].x, data[i].y);
+        }
+        ctx.lineTo(data[data.length - 1].x, innerHeight);
+        ctx.closePath();
+        if (fillColor) {
+          ctx.fillStyle = fillColor;
+          ctx.fill();
+        }
+        break;
+      case DataDisplayType.POINTS:
+        const size = lineThickness || 1;
+        const radius = size / 2;
+        if (fillColor) {
+          ctx.fillStyle = fillColor;
+          for (let i = 0, l = data.length; i < l; i++) {
+            ctx.fillRect(data[i].x - radius, data[i].y - radius, size, size);
+          }
+        }
+        break;
+      default:
+      case DataDisplayType.LINE:
+        ctx.moveTo(data[0].x, data[0].y);
+        for (let i = 1, l = data.length; i < l; i++) {
+          ctx.lineTo(data[i].x, data[i].y);
+        }
+        ctx.closePath();
+        break;
+    }
+    if (strokeColor) {
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineThickness || 1;
+      ctx.stroke();
+    }
+  }
+
+  onSnapshot() {
+    return {
+      style: this.style,
+      dataContainer: this.dataContainer,
+      dataSeries: this.dataSeries,
+    };
   }
 
 }
 
-export const AreaChartReactView = createReactView<AreaChartProps<unknown>>(AreaChartView);
+export const AreaChartReactView = createReactView<AreaChartProps>(AreaChartView);
