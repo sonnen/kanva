@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Chart views for Kanva",
   "keywords": [
     "canvas",
@@ -37,8 +37,8 @@
     "d3-scale": "^2.1.2"
   },
   "devDependencies": {
-    "@kanva/core": "^0.1.8",
-    "@kanva/react": "^0.1.8",
+    "@kanva/core": "^0.1.9",
+    "@kanva/react": "^0.1.9",
     "@types/react": "^16.7.18",
     "react": "^16.7.0"
   }
