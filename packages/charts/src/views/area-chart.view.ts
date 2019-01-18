@@ -1,31 +1,30 @@
 import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
-import { createReactView } from '@kanva/react';
-import { DataDisplayType } from './chart.types';
-import { DataContainer } from './data-container';
+import { DataDisplayType } from '../chart.types';
+import { DataContainer } from '../data-container';
 
-export interface AreaChartStyle {
+export interface AreaChartViewStyle {
   type: DataDisplayType;
   strokeColor?: string;
   lineThickness?: number;
   fillColor?: string;
 }
 
-export interface AreaChartProps {
+export interface AreaChartViewProps {
   dataContainer?: DataContainer<any>;
   dataSeries: string;
-  style?: AreaChartStyle;
+  style?: AreaChartViewStyle;
 }
 
-const DEFAULT_STYLE = {
+const DEFAULT_STYLE: AreaChartViewStyle = {
   type: DataDisplayType.LINE,
   strokeColor: '#000',
   lineThickness: 1.5,
 };
 
-export class AreaChartView<DataPoint> extends View<AreaChartProps> {
+export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
   private dataContainer?: DataContainer<any>;
   private dataSeries?: string;
-  private style: AreaChartStyle = DEFAULT_STYLE;
+  private style: AreaChartViewStyle = DEFAULT_STYLE;
 
   constructor(context: Context) {
     super(context, 'AreaChartView');
@@ -35,7 +34,7 @@ export class AreaChartView<DataPoint> extends View<AreaChartProps> {
     return this.style;
   }
 
-  setStyle(style: AreaChartStyle | undefined) {
+  setStyle(style: AreaChartViewStyle | undefined) {
     this.style = style || DEFAULT_STYLE;
     this.require(RequiredViewChanges.DRAW);
   }
@@ -119,5 +118,3 @@ export class AreaChartView<DataPoint> extends View<AreaChartProps> {
   }
 
 }
-
-export const AreaChartReactView = createReactView<AreaChartProps>(AreaChartView);
