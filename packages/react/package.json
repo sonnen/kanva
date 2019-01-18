@@ -1,6 +1,6 @@
 {
   "name": "@kanva/react",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "React bindings for Kanva",
   "keywords": [
     "canvas",
@@ -16,7 +16,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsc -w",
+    "start": "tsc -w --preserveWatchOutput",
     "build": "tsc",
     "clean": "rimraf dist",
     "lint": "tslint --config ../../tslint.json --project ./",
@@ -31,7 +31,7 @@
     "react": "^16.4.0"
   },
   "devDependencies": {
-    "@kanva/core": "^0.1.11",
+    "@kanva/core": "^0.1.12",
     "@types/react": "^16.7.18",
     "react": "^16.7.0",
     "react-dom": "^16.7.0"

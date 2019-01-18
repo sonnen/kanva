@@ -1,18 +1,34 @@
-import { AreaChartReactView, DataContainer, DataDisplayType } from '@kanva/charts';
-import { LayoutParams, MATCH_PARENT } from '@kanva/core';
-import { Kanva, View } from '@kanva/react';
+import { AreaChartViewStyle, AxisOrientation, DataContainer, DataDisplayType, React as Charts } from '@kanva/charts';
+import { AxisViewStyle } from '@kanva/charts';
+import { LayoutParams, MATCH_PARENT, WRAP_CONTENT } from '@kanva/core';
+import { Kanva } from '@kanva/react';
 import * as React from 'react';
+import { rgba } from '../utils/color.utils';
 import { MOCK } from './mock';
 
-const wrapperParams = new LayoutParams()
-  .width(MATCH_PARENT)
-  .height(MATCH_PARENT)
-  .padding(10)
-  .margin(20);
+const { AreaChartView, AxisView } = Charts;
 
 const chartParams = new LayoutParams()
   .width(MATCH_PARENT)
-  .height(MATCH_PARENT);
+  .height(MATCH_PARENT)
+  .above('yAxis');
+
+const chartStyle: AreaChartViewStyle = {
+  type: DataDisplayType.AREA,
+  fillColor: rgba('#4ccfef', .5),
+  lineThickness: 1,
+  strokeColor: '#4ccfef',
+};
+
+const axisStyle: AxisViewStyle = {
+  strokeColor: '#FFFFFF',
+  textColor: '#FFFFFF',
+};
+
+const axisParams = new LayoutParams()
+  .width(MATCH_PARENT)
+  .height(40)
+  .alignParentBottom();
 
 const container = new DataContainer()
   .setData([
@@ -20,28 +36,26 @@ const container = new DataContainer()
       name: 'mockSeries',
       data: MOCK,
     },
-  ]);
+  ])
+  .setXAxisLabelAccessor((value: number) => {
+    const d = new Date(value);
+    return d.toLocaleTimeString();
+  });
 
 export const AreaChartSample: React.FunctionComponent = () => (
   <Kanva className={'c-sample-canvas'}>
-    <View backgroundColor={'rgba(255, 255, 255, 0.8)'} layoutParams={wrapperParams}>
-      <View backgroundColor={'rgba(255, 255, 0, 0.6)'} layoutParams={wrapperParams}>
-        <View backgroundColor={'rgba(0, 0, 255, 0.6)'} layoutParams={wrapperParams}>
-          <View backgroundColor={'rgba(255, 255, 255, 1)'} layoutParams={chartParams}>
-            <AreaChartReactView
-              layoutParams={chartParams}
-              dataContainer={container}
-              style={{
-                type: DataDisplayType.AREA,
-                fillColor: '#333BBB',
-                lineThickness: 2,
-                strokeColor: '#111888',
-              }}
-              dataSeries={'mockSeries'}
-            />
-          </View>
-        </View>
-      </View>
-    </View>
+    <AreaChartView
+      layoutParams={chartParams}
+      dataContainer={container}
+      dataSeries={'mockSeries'}
+      style={chartStyle}
+    />
+    <AxisView
+      id={'yAxis'}
+      layoutParams={axisParams}
+      dataContainer={container}
+      orientation={AxisOrientation.HORIZONTAL}
+      style={axisStyle}
+    />
   </Kanva>
 );

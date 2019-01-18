@@ -1,4 +1,5 @@
 import { Rect, ViewCanvas } from '../canvas';
+import { xor } from '../utils/boolean.util';
 import { Context } from './context';
 import {
   horizontalLayoutDependencies,
@@ -6,7 +7,6 @@ import {
   MATCH_PARENT,
   PARENT_ID,
   verticalLayoutDependencies,
-  Visibility,
   WRAP_CONTENT,
 } from './layout-params';
 import { resolveDimensionDependencies, resolveLayoutParamsIds } from './layout.utils';
@@ -29,9 +29,16 @@ export enum RequiredViewChanges {
   NOTHING = 0,
 }
 
+export enum Visibility {
+  VISIBLE,
+  INVISIBLE,
+  GONE,
+}
+
 export interface ViewProps {
   id: string;
   layoutParams: LayoutParams;
+  visibility: Visibility;
   backgroundColor?: string;
   children: any;
 }
@@ -41,6 +48,7 @@ export class View<Props extends {} = ViewProps> {
 
   public readonly id: number;
   protected lp: LayoutParams = new LayoutParams();
+  protected visibility: Visibility = Visibility.VISIBLE;
   protected width: number = 0;
   protected height: number = 0;
   protected rect: Rect = new Rect(0);
@@ -207,8 +215,8 @@ export class View<Props extends {} = ViewProps> {
     this.resolvePositionDependencies();
 
     this.requiredChanges--;
-    const { context, children, lp } = this;
-    const { w, h, minH, minW, maxH, maxW, visibility } = lp;
+    const { context, children, lp, visibility } = this;
+    const { w, h, minH, minW, maxH, maxW } = lp;
 
     if (context.debugEnabled) {
       console.log(`${this.name}[${this.id}]: measure()`);
@@ -344,7 +352,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   draw(canvas: ViewCanvas): void {
-    if (!this.requires(RequiredViewChanges.DRAW) || this.lp.visibility !== Visibility.VISIBLE) {
+    if (!this.requires(RequiredViewChanges.DRAW) || this.visibility !== Visibility.VISIBLE) {
       return;
     }
 
@@ -518,6 +526,23 @@ export class View<Props extends {} = ViewProps> {
       this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
     } else {
       this.require(RequiredViewChanges.MEASURE);
+    }
+  }
+
+  getVisibility() {
+    return this.visibility;
+  }
+
+  setVisibility(visibility: Visibility) {
+    const oldVisibility = this.visibility;
+    if (oldVisibility === visibility) {
+      return;
+    }
+    this.visibility = visibility;
+    if (xor(oldVisibility === Visibility.GONE, visibility === Visibility.GONE)) {
+      this.require(RequiredViewChanges.MEASURE);
+    } else {
+      this.require(RequiredViewChanges.DRAW);
     }
   }
 

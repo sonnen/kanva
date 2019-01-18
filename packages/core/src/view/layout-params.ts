@@ -6,12 +6,6 @@ export const PARENT_ID = -1;
 
 export const isRelativeDimension = (dimension: number) => dimension < 0;
 
-export enum Visibility {
-  VISIBLE,
-  INVISIBLE,
-  GONE,
-}
-
 type Id = number | string;
 
 export class LayoutParams {
@@ -25,7 +19,6 @@ export class LayoutParams {
   endId?: Id;
   centerV?: boolean;
   centerH?: boolean;
-  visibility: Visibility = Visibility.VISIBLE;
   x: number = 0;
   y: number = 0;
   w: number = WRAP_CONTENT;
