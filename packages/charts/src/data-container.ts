@@ -1,13 +1,15 @@
 import { AxisLabelAccessor, AxisPoint, DataScaleType, DataSeries, PointAccessor, XYPoint } from './chart.types';
 import { getContinuousNumericScale, isXYArray } from './utils';
 
-export class DataContainer<DataPoint> {
+export class DataContainer<DataPoint = XYPoint> {
   // Data properties
   private rawData?: DataSeries<DataPoint>[];
   private namedData: Record<string, number> = {};
   private pointAccessor?: PointAccessor;
   private xScaleType: DataScaleType = DataScaleType.LINEAR;
   private yScaleType: DataScaleType = DataScaleType.LINEAR;
+  private xBounds: number[] = [];
+  private yBounds: number[] = [];
   private xTicksCount: number | undefined;
   private yTicksCount: number | undefined;
   private hasChanged = false;
@@ -86,6 +88,26 @@ export class DataContainer<DataPoint> {
     return this;
   }
 
+  getXBounds() {
+    return this.xBounds;
+  }
+
+  setXBounds(xBounds: number[]) {
+    this.xBounds = xBounds;
+    this.hasChanged = true;
+    return this;
+  }
+
+  getYBounds() {
+    return this.yBounds;
+  }
+
+  setYBounds(yBounds: number[]) {
+    this.yBounds = yBounds;
+    this.hasChanged = true;
+    return this;
+  }
+
   getXAxisLabelAccessor() {
     return this.xAxisLabelAccessor;
   }
@@ -127,10 +149,10 @@ export class DataContainer<DataPoint> {
     }
 
     const series: DataSeries<XYPoint>[] = new Array(rawData.length);
-    let minX: number | undefined;
-    let maxX: number | undefined;
-    let minY: number | undefined;
-    let maxY: number | undefined;
+    let minX: number = Math.min(...this.xBounds);
+    let maxX: number = Math.max(...this.xBounds);
+    let minY: number = Math.min(...this.yBounds);
+    let maxY: number = Math.max(...this.yBounds);
 
     for (let i = 0, l = rawData.length; i < l; i++) {
       const rawSeries = rawData[i];
@@ -139,23 +161,19 @@ export class DataContainer<DataPoint> {
         : isXYArray(rawSeries.data) ? rawSeries.data.map(({ x, y }: XYPoint) => ({ x, y })) : [];
 
       if (data.length) {
-        if (minX === undefined || maxX === undefined || minY === undefined || maxY === undefined) {
-          minX = maxX = data[0].x;
-          minY = maxY = data[0].y;
-        }
-        for (let i = 1, l = data.length; i < l; i++) {
-          const point = data[i];
-          if (point.y < minY) {
-            minY = point.y;
+        for (let i = 0, l = data.length; i < l; i++) {
+          const { x, y } = data[i];
+          if (y < minY) {
+            minY = y;
           }
-          if (point.y > maxY) {
-            maxY = point.y;
+          if (y > maxY) {
+            maxY = y;
           }
-          if (point.x < minX) {
-            minX = point.x;
+          if (x < minX) {
+            minX = x;
           }
-          if (point.x > maxX) {
-            maxX = point.x;
+          if (x > maxX) {
+            maxX = x;
           }
         }
       }
@@ -168,10 +186,10 @@ export class DataContainer<DataPoint> {
 
     const xScale = getContinuousNumericScale(xScaleType)
       .range([0, width])
-      .domain([minX || 0, maxX || 1]);
+      .domain([minX, maxX]);
     const yScale = getContinuousNumericScale(yScaleType)
       .range([height, 0])
-      .domain([minY || 0, maxY || 1]);
+      .domain([minY, maxY]);
 
     for (let i = 0, l = series.length; i < l; i++) {
       const singleSeries = series[i].data;

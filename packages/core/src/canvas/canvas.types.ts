@@ -11,8 +11,7 @@ export interface DrawOptions {
 }
 
 export interface TextOptions {
-  fontFamily: string;
-  fontSize: number;
+  fontString: string;
   direction?: CanvasDirection;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;

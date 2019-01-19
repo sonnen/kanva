@@ -37,15 +37,14 @@ export class ViewCanvas {
 
   measureText({
     text,
-    fontFamily,
-    fontSize,
+    fontString,
     direction = 'inherit',
     textAlign = 'left',
     textBaseline = 'bottom',
   }: MeasureTextOptions): TextMetrics {
     const c = this.context;
 
-    c.font = `${fontSize}px "${fontFamily}"`;
+    c.font = fontString;
     c.direction = direction;
     c.textAlign = textAlign;
     c.textBaseline = textBaseline;
@@ -66,8 +65,7 @@ export class ViewCanvas {
 
   drawText({
     text,
-    fontFamily,
-    fontSize,
+    fontString,
     direction = 'inherit',
     textAlign = 'left',
     textBaseline = 'bottom',
@@ -80,7 +78,7 @@ export class ViewCanvas {
   }: DrawTextOptions) {
     const c = this.context;
 
-    c.font = `${fontSize}px "${fontFamily}"`;
+    c.font = fontString;
     c.direction = direction;
     c.textAlign = textAlign;
     c.textBaseline = textBaseline;

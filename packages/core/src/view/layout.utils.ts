@@ -35,7 +35,7 @@ export const resolveDimensionDependencies = (
   let loops = 0;
   const unresolvedDependencies = (depId: number) => orderedDimension.indexOf(depId) < 0;
   while (dimension.length) {
-    if (loops > maxLoops) {
+    if (loops++ > maxLoops) {
       throw new Error('Dependencies between views can\'t be resolved. ' +
         'This may be a result of a circular dependency or not including referred view in a container.');
     }
@@ -48,8 +48,6 @@ export const resolveDimensionDependencies = (
         dimension.splice(i, 1);
       }
     }
-
-    loops++;
   }
 
   return orderedDimension;

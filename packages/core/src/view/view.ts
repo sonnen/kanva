@@ -17,8 +17,6 @@ interface OrderedChildren {
 }
 
 export enum RequiredViewChanges {
-  /** Children have new layout params or are added/removed */
-  DEPENDENCIES_ORDERING = 4,
   /** Children have to be measured */
   MEASURE = 3,
   /** Children are positioned */
@@ -49,14 +47,15 @@ export class View<Props extends {} = ViewProps> {
   public readonly id: number;
   protected lp: LayoutParams = new LayoutParams();
   protected visibility: Visibility = Visibility.VISIBLE;
-  protected width: number = 0;
-  protected height: number = 0;
+  protected width = 0;
+  protected height = 0;
   protected rect: Rect = new Rect(0);
   private parent: View | null = null;
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
   private childrenMap: Record<number, View> = {};
-  private requiredChanges: RequiredViewChanges = RequiredViewChanges.DEPENDENCIES_ORDERING;
+  private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
+  private childrenGraphChanged = false;
 
   protected backgroundColor?: string;
 
@@ -67,11 +66,10 @@ export class View<Props extends {} = ViewProps> {
   /**
    * Prepares the layout all children
    */
-  layout() {
-    if (!this.requires(RequiredViewChanges.LAYOUT)) {
+  layout(force?: boolean) {
+    if (!this.requireGuardAndTake(RequiredViewChanges.LAYOUT, force)) {
       return;
     }
-    this.requiredChanges--;
     const { children, childrenMap: map, context, innerHeight, innerWidth } = this;
 
     if (context.debugEnabled) {
@@ -118,6 +116,12 @@ export class View<Props extends {} = ViewProps> {
         rect.l = l!;
         rect.r = r;
       }
+      if (rect.l > rect.r) {
+        const l = rect.r;
+        rect.r = rect.l;
+        rect.l = l;
+      }
+      child.width = rect.width;
     }
 
     // Vertical layout
@@ -157,14 +161,17 @@ export class View<Props extends {} = ViewProps> {
         rect.t = t!;
         rect.b = b;
       }
+      if (rect.t > rect.b) {
+        const t = rect.b;
+        rect.b = rect.t;
+        rect.t = t;
+      }
+      child.height = rect.height;
     }
 
     // Retrigger nested layout if dimensions changed
     for (let i = 0, l = children.length; i < l; i++) {
-      const child = children[i];
-      child.width = child.rect.width;
-      child.height = child.rect.height;
-      child.layout();
+      children[i].layout();
     }
 
     this.onLayout();
@@ -184,10 +191,9 @@ export class View<Props extends {} = ViewProps> {
    * @throws an error in case of unresolvable dependency (circular or lack of required view)
    */
   resolvePositionDependencies() {
-    if (!this.requires(RequiredViewChanges.DEPENDENCIES_ORDERING)) {
+    if (!this.childrenGraphChanged) {
       return;
     }
-    this.requiredChanges--;
     const { children, context } = this;
 
     if (context.debugEnabled) {
@@ -202,19 +208,19 @@ export class View<Props extends {} = ViewProps> {
     const v = resolveDimensionDependencies(children, verticalLayoutDependencies);
 
     this.childrenOrdered = { h, v };
+    this.childrenGraphChanged = false;
   }
 
   /**
    * Measures the component and adjusts it's dimensions to min/max width and height values.
    * @return true if width or height changed, false otherwise
    */
-  measure(canvas: ViewCanvas) {
-    if (!this.requires(RequiredViewChanges.MEASURE)) {
+  measure(canvas: ViewCanvas, force?: boolean) {
+    if (!this.requireGuardAndTake(RequiredViewChanges.MEASURE, force)) {
       return;
     }
     this.resolvePositionDependencies();
 
-    this.requiredChanges--;
     const { context, children, lp, visibility } = this;
     const { w, h, minH, minW, maxH, maxW } = lp;
 
@@ -321,7 +327,7 @@ export class View<Props extends {} = ViewProps> {
 
     // Now all children can be measured
     for (let i = children.length - 1; i >= 0; i--) {
-      children[i].measure(canvas);
+      children[i].measure(canvas, sizeChanged);
     }
   }
 
@@ -351,20 +357,24 @@ export class View<Props extends {} = ViewProps> {
     return 0;
   }
 
-  draw(canvas: ViewCanvas): void {
-    if (!this.requires(RequiredViewChanges.DRAW) || this.visibility !== Visibility.VISIBLE) {
+  draw(canvas: ViewCanvas, force: boolean = false): void {
+    if (!this.requireGuardAndTake(RequiredViewChanges.DRAW, force)) {
       return;
     }
 
     const {
+      visibility,
       context,
       rect,
       lp: { marginRect: margin, paddingRect: padding },
     } = this;
     let { l, t, r, b } = rect;
 
-    if (l >= r || t >= b) {
-      // Rectangle is empty, don't draw anything
+    if (visibility !== Visibility.VISIBLE || l === r || t === b) {
+      if (context.debugEnabled) {
+        console.log(`${this.name}[${this.id}]: skipping draw()`);
+      }
+      // Rectangle is empty or invisible, don't draw anything
       return;
     }
 
@@ -378,10 +388,18 @@ export class View<Props extends {} = ViewProps> {
 
     if (context.debugEnabled) {
       // Draw margin bounds
-      ctx.rect(l, t, r - l, b - t);
-      ctx.strokeStyle = '#FF00FF';
+      ctx.strokeStyle = '#F0F';
+      ctx.fillStyle = '#F0F';
       ctx.lineWidth = 1;
-      ctx.stroke();
+      ctx.strokeRect(l, t, r - l, b - t);
+      ctx.textAlign = 'end';
+      ctx.textBaseline = 'top';
+      ctx.font = '9px monospace';
+      const boundsText = `${r - l}x${b - t}`;
+      const width = ctx.measureText(boundsText).width;
+      ctx.fillRect(Math.max(l, r - width), t, width, 9);
+      ctx.fillStyle = '#FFF';
+      ctx.fillText(boundsText, r, t, r - l);
     }
 
     // Apply margin
@@ -398,9 +416,15 @@ export class View<Props extends {} = ViewProps> {
 
     if (context.debugEnabled) {
       // Draw padding bounds
-      ctx.strokeStyle = '#00FF00';
+      ctx.strokeStyle = '#0F0';
+      ctx.fillStyle = '#0F0';
       ctx.lineWidth = 1;
       ctx.strokeRect(l, t, r - l, b - t);
+      const boundsText = `${r - l}x${b - t}`;
+      const width = ctx.measureText(boundsText).width;
+      ctx.fillRect(Math.max(l, r - width), t, width, 9);
+      ctx.fillStyle = '#FFF';
+      ctx.fillText(boundsText, r, t, r - l);
     }
 
     // Apply padding
@@ -411,12 +435,19 @@ export class View<Props extends {} = ViewProps> {
 
     if (context.debugEnabled) {
       // Draw view bounds
-      ctx.strokeStyle = '#FF0000';
+      ctx.strokeStyle = '#F00';
+      ctx.fillStyle = '#F00';
       ctx.lineWidth = 1;
       ctx.strokeRect(l, t, r - l, b - t);
+      const boundsText = `${r - l}x${b - t}`;
+      const width = ctx.measureText(boundsText).width;
+      ctx.fillRect(Math.max(l, r - width), t, width, 9);
+      ctx.fillStyle = '#FFF';
+      ctx.fillText(boundsText, r, t, r - l);
     }
 
     ctx.translate(l, t);
+    ctx.beginPath();
     ctx.rect(0, 0, r - l, b - t);
     ctx.clip();
 
@@ -426,12 +457,10 @@ export class View<Props extends {} = ViewProps> {
     for (let i = 0, l = children.length; i < l; i++) {
       // Since parent needs a redraw, all of it's children also have to be redrawn
       // Above is correct until I develop some kind of image cache (would be extremely useful for animation support)
-      children[i].require(RequiredViewChanges.DRAW);
-      children[i].draw(canvas);
+      children[i].draw(canvas, true);
     }
 
     ctx.restore();
-    this.requiredChanges--;
   }
 
   onDraw(canvas: ViewCanvas): void {
@@ -448,7 +477,7 @@ export class View<Props extends {} = ViewProps> {
       this.children.splice(position, 0, child);
     }
     child.attach(this);
-    this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   setChildAt(child: View, position: number) {
@@ -463,7 +492,7 @@ export class View<Props extends {} = ViewProps> {
     if (oldChild) {
       child.detach();
     }
-    this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   removeChild(child: View | number) {
@@ -482,7 +511,7 @@ export class View<Props extends {} = ViewProps> {
     this.children.splice(id, 1);
     child.detach();
 
-    this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   removeChildAt(startIndex: number, endIndex: number = startIndex + 1) {
@@ -495,7 +524,7 @@ export class View<Props extends {} = ViewProps> {
     }
     children.splice(startIndex, endIndex - startIndex);
 
-    this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
@@ -520,25 +549,24 @@ export class View<Props extends {} = ViewProps> {
     return this.lp;
   }
 
-  setLayoutParams(lp: LayoutParams) {
-    this.lp = lp;
-    if (lp.dependenciesModified) {
-      this.require(RequiredViewChanges.DEPENDENCIES_ORDERING);
-    } else {
-      this.require(RequiredViewChanges.MEASURE);
+  setLayoutParams(lp: LayoutParams | undefined) {
+    this.lp = lp || new LayoutParams();
+    if (this.lp.dependenciesModified && this.parent) {
+      this.parent.childrenGraphChanged = true;
     }
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   getVisibility() {
     return this.visibility;
   }
 
-  setVisibility(visibility: Visibility) {
+  setVisibility(visibility: Visibility | undefined) {
     const oldVisibility = this.visibility;
     if (oldVisibility === visibility) {
       return;
     }
-    this.visibility = visibility;
+    this.visibility = visibility || Visibility.VISIBLE;
     if (xor(oldVisibility === Visibility.GONE, visibility === Visibility.GONE)) {
       this.require(RequiredViewChanges.MEASURE);
     } else {
@@ -550,14 +578,22 @@ export class View<Props extends {} = ViewProps> {
     // Update required changes only if the new changes have bigger scope than is set currently
     if (this.requiredChanges < requiredChanges) {
       this.requiredChanges = requiredChanges;
-      if (this.parent && requiredChanges >= RequiredViewChanges.DRAW) {
-        this.parent.require(RequiredViewChanges.DRAW);
+      if (this.parent && requiredChanges > RequiredViewChanges.NOTHING) {
+        this.parent.require(requiredChanges);
       }
     }
   }
 
-  requires(requiredChanges: RequiredViewChanges) {
-    return this.requiredChanges >= requiredChanges;
+  requireGuard(requiredChanges: RequiredViewChanges) {
+    return this.requiredChanges === requiredChanges;
+  }
+
+  requireGuardAndTake(requiredChanges: RequiredViewChanges, force?: boolean) {
+    if (this.requiredChanges === requiredChanges) {
+      this.requiredChanges = this.requiredChanges - (force ? 0 : 1);
+      return true;
+    }
+    return false;
   }
 
   getBackgroundColor() {
@@ -628,6 +664,7 @@ export class View<Props extends {} = ViewProps> {
     }
     this.parent = parent;
     this.parent.childrenMap[this.id] = this;
+    this.parent.childrenGraphChanged = true;
   }
 
   private detach() {
@@ -635,6 +672,7 @@ export class View<Props extends {} = ViewProps> {
       return;
     }
     delete this.parent.childrenMap[this.id];
+    this.parent.childrenGraphChanged = true;
     this.parent = null;
   }
 
