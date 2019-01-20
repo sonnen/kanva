@@ -1,14 +1,40 @@
 import * as React from 'react';
-
-import './App.css';
 import { AreaChartSample } from './components/area-chart-sample.component';
 
-export class App extends React.Component {
+import './App.css';
+
+interface Props {
+}
+
+interface State {
+  chartCount: number;
+}
+
+export class App extends React.Component<Props, State> {
+  state: State = {
+    chartCount: 1,
+  };
+
   render() {
+    const { chartCount } = this.state;
     return (
       <div className='app'>
+        {chartCount < 25 && (
+          <button onClick={() => this.setState(({ chartCount }) => ({ chartCount: chartCount + 1 }))}>
+            Add
+          </button>
+        )}
+        {chartCount > 0 && (
+          <button onClick={() => this.setState(({ chartCount }) => ({ chartCount: chartCount - 1 }))}>
+            Remove
+          </button>
+        )}
         <div className='wrapper'>
-          <AreaChartSample />
+          {
+            new Array(chartCount).fill(0).map(
+              (_, index) => <AreaChartSample key={index} />,
+            )
+          }
         </div>
       </div>
     );

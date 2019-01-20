@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { LayoutParams, PARENT_ID } from './layout-params';
+import { Id, LayoutParams, PARENT_ID } from './layout-params';
 import { View } from './view';
 
 export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Context) => {
@@ -52,3 +52,19 @@ export const resolveDimensionDependencies = (
 
   return orderedDimension;
 };
+
+const existingNonParentDependency = (id: undefined | Id): id is number => id !== undefined && id !== PARENT_ID;
+
+export const horizontalLayoutDependencies = (lp: LayoutParams) => ([
+  lp.startId,
+  lp.toStartOfId,
+  lp.endId,
+  lp.toEndOfId,
+]).filter(existingNonParentDependency);
+
+export const verticalLayoutDependencies = (lp: LayoutParams) => ([
+  lp.topId,
+  lp.aboveId,
+  lp.bottomId,
+  lp.belowId,
+]).filter(existingNonParentDependency);

@@ -4,9 +4,34 @@ export const MATCH_PARENT = -1;
 export const WRAP_CONTENT = -2;
 export const PARENT_ID = -1;
 
+export type Id = number | string;
+
 export const isRelativeDimension = (dimension: number) => dimension < 0;
 
-type Id = number | string;
+export interface LayoutParamsProps {
+  below?: Id;
+  above?: Id;
+  toStartOf?: Id;
+  toEndOf?: Id;
+  alignTop?: Id;
+  alignBottom?: Id;
+  alignStart?: Id;
+  alignEnd?: Id;
+  centerVertical?: boolean;
+  centerHorizontal?: boolean;
+  width: number;
+  minWidth: number;
+  maxWidth: number;
+  height: number;
+  minHeight: number;
+  maxHeight: number;
+  isAnimated: boolean;
+  padding: RectLike;
+  margin: RectLike;
+  isAbsolute: boolean;
+  posX: number;
+  posY: number;
+}
 
 export class LayoutParams {
   belowId?: Id;
@@ -33,7 +58,7 @@ export class LayoutParams {
   isAbsolute: boolean = false;
   dependenciesModified: boolean = false;
 
-  below(id: Id) {
+  below(id?: Id) {
     if (this.belowId === id) {
       return this;
     }
@@ -42,7 +67,7 @@ export class LayoutParams {
     return this;
   }
 
-  above(id: Id) {
+  above(id?: Id) {
     if (this.aboveId === id) {
       return this;
     }
@@ -51,7 +76,7 @@ export class LayoutParams {
     return this;
   }
 
-  toStartOf(id: Id) {
+  toStartOf(id?: Id) {
     if (this.toStartOfId === id) {
       return this;
     }
@@ -60,11 +85,11 @@ export class LayoutParams {
     return this;
   }
 
-  toLeftOf(id: Id) {
+  toLeftOf(id?: Id) {
     return this.toStartOf(id);
   }
 
-  toEndOf(id: Id) {
+  toEndOf(id?: Id) {
     if (this.toEndOfId === id) {
       return this;
     }
@@ -73,11 +98,11 @@ export class LayoutParams {
     return this;
   }
 
-  toRightOf(id: Id) {
+  toRightOf(id?: Id) {
     return this.toEndOf(id);
   }
 
-  alignTop(id: Id) {
+  alignTop(id?: Id) {
     if (this.topId === id) {
       return this;
     }
@@ -90,7 +115,7 @@ export class LayoutParams {
     return this.alignTop(PARENT_ID);
   }
 
-  alignBottom(id: Id) {
+  alignBottom(id?: Id) {
     if (this.bottomId === id) {
       return this;
     }
@@ -103,7 +128,7 @@ export class LayoutParams {
     return this.alignBottom(PARENT_ID);
   }
 
-  alignStart(id: Id) {
+  alignStart(id?: Id) {
     if (this.startId === id) {
       return this;
     }
@@ -116,7 +141,7 @@ export class LayoutParams {
     return this.alignStart(PARENT_ID);
   }
 
-  alignEnd(id: Id) {
+  alignEnd(id?: Id) {
     if (this.endId === id) {
       return this;
     }
@@ -180,13 +205,13 @@ export class LayoutParams {
     return this;
   }
 
-  padding(padding: RectLike) {
-    this.paddingRect = Rect.from(padding);
+  padding(padding?: RectLike) {
+    this.paddingRect = Rect.from(padding || 0);
     return this;
   }
 
-  margin(margin: RectLike) {
-    this.marginRect = Rect.from(margin);
+  margin(margin?: RectLike) {
+    this.marginRect = Rect.from(margin || 0);
     return this;
   }
 
@@ -205,20 +230,105 @@ export class LayoutParams {
     return this;
   }
 
+  asProps(): LayoutParamsProps {
+    return {
+      below: this.belowId,
+      above: this.aboveId,
+      toStartOf: this.toStartOfId,
+      toEndOf: this.toEndOfId,
+      alignTop: this.topId,
+      alignBottom: this.bottomId,
+      alignStart: this.startId,
+      alignEnd: this.endId,
+      centerVertical: this.centerV,
+      centerHorizontal: this.centerH,
+      width: this.w,
+      minWidth: this.minW,
+      maxWidth: this.maxW,
+      height: this.h,
+      minHeight: this.minH,
+      maxHeight: this.maxH,
+      isAnimated: this.isAnimated,
+      padding: this.paddingRect,
+      margin: this.marginRect,
+      isAbsolute: this.isAbsolute,
+      posX: this.x,
+      posY: this.y,
+    };
+  }
+
+  updateWithProps(props: LayoutParamsProps) {
+    if (props.above !== this.aboveId) {
+      this.above(props.above);
+    }
+    if (props.alignBottom !== this.bottomId) {
+      this.alignBottom(props.alignBottom);
+    }
+    if (props.below !== this.belowId) {
+      this.below(props.below);
+    }
+    if (props.above !== this.aboveId) {
+      this.above(props.above);
+    }
+    if (props.toStartOf !== this.toStartOfId) {
+      this.toStartOf(props.toStartOf);
+    }
+    if (props.toEndOf !== this.toEndOfId) {
+      this.toEndOf(props.toEndOf);
+    }
+    if (props.alignTop !== this.topId) {
+      this.alignTop(props.alignTop);
+    }
+    if (props.alignBottom !== this.bottomId) {
+      this.alignBottom(props.alignBottom);
+    }
+    if (props.alignStart !== this.startId) {
+      this.alignStart(props.alignStart);
+    }
+    if (props.alignEnd !== this.endId) {
+      this.alignEnd(props.alignEnd);
+    }
+    if (props.centerVertical !== this.centerV) {
+      this.centerVertical(props.centerVertical);
+    }
+    if (props.centerHorizontal !== this.centerH) {
+      this.centerHorizontal(props.centerHorizontal);
+    }
+    if (props.width !== this.w) {
+      this.width(props.width);
+    }
+    if (props.minWidth !== this.minW) {
+      this.minWidth(props.minWidth);
+    }
+    if (props.maxWidth !== this.maxW) {
+      this.maxWidth(props.maxWidth);
+    }
+    if (props.height !== this.h) {
+      this.height(props.height);
+    }
+    if (props.minHeight !== this.minH) {
+      this.minHeight(props.minHeight);
+    }
+    if (props.maxHeight !== this.maxH) {
+      this.maxHeight(props.maxHeight);
+    }
+    if (props.isAnimated !== this.isAnimated) {
+      this.animate(props.isAnimated);
+    }
+    if (props.padding !== this.padding) {
+      this.padding(props.padding);
+    }
+    if (props.margin !== this.margin) {
+      this.margin(props.margin);
+    }
+    if (props.isAbsolute !== this.isAbsolute) {
+      this.absolute(props.isAbsolute);
+    }
+    if (props.posX !== this.x) {
+      this.posX(props.posX);
+    }
+    if (props.posY !== this.y) {
+      this.posY(props.posY);
+    }
+  }
 }
-
-const existingNonParentDependency = (id: undefined | Id): id is number => id !== undefined && id !== PARENT_ID;
-
-export const horizontalLayoutDependencies = (lp: LayoutParams) => ([
-  lp.startId,
-  lp.toStartOfId,
-  lp.endId,
-  lp.toEndOfId,
-]).filter(existingNonParentDependency);
-
-export const verticalLayoutDependencies = (lp: LayoutParams) => ([
-  lp.topId,
-  lp.aboveId,
-  lp.bottomId,
-  lp.belowId,
-]).filter(existingNonParentDependency);
