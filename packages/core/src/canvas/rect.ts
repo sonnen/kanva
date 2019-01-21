@@ -124,5 +124,3 @@ export class Rect {
     );
   }
 }
-
-export const ZERO_RECT = new Rect(0);

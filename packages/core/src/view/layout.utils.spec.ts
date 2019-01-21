@@ -1,6 +1,5 @@
 import { Context } from './context';
-import { horizontalLayoutDependencies } from './layout-params';
-import { resolveDimensionDependencies } from './layout.utils';
+import { horizontalLayoutDependencies, resolveDimensionDependencies } from './layout-params.utils';
 import { View } from './view';
 
 const ids = (views: View[]) => views.map(v => v.id);

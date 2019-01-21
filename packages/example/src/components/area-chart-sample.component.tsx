@@ -41,20 +41,23 @@ const chartParams = new LayoutParams()
   .alignParentTop()
   .above('xAxis')
   .toEndOf('yAxis')
-  .alignEnd('xAxis');
+  .alignEnd('xAxis')
+  .asProps();
 
 const xAxisParams = new LayoutParams()
   .width(MATCH_PARENT)
   .height(40)
   .alignParentEnd()
   .toEndOf('yAxis')
-  .alignParentBottom();
+  .alignParentBottom()
+  .asProps();
 
 const yAxisParams = new LayoutParams()
   .width(60)
   .height(MATCH_PARENT)
   .alignParentTop()
-  .above('xAxis');
+  .above('xAxis')
+  .asProps();
 
 const container = new DataContainer<any>()
   .setData([
@@ -77,7 +80,7 @@ const container = new DataContainer<any>()
   );
 
 export const AreaChartSample: React.FunctionComponent = () => (
-  <Kanva className={'c-sample-canvas'} debug={true}>
+  <Kanva className={'c-sample-canvas'}>
     <AreaChartView
       id={'chart'}
       layoutParams={chartParams}

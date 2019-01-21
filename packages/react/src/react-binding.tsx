@@ -1,4 +1,4 @@
-import { Context, View, ViewProps } from '@kanva/core';
+import { Context, LayoutParamsProps, View, ViewProps } from '@kanva/core';
 import * as React from 'react';
 
 export interface InternalProps {
@@ -35,6 +35,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     readonly view: View;
     readonly propNames: string[] = [];
     readonly propHandlers: Record<string, { set: (value: any) => void, get: () => any }> = {};
+    layoutParams: LayoutParamsProps;
 
     constructor(props: ReactViewProps, context?: any) {
       super(props, context);
@@ -47,6 +48,16 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
         this.propHandlers[propName] = { get, set };
         this.propNames.push(propName);
       }
+
+      this.layoutParams = view.getLayoutParams().asProps();
+      this.propHandlers.layoutParams = {
+        get: () => this.layoutParams,
+        set: (layoutParams: LayoutParamsProps) => {
+          this.layoutParams = layoutParams;
+          view.getLayoutParams().updateWithProps(layoutParams);
+        },
+      };
+
     }
 
     get internalProps() {
