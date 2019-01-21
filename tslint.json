@@ -126,7 +126,7 @@
     "no-conditional-assignment": false,
     "no-consecutive-blank-lines": true,
     "no-construct": true,
-    "no-debugger": true,
+    "no-debugger": false,
     "no-default-export": true,
     "no-duplicate-variable": true,
     "no-empty": true,

@@ -1,24 +1,8 @@
-import { ViewCanvas } from '../canvas';
-import { Context, RequiredViewChanges, View } from '../view';
-import { WRAP_CONTENT } from '../view/layout-params';
-
-export enum TextAlign {
-  START = 'start',
-  END = 'end',
-  LEFT = 'left',
-  RIGHT = 'right',
-  CENTER = 'center',
-}
-
-export enum TextBaseline {
-  TOP = 'top',
-  MIDDLE = 'middle',
-  BOTTOM = 'bottom',
-}
+import { font, Font, TextAlign, TextBaseline, ViewCanvas } from '../canvas';
+import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
 
 export interface TextViewProps {
-  fontSize?: number;
-  fontFamily?: string;
+  font?: Font;
   text?: string;
   textAlign?: TextAlign;
   textBaseline?: TextBaseline;
@@ -26,8 +10,8 @@ export interface TextViewProps {
 }
 
 export class TextView extends View<TextViewProps> {
-  private fontSize: number = 12;
-  private fontFamily: string = 'Arial';
+  private fontString: string = '12 Arial';
+  private font?: Font;
   private text: string = '';
   private textAlign: TextAlign = TextAlign.START;
   private textBaseline: TextBaseline = TextBaseline.TOP;
@@ -38,20 +22,17 @@ export class TextView extends View<TextViewProps> {
     super(context, 'TextView');
   }
 
-  getFontSize() {
-    return this.fontSize;
+  getFont() {
+    return this.font;
   }
 
-  setFontSize(fontSize: number) {
-    this.fontSize = fontSize;
-  }
-
-  getFontFamily() {
-    return this.fontFamily;
-  }
-
-  setFontFamily(fontFamily: string) {
-    this.fontFamily = fontFamily;
+  setFont(f: Font) {
+    if (this.font === f) {
+      return;
+    }
+    this.font = f;
+    this.fontString = font(f);
+    this.require(RequiredViewChanges.MEASURE);
   }
 
   getText() {
@@ -104,11 +85,10 @@ export class TextView extends View<TextViewProps> {
   }
 
   getInternalWrappedWidth(canvas: ViewCanvas) {
-    const { fontFamily, fontSize, text, textAlign, textBaseline } = this;
+    const { fontString, text, textAlign, textBaseline } = this;
     return canvas
       ? canvas.measureText({
-        fontFamily,
-        fontSize,
+        fontString,
         text,
         textBaseline,
         textAlign,
@@ -117,16 +97,15 @@ export class TextView extends View<TextViewProps> {
   }
 
   getInternalWrappedHeight() {
-    return this.fontSize;
+    return this.font ? this.font.fontSize : 12;
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { fontSize, fontFamily, textAlign, textBaseline, width, text, textColor, y } = this;
+    const { fontString, textAlign, textBaseline, width, text, textColor, y } = this;
     canvas.drawText({
       x: 0,
       y,
-      fontSize,
-      fontFamily,
+      fontString,
       text,
       maxWidth: width,
       textAlign,
@@ -138,8 +117,7 @@ export class TextView extends View<TextViewProps> {
   onSnapshot() {
     return {
       text: this.text,
-      fontFamily: this.fontFamily,
-      fontSize: this.fontSize,
+      fontString: this.fontString,
       textColor: this.textColor,
       textAlign: this.textAlign,
       textBaseline: this.textBaseline,

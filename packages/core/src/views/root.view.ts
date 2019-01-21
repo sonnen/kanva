@@ -49,6 +49,7 @@ export class RootCanvasView extends View {
   }
 
   run = () => {
+    requestAnimationFrame(this.run);
     if (!this.shouldRun) {
       return;
     }
@@ -68,7 +69,7 @@ export class RootCanvasView extends View {
 
   draw(canvas: ViewCanvas) {
     const { width, height } = this;
-    if (!this.requires(RequiredViewChanges.DRAW)) {
+    if (!this.requireGuard(RequiredViewChanges.DRAW)) {
       return;
     }
     canvas.context.clearRect(0, 0, width, height);
@@ -80,6 +81,7 @@ export class RootCanvasView extends View {
     if (this.isRequired) {
       return;
     }
+    this.isRequired = true;
     requestAnimationFrame(this.run);
   }
 

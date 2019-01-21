@@ -63,7 +63,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
         const propName = propNames[i];
         const handler = propHandlers[propName];
         const propValue = this.props[propName];
-        if (propValue !== undefined && propValue !== handler.get.call(view)) {
+        if (propValue !== handler.get.call(view)) {
           handler.set.call(view, propValue);
         }
       }

@@ -1,12 +1,13 @@
-import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
+import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
 import { DataContainer } from '../data-container';
 
 export interface AxisViewStyle {
   strokeColor?: string;
   lineThickness?: number;
   textColor?: string;
-  fontFamily?: string;
-  fontSize?: number;
+  textBaseline?: TextBaseline;
+  textAlign?: TextAlign;
+  font?: Font;
 }
 
 export enum AxisOrientation {
@@ -23,8 +24,9 @@ export interface AxisViewProps {
 const DEFAULT_STYLE = {
   strokeColor: '#000',
   textColor: '#000',
-  fontFamily: 'Arial',
-  fontSize: 12,
+  font: { fontSize: 12, fontFamily: 'Arial' },
+  textAlign: TextAlign.CENTER,
+  textBaseline: TextBaseline.MIDDLE,
   lineThickness: 1.5,
 };
 
@@ -34,7 +36,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   private orientation: AxisOrientation = AxisOrientation.HORIZONTAL;
 
   constructor(context: Context) {
-    super(context, 'AreaChartView');
+    super(context, 'AxisView');
   }
 
   getStyle() {
@@ -66,10 +68,10 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
 
   getInternalWrappedHeight() {
     if (this.orientation === AxisOrientation.HORIZONTAL) {
-      if (!this.style.fontSize) {
+      if (!this.style.font) {
         return 0;
       }
-      return this.style.fontSize + (this.style.lineThickness || 0);
+      return this.style.font.fontSize + (this.style.lineThickness || 0);
     }
     if (!this.dataContainer) {
       return 0;
@@ -86,9 +88,9 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       const axisData = this.dataContainer.getXAxisData()
         .map(point => canvas.measureText({
           text: point.value,
-          fontFamily: this.style.fontFamily || DEFAULT_STYLE.fontFamily,
-          fontSize: this.style.fontSize || DEFAULT_STYLE.fontSize,
-        }));
+          fontString: font(this.style.font || DEFAULT_STYLE.font),
+        }).width);
+      return Math.max(...axisData);
     }
     const axisData = this.dataContainer.getXAxisData();
     return Math.max(axisData[0].position, axisData[axisData.length - 1].position);
@@ -98,7 +100,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     const {
       innerWidth, innerHeight,
       dataContainer,
-      style: { strokeColor, lineThickness, fontSize, fontFamily, textColor },
+      style: { strokeColor, lineThickness, font: fontStyle, textColor, textBaseline, textAlign },
       orientation,
     } = this;
     const axisData = dataContainer && (orientation === AxisOrientation.HORIZONTAL
@@ -115,14 +117,48 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       ctx.strokeRect(0, 0, innerWidth, lineThickness);
     }
     ctx.fillStyle = textColor || DEFAULT_STYLE.textColor;
-    ctx.font = `${fontSize}px ${fontFamily}`;
-    if (AxisOrientation.HORIZONTAL) {
+    ctx.font = font(fontStyle || DEFAULT_STYLE.font);
+    ctx.textBaseline = textBaseline || DEFAULT_STYLE.textBaseline;
+    ctx.textAlign = textAlign || DEFAULT_STYLE.textAlign;
+    if (orientation === AxisOrientation.HORIZONTAL) {
+      const maxWidth = (axisData[0] && axisData[1])
+        ? Math.abs(axisData[0].position - axisData[1].position)
+        : innerWidth;
+      let y: number;
+      switch (ctx.textBaseline) {
+        case TextBaseline.TOP:
+          y = 0;
+          break;
+        case TextBaseline.BOTTOM:
+          y = innerHeight;
+          break;
+        default:
+        case TextBaseline.MIDDLE:
+          y = innerHeight / 2;
+          break;
+      }
       for (let i = 0, l = axisData.length; i < l; i++) {
-        ctx.fillText(axisData[i].value, innerWidth / 2, axisData[i].position);
+        ctx.fillText(axisData[i].value, axisData[i].position, y, maxWidth);
       }
     } else {
+      const maxWidth = this.innerWidth;
+      let x: number;
+      switch (ctx.textAlign) {
+        case TextAlign.START:
+        case TextAlign.LEFT:
+          x = 0;
+          break;
+        case TextAlign.END:
+        case TextAlign.RIGHT:
+          x = innerWidth;
+          break;
+        default:
+        case TextAlign.CENTER:
+          x = innerWidth / 2;
+          break;
+      }
       for (let i = 0, l = axisData.length; i < l; i++) {
-        ctx.fillText(axisData[i].value, axisData[i].position, innerHeight / 2);
+        ctx.fillText(axisData[i].value, x, axisData[i].position, maxWidth);
       }
     }
   }
