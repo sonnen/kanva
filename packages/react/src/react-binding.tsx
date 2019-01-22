@@ -30,7 +30,7 @@ const getAllGettersAndSetters = (obj: object) => {
 
 export const createReactView = <Props extends {}>(viewClass: (new (...args: any[]) => View<Props>)) => {
   type ReactViewProps = Partial<ViewProps & Props>;
-  return class ReactViewComponent extends React.Component<ReactViewProps> {
+  return class ReactViewComponent extends React.PureComponent<ReactViewProps> {
     static displayName: string;
     readonly view: View;
     readonly propNames: string[] = [];
@@ -64,6 +64,10 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
       return this.props as any as InternalProps;
     }
 
+    get isDebugEnabled() {
+      return this.view.context.debugEnabled;
+    }
+
     refreshProps() {
       const { parent, position } = this.internalProps;
       const { propNames, propHandlers, view } = this;
@@ -78,7 +82,9 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
           handler.set.call(view, propValue);
         }
       }
-      console.log(view.snapshot());
+      if (this.isDebugEnabled) {
+        console.log(view.snapshot());
+      }
     }
 
     componentDidMount() {

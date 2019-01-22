@@ -1,4 +1,4 @@
-import { Rect, ViewCanvas } from '../canvas';
+import { Rect, RectLike, ViewCanvas } from '../canvas';
 import { xor } from '../utils/boolean.util';
 import { Context } from './context';
 import { LayoutParams, LayoutParamsProps, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
@@ -26,9 +26,9 @@ export enum RequiredViewChanges {
 }
 
 export enum Visibility {
-  VISIBLE,
-  INVISIBLE,
-  GONE,
+  VISIBLE = 1,
+  INVISIBLE = 2,
+  GONE = 3,
 }
 
 export interface ViewProps {
@@ -36,6 +36,8 @@ export interface ViewProps {
   layoutParams: LayoutParamsProps;
   visibility: Visibility;
   backgroundColor?: string;
+  borderColor?: string;
+  border?: RectLike;
   children: any;
 }
 
@@ -56,6 +58,8 @@ export class View<Props extends {} = ViewProps> {
   private childrenGraphChanged = false;
 
   protected backgroundColor?: string;
+  protected borderRect?: Rect;
+  protected borderColor?: string;
 
   constructor(public readonly context: Context, public readonly name: string = 'View') {
     this.id = View.idCounter++;
@@ -207,6 +211,12 @@ export class View<Props extends {} = ViewProps> {
 
     this.childrenOrdered = { h, v };
     this.childrenGraphChanged = false;
+    if (this.context.debugEnabled) {
+      console.log({
+        h: this.childrenOrdered.h.map(c => this.childrenMap[c]),
+        v: this.childrenOrdered.v.map(c => this.childrenMap[c]),
+      });
+    }
   }
 
   /**
@@ -412,6 +422,23 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillRect(l, t, r - l, b - t);
     }
 
+    if (this.borderColor && this.borderRect) {
+      const border = this.borderRect;
+      ctx.fillStyle = this.borderColor;
+      if (border.t) {
+        ctx.fillRect(l, t, r - l, border.t);
+      }
+      if (border.b) {
+        ctx.fillRect(l, b - border.b, r - l, border.b);
+      }
+      if (border.l) {
+        ctx.fillRect(l, t, border.l, b - t);
+      }
+      if (border.r) {
+        ctx.fillRect(r - border.r, t, border.r, b - t);
+      }
+    }
+
     if (context.debugEnabled) {
       // Draw padding bounds
       ctx.strokeStyle = '#0F0';
@@ -547,8 +574,8 @@ export class View<Props extends {} = ViewProps> {
     return this.lp;
   }
 
-  setLayoutParams(lp: LayoutParams | undefined) {
-    this.lp = lp || new LayoutParams();
+  setLayoutParams(lp: LayoutParams) {
+    this.lp = lp;
     if (this.lp.dependenciesModified && this.parent) {
       this.parent.childrenGraphChanged = true;
     }
@@ -559,12 +586,12 @@ export class View<Props extends {} = ViewProps> {
     return this.visibility;
   }
 
-  setVisibility(visibility: Visibility | undefined) {
+  setVisibility(visibility: Visibility = Visibility.VISIBLE) {
     const oldVisibility = this.visibility;
     if (oldVisibility === visibility) {
       return;
     }
-    this.visibility = visibility || Visibility.VISIBLE;
+    this.visibility = visibility;
     if (xor(oldVisibility === Visibility.GONE, visibility === Visibility.GONE)) {
       this.require(RequiredViewChanges.MEASURE);
     } else {
@@ -588,7 +615,9 @@ export class View<Props extends {} = ViewProps> {
 
   requireGuardAndTake(requiredChanges: RequiredViewChanges, force?: boolean) {
     if (this.requiredChanges === requiredChanges) {
-      this.requiredChanges = this.requiredChanges - (force ? 0 : 1);
+      this.requiredChanges = this.requiredChanges - 1;
+      return true;
+    } else if (force) {
       return true;
     }
     return false;
@@ -601,6 +630,28 @@ export class View<Props extends {} = ViewProps> {
   setBackgroundColor(backgroundColor: string | undefined) {
     if (this.backgroundColor !== backgroundColor) {
       this.backgroundColor = backgroundColor;
+      this.require(RequiredViewChanges.DRAW);
+    }
+  }
+
+  getBorderColor() {
+    return this.borderColor;
+  }
+
+  setBorderColor(borderColor: string | undefined) {
+    if (this.borderColor !== borderColor) {
+      this.borderColor = borderColor;
+      this.require(RequiredViewChanges.DRAW);
+    }
+  }
+
+  getBorder() {
+    return this.backgroundColor;
+  }
+
+  setBorder(borderRect: RectLike | undefined) {
+    if (this.borderRect !== borderRect) {
+      this.borderRect = borderRect ? Rect.from(borderRect) : undefined;
       this.require(RequiredViewChanges.DRAW);
     }
   }
@@ -644,6 +695,8 @@ export class View<Props extends {} = ViewProps> {
       height: this.height,
       rect: this.rect,
       ...this.onSnapshot(),
+      layoutParams: this.lp.asProps(),
+      visibility: this.visibility,
       children: this.children.map(c => c.snapshot()),
     };
   }

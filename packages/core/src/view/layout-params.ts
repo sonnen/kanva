@@ -19,18 +19,18 @@ export interface LayoutParamsProps {
   alignEnd?: Id;
   centerVertical?: boolean;
   centerHorizontal?: boolean;
-  width: number;
-  minWidth: number;
-  maxWidth: number;
-  height: number;
-  minHeight: number;
-  maxHeight: number;
-  isAnimated: boolean;
-  padding: RectLike;
-  margin: RectLike;
-  isAbsolute: boolean;
-  posX: number;
-  posY: number;
+  width?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  height?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  isAnimated?: boolean;
+  padding?: RectLike;
+  margin?: RectLike;
+  isAbsolute?: boolean;
+  posX?: number;
+  posY?: number;
 }
 
 export class LayoutParams {
@@ -294,40 +294,42 @@ export class LayoutParams {
     if (props.centerHorizontal !== this.centerH) {
       this.centerHorizontal(props.centerHorizontal);
     }
-    if (props.width !== this.w) {
+    // TODO Undefined checks should probably be handled in a different way.
+    // Currently changing state from defined to undefined value is not supported.
+    if (props.width !== this.w && props.width !== undefined) {
       this.width(props.width);
     }
-    if (props.minWidth !== this.minW) {
+    if (props.minWidth !== this.minW && props.minWidth !== undefined) {
       this.minWidth(props.minWidth);
     }
-    if (props.maxWidth !== this.maxW) {
+    if (props.maxWidth !== this.maxW && props.maxWidth !== undefined) {
       this.maxWidth(props.maxWidth);
     }
-    if (props.height !== this.h) {
+    if (props.height !== this.h && props.height !== undefined) {
       this.height(props.height);
     }
-    if (props.minHeight !== this.minH) {
+    if (props.minHeight !== this.minH && props.minHeight !== undefined) {
       this.minHeight(props.minHeight);
     }
-    if (props.maxHeight !== this.maxH) {
+    if (props.maxHeight !== this.maxH && props.maxHeight !== undefined) {
       this.maxHeight(props.maxHeight);
     }
-    if (props.isAnimated !== this.isAnimated) {
+    if (props.isAnimated !== this.isAnimated && props.isAnimated !== undefined) {
       this.animate(props.isAnimated);
     }
-    if (props.padding !== this.padding) {
+    if (props.padding !== this.paddingRect) {
       this.padding(props.padding);
     }
-    if (props.margin !== this.margin) {
+    if (props.margin !== this.marginRect) {
       this.margin(props.margin);
     }
-    if (props.isAbsolute !== this.isAbsolute) {
+    if (props.isAbsolute !== this.isAbsolute && props.isAbsolute !== undefined) {
       this.absolute(props.isAbsolute);
     }
-    if (props.posX !== this.x) {
+    if (props.posX !== this.x && props.posX !== undefined) {
       this.posX(props.posX);
     }
-    if (props.posY !== this.y) {
+    if (props.posY !== this.y && props.posY !== undefined) {
       this.posY(props.posY);
     }
   }

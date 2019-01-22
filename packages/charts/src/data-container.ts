@@ -10,6 +10,8 @@ export class DataContainer<DataPoint = XYPoint> {
   private yScaleType: DataScaleType = DataScaleType.LINEAR;
   private xBounds: number[] = [];
   private yBounds: number[] = [];
+  private xNice = false;
+  private yNice = false;
   private xTicksCount: number | undefined;
   private yTicksCount: number | undefined;
   private hasChanged = false;
@@ -108,6 +110,26 @@ export class DataContainer<DataPoint = XYPoint> {
     return this;
   }
 
+  getXNice() {
+    return this.xNice;
+  }
+
+  setXNice(xNice: boolean) {
+    this.xNice = xNice;
+    this.hasChanged = true;
+    return this;
+  }
+
+  getYNice() {
+    return this.yNice;
+  }
+
+  setYNice(yNice: boolean) {
+    this.yNice = yNice;
+    this.hasChanged = true;
+    return this;
+  }
+
   getXAxisLabelAccessor() {
     return this.xAxisLabelAccessor;
   }
@@ -136,6 +158,7 @@ export class DataContainer<DataPoint = XYPoint> {
       hasChanged,
       forWidth, forHeight,
       xTicksCount, yTicksCount,
+      xNice, yNice,
     } = this;
     if (!hasChanged && forWidth === width && forHeight === height) {
       return;
@@ -187,9 +210,15 @@ export class DataContainer<DataPoint = XYPoint> {
     const xScale = getContinuousNumericScale(xScaleType)
       .range([0, width])
       .domain([minX, maxX]);
+    if (xNice) {
+      xScale.nice(xTicksCount);
+    }
     const yScale = getContinuousNumericScale(yScaleType)
       .range([height, 0])
       .domain([minY, maxY]);
+    if (yNice) {
+      yScale.nice(yTicksCount);
+    }
 
     for (let i = 0, l = series.length; i < l; i++) {
       const singleSeries = series[i].data;
