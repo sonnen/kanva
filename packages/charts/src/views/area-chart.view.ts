@@ -54,7 +54,15 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
 
   setDataContainer(dataContainer: DataContainer<any>) {
     this.dataContainer = dataContainer;
-    this.require(RequiredViewChanges.DRAW);
+    this.require(RequiredViewChanges.LAYOUT);
+  }
+
+  onLayout() {
+    const { innerWidth, innerHeight, dataSeries, dataContainer } = this;
+    if (!dataContainer) {
+      return;
+    }
+    dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -99,7 +107,6 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
         for (let i = 1, l = data.length; i < l; i++) {
           ctx.lineTo(data[i].x, data[i].y);
         }
-        ctx.closePath();
         break;
     }
     if (strokeColor) {
