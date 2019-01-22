@@ -16,3 +16,21 @@
 .c-sample-canvas {
   height: 400px;
 }
+
+.c-area-chart-sample {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+
+.c-text {
+  font-size: 12px;
+}
+
+.c-filter-btn {
+  color: white;
+  background: transparent;
+  border: transparent;
+  cursor: pointer;
+  font-weight: bold;
+}

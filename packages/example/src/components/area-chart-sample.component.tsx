@@ -83,13 +83,8 @@ export class AreaChartSample extends React.Component<{}, State> {
   renderFilterButton(name: Series) {
     return (
       <button
-        style={{
-          color: SeriesColors[name],
-          background: 'transparent',
-          border: 'transparent',
-          cursor: 'pointer',
-          fontWeight: 'bold',
-        }}
+        className={'c-filter-btn'}
+        style={{ color: SeriesColors[name] }}
         onClick={this.onFilterClick(name)}
       >
         {name.toUpperCase()}
@@ -99,15 +94,9 @@ export class AreaChartSample extends React.Component<{}, State> {
 
   render() {
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '80%',
-        }}
-      >
+      <div className={'c-area-chart-sample'}>
         <div>
-          <span style={{ fontSize: 12 }}>Filters:</span>
+          <span className={'c-text'}>Filters:</span>
           {this.renderFilterButton(Series.CONSUMPTION)}
           {this.renderFilterButton(Series.PRODUCTION)}
           {this.renderFilterButton(Series.DIRECT_USAGE)}
