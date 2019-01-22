@@ -54,7 +54,10 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
         get: () => this.layoutParams,
         set: (layoutParams: LayoutParamsProps) => {
           this.layoutParams = layoutParams;
-          view.getLayoutParams().updateWithProps(layoutParams);
+          const lp = view.getLayoutParams();
+          if (lp.updateWithProps(layoutParams)) {
+            view.setLayoutParams(lp);
+          }
         },
       };
 

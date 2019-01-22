@@ -33,30 +33,57 @@ export interface LayoutParamsProps {
   posY?: number;
 }
 
+const DefaultProps = {
+  BELOW: undefined,
+  ABOVE: undefined,
+  TO_START_OF: undefined,
+  TO_END_OF: undefined,
+  ALIGN_TOP: undefined,
+  ALIGN_BOTTOM: undefined,
+  ALIGN_START: undefined,
+  ALIGN_END: undefined,
+  CENTER_VERTICAL: false,
+  CENTER_HORIZONTAL: false,
+  WIDTH: WRAP_CONTENT,
+  MIN_WIDTH: 0,
+  MAX_WIDTH: Number.MAX_SAFE_INTEGER,
+  HEIGHT: WRAP_CONTENT,
+  MIN_HEIGHT: 0,
+  MAX_HEIGHT: Number.MAX_SAFE_INTEGER,
+  IS_ANIMATED: false,
+  PADDING: new Rect(0),
+  MARGIN: new Rect(0),
+  IS_ABSOLUTE: false,
+  X: 0,
+  Y: 0,
+};
+
 export class LayoutParams {
-  belowId?: Id;
-  aboveId?: Id;
-  toStartOfId?: Id;
-  toEndOfId?: Id;
-  topId?: Id;
-  bottomId?: Id;
-  startId?: Id;
-  endId?: Id;
-  centerV?: boolean;
-  centerH?: boolean;
-  x: number = 0;
-  y: number = 0;
-  w: number = WRAP_CONTENT;
-  h: number = WRAP_CONTENT;
-  minW: number = 0;
-  minH: number = 0;
-  maxW: number = Number.MAX_SAFE_INTEGER;
-  maxH: number = Number.MAX_SAFE_INTEGER;
-  paddingRect: Rect = new Rect(0);
-  marginRect: Rect = new Rect(0);
-  isAnimated: boolean = false;
-  isAbsolute: boolean = false;
+  belowId?: Id = DefaultProps.BELOW;
+  aboveId?: Id = DefaultProps.ABOVE;
+  toStartOfId?: Id = DefaultProps.TO_START_OF;
+  toEndOfId?: Id = DefaultProps.TO_END_OF;
+  topId?: Id = DefaultProps.ALIGN_TOP;
+  bottomId?: Id = DefaultProps.ALIGN_BOTTOM;
+  startId?: Id = DefaultProps.ALIGN_START;
+  endId?: Id = DefaultProps.ALIGN_END;
+  centerV = DefaultProps.CENTER_VERTICAL;
+  centerH = DefaultProps.CENTER_HORIZONTAL;
+  x = DefaultProps.X;
+  y = DefaultProps.Y;
+  w = DefaultProps.WIDTH;
+  h = DefaultProps.HEIGHT;
+  minW = DefaultProps.MIN_WIDTH;
+  minH = DefaultProps.MIN_HEIGHT;
+  maxW = DefaultProps.MAX_WIDTH;
+  maxH = DefaultProps.MAX_HEIGHT;
+  paddingRect = DefaultProps.PADDING;
+  marginRect = DefaultProps.MARGIN;
+  isAnimated = DefaultProps.IS_ANIMATED;
+  isAbsolute = DefaultProps.IS_ABSOLUTE;
+
   dependenciesModified: boolean = false;
+  private props?: LayoutParamsProps;
 
   below(id?: Id) {
     if (this.belowId === id) {
@@ -257,80 +284,53 @@ export class LayoutParams {
     };
   }
 
-  updateWithProps(props: LayoutParamsProps) {
-    if (props.above !== this.aboveId) {
-      this.above(props.above);
+  updateWithProps({
+    below = DefaultProps.BELOW,
+    above = DefaultProps.ABOVE,
+    toStartOf = DefaultProps.TO_START_OF,
+    toEndOf = DefaultProps.TO_END_OF,
+    alignTop = DefaultProps.ALIGN_TOP,
+    alignBottom = DefaultProps.ALIGN_BOTTOM,
+    alignStart = DefaultProps.ALIGN_START,
+    alignEnd = DefaultProps.ALIGN_END,
+    centerVertical = DefaultProps.CENTER_VERTICAL,
+    centerHorizontal = DefaultProps.CENTER_HORIZONTAL,
+    width = DefaultProps.WIDTH,
+    minWidth = DefaultProps.MIN_WIDTH,
+    maxWidth = DefaultProps.MAX_WIDTH,
+    height = DefaultProps.HEIGHT,
+    minHeight = DefaultProps.MIN_HEIGHT,
+    maxHeight = DefaultProps.MAX_HEIGHT,
+    isAnimated = DefaultProps.IS_ANIMATED,
+    padding = DefaultProps.PADDING,
+    margin = DefaultProps.MARGIN,
+    isAbsolute = DefaultProps.IS_ABSOLUTE,
+    posX = DefaultProps.X,
+    posY = DefaultProps.Y,
+  }: LayoutParamsProps) {
+    const oldProps = this.props || this.asProps();
+    const props = {
+      below, above, toStartOf, toEndOf,
+      alignTop, alignBottom, alignStart, alignEnd,
+      centerVertical, centerHorizontal,
+      width, minWidth, maxWidth,
+      height, minHeight, maxHeight,
+      padding, margin,
+      isAnimated, isAbsolute,
+      posX, posY,
+    };
+    let modified = false;
+    const keys = Object.keys(props);
+    for (let i = 0, l = keys.length; i < l; i++) {
+      const key = keys[i];
+      const value = props[key];
+      const oldValue = oldProps[key];
+      if (value !== oldValue) {
+        this[key](value);
+        modified = true;
+      }
     }
-    if (props.alignBottom !== this.bottomId) {
-      this.alignBottom(props.alignBottom);
-    }
-    if (props.below !== this.belowId) {
-      this.below(props.below);
-    }
-    if (props.above !== this.aboveId) {
-      this.above(props.above);
-    }
-    if (props.toStartOf !== this.toStartOfId) {
-      this.toStartOf(props.toStartOf);
-    }
-    if (props.toEndOf !== this.toEndOfId) {
-      this.toEndOf(props.toEndOf);
-    }
-    if (props.alignTop !== this.topId) {
-      this.alignTop(props.alignTop);
-    }
-    if (props.alignBottom !== this.bottomId) {
-      this.alignBottom(props.alignBottom);
-    }
-    if (props.alignStart !== this.startId) {
-      this.alignStart(props.alignStart);
-    }
-    if (props.alignEnd !== this.endId) {
-      this.alignEnd(props.alignEnd);
-    }
-    if (props.centerVertical !== this.centerV) {
-      this.centerVertical(props.centerVertical);
-    }
-    if (props.centerHorizontal !== this.centerH) {
-      this.centerHorizontal(props.centerHorizontal);
-    }
-    // TODO Undefined checks should probably be handled in a different way.
-    // Currently changing state from defined to undefined value is not supported.
-    if (props.width !== this.w && props.width !== undefined) {
-      this.width(props.width);
-    }
-    if (props.minWidth !== this.minW && props.minWidth !== undefined) {
-      this.minWidth(props.minWidth);
-    }
-    if (props.maxWidth !== this.maxW && props.maxWidth !== undefined) {
-      this.maxWidth(props.maxWidth);
-    }
-    if (props.height !== this.h && props.height !== undefined) {
-      this.height(props.height);
-    }
-    if (props.minHeight !== this.minH && props.minHeight !== undefined) {
-      this.minHeight(props.minHeight);
-    }
-    if (props.maxHeight !== this.maxH && props.maxHeight !== undefined) {
-      this.maxHeight(props.maxHeight);
-    }
-    if (props.isAnimated !== this.isAnimated && props.isAnimated !== undefined) {
-      this.animate(props.isAnimated);
-    }
-    if (props.padding !== this.paddingRect) {
-      this.padding(props.padding);
-    }
-    if (props.margin !== this.marginRect) {
-      this.margin(props.margin);
-    }
-    if (props.isAbsolute !== this.isAbsolute && props.isAbsolute !== undefined) {
-      this.absolute(props.isAbsolute);
-    }
-    if (props.posX !== this.x && props.posX !== undefined) {
-      this.posX(props.posX);
-    }
-    if (props.posY !== this.y && props.posY !== undefined) {
-      this.posY(props.posY);
-    }
+    this.props = props;
+    return modified;
   }
 }
