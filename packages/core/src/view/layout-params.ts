@@ -1,4 +1,5 @@
-import { Rect, RectLike } from '../canvas/rect';
+import { Rect, RectLike } from '../canvas';
+import { LayoutProps } from './layout-props';
 
 export const MATCH_PARENT = -1;
 export const WRAP_CONTENT = -2;
@@ -7,31 +8,6 @@ export const PARENT_ID = -1;
 export type Id = number | string;
 
 export const isRelativeDimension = (dimension: number) => dimension < 0;
-
-export interface LayoutParamsProps {
-  below?: Id;
-  above?: Id;
-  toStartOf?: Id;
-  toEndOf?: Id;
-  alignTop?: Id;
-  alignBottom?: Id;
-  alignStart?: Id;
-  alignEnd?: Id;
-  centerVertical?: boolean;
-  centerHorizontal?: boolean;
-  width?: number;
-  minWidth?: number;
-  maxWidth?: number;
-  height?: number;
-  minHeight?: number;
-  maxHeight?: number;
-  isAnimated?: boolean;
-  padding?: RectLike;
-  margin?: RectLike;
-  isAbsolute?: boolean;
-  posX?: number;
-  posY?: number;
-}
 
 const DefaultProps = {
   BELOW: undefined,
@@ -83,7 +59,7 @@ export class LayoutParams {
   isAbsolute = DefaultProps.IS_ABSOLUTE;
 
   dependenciesModified: boolean = false;
-  private props?: LayoutParamsProps;
+  private props?: LayoutProps;
 
   below(id?: Id) {
     if (this.belowId === id) {
@@ -257,7 +233,7 @@ export class LayoutParams {
     return this;
   }
 
-  asProps(): LayoutParamsProps {
+  asProps(): LayoutProps {
     return {
       below: this.belowId,
       above: this.aboveId,
@@ -307,7 +283,7 @@ export class LayoutParams {
     isAbsolute = DefaultProps.IS_ABSOLUTE,
     posX = DefaultProps.X,
     posY = DefaultProps.Y,
-  }: LayoutParamsProps) {
+  }: LayoutProps) {
     const oldProps = this.props || this.asProps();
     const props = {
       below, above, toStartOf, toEndOf,
@@ -333,4 +309,10 @@ export class LayoutParams {
     this.props = props;
     return modified;
   }
+}
+
+export function createLayoutMap<K extends string>(
+  t: Record<K, LayoutProps>,
+): { [key in K]: LayoutProps } {
+  return t as any;
 }

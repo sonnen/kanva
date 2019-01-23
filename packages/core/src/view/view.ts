@@ -1,13 +1,14 @@
 import { Rect, RectLike, ViewCanvas } from '../canvas';
 import { xor } from '../utils/boolean.util';
 import { Context } from './context';
-import { LayoutParams, LayoutParamsProps, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
+import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
 import {
   horizontalLayoutDependencies,
   resolveDimensionDependencies,
   resolveLayoutParamsIds,
   verticalLayoutDependencies,
 } from './layout-params.utils';
+import { LayoutProps } from './layout-props';
 
 interface OrderedChildren {
   h: number[];
@@ -33,7 +34,7 @@ export enum Visibility {
 
 export interface ViewProps {
   id: string;
-  layoutParams: LayoutParamsProps;
+  layoutParams: LayoutProps;
   visibility: Visibility;
   backgroundColor?: string;
   borderColor?: string;

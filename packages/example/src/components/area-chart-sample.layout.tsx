@@ -1,15 +1,12 @@
-import { LayoutParamsProps, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from '@kanva/core';
+import { createLayoutMap, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from '@kanva/core';
 
 export const Views = {
-  CHART: 'chartWrapper',
   X_AXIS: 'xAxis',
   Y_AXIS: 'yAxis',
 };
 
 const topDistance = 40;
 const endDistance = 40;
-
-const createLayoutMap = <T extends Record<string, LayoutParamsProps>>(t: T): T => t;
 
 export const layout = createLayoutMap({
   areaChartWrapper: {
