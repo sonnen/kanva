@@ -1,5 +1,33 @@
-import { AxisLabelAccessor, AxisPoint, DataScaleType, DataSeries, PointAccessor, XYPoint } from './chart.types';
-import { getContinuousNumericScale, isXYArray } from './utils';
+import { ScaleContinuousNumeric } from 'd3-scale';
+import {
+  AxisLabelAccessor,
+  AxisPoint,
+  DataScaleType,
+  DataSeries,
+  PointAccessor,
+  ViewPoint,
+  XYPoint,
+} from './chart.types';
+import { getContinuousNumericScale, isXYArray, precision, roundToNearest } from './utils';
+
+const DefaultAxisParameters = {
+  TICK_COUNT: 10,
+  ROUND_TO: 1,
+  LABEL_ACCESSOR: (value: number) => String(value),
+};
+
+export interface AxisParameters {
+  tickCount?: number;
+  roundTo?: number;
+  labelAccessor?: AxisLabelAccessor;
+}
+
+export enum DataContainerEvent {
+  DATA_CHANGE,
+  CALCULATION,
+}
+
+export type DataContainerEventListener = (event: DataContainerEvent) => void;
 
 export class DataContainer<DataPoint = XYPoint> {
   // Data properties
@@ -10,18 +38,19 @@ export class DataContainer<DataPoint = XYPoint> {
   private yScaleType: DataScaleType = DataScaleType.LINEAR;
   private xBounds: number[] = [];
   private yBounds: number[] = [];
-  private xNice = false;
-  private yNice = false;
-  private xTicksCount: number | undefined;
-  private yTicksCount: number | undefined;
+  private xAxisParameters: AxisParameters = {};
+  private yAxisParameters: AxisParameters = {};
+
+  // Data processing properties
   private hasChanged = false;
-  private xAxisLabelAccessor?: AxisLabelAccessor;
-  private yAxisLabelAccessor?: AxisLabelAccessor;
+  private eventListeners: DataContainerEventListener[] = [];
 
   // Computed values
   private forWidth: number = 0;
   private forHeight: number = 0;
-  private series: DataSeries<XYPoint>[] = [];
+  private series: DataSeries<XYPoint & ViewPoint>[] = [];
+  private xScale?: ScaleContinuousNumeric<number, number>;
+  private yScale?: ScaleContinuousNumeric<number, number>;
   private xAxis: AxisPoint[] = [];
   private yAxis: AxisPoint[] = [];
 
@@ -37,7 +66,20 @@ export class DataContainer<DataPoint = XYPoint> {
     this.namedData = {};
     this.rawData.forEach((data, index) => this.namedData[data.name] = index);
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
+  }
+
+  addEventListener(listener: DataContainerEventListener) {
+    this.eventListeners.push(listener);
+  }
+
+  removeEventListener(listener: DataContainerEventListener) {
+    const index = this.eventListeners.indexOf(listener);
+    if (index < 0) {
+      return;
+    }
+    this.eventListeners.splice(index, 1);
   }
 
   getPointAccessor() {
@@ -47,6 +89,7 @@ export class DataContainer<DataPoint = XYPoint> {
   setPointAccessor(pointAccessor: PointAccessor | undefined) {
     this.pointAccessor = pointAccessor;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
@@ -57,6 +100,7 @@ export class DataContainer<DataPoint = XYPoint> {
   setXScaleType(scaleType: DataScaleType) {
     this.xScaleType = scaleType;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
@@ -67,26 +111,29 @@ export class DataContainer<DataPoint = XYPoint> {
   setYScaleType(scaleType: DataScaleType) {
     this.yScaleType = scaleType;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
-  getXTicksCount() {
-    return this.xTicksCount;
+  getXAxisParameters() {
+    return this.xAxisParameters;
   }
 
-  setXTicksCount(xTicksCount: number) {
-    this.xTicksCount = xTicksCount;
+  setXAxisParameters(xAxisParameters: AxisParameters) {
+    this.xAxisParameters = xAxisParameters;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
-  getYTicksCount() {
-    return this.yTicksCount;
+  getYAxisParameters() {
+    return this.yAxisParameters;
   }
 
-  setYTicksCount(yTicksCount: number) {
-    this.yTicksCount = yTicksCount;
+  setYAxisParameters(yAxisParameters: AxisParameters) {
+    this.yAxisParameters = yAxisParameters;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
@@ -97,6 +144,7 @@ export class DataContainer<DataPoint = XYPoint> {
   setXBounds(xBounds: number[]) {
     this.xBounds = xBounds;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
@@ -107,71 +155,93 @@ export class DataContainer<DataPoint = XYPoint> {
   setYBounds(yBounds: number[]) {
     this.yBounds = yBounds;
     this.hasChanged = true;
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
-  getXNice() {
-    return this.xNice;
-  }
+  prepareAxisValues(
+    {
+      labelAccessor = DefaultAxisParameters.LABEL_ACCESSOR,
+      tickCount = DefaultAxisParameters.TICK_COUNT,
+      roundTo = DefaultAxisParameters.ROUND_TO,
+    }: AxisParameters,
+    scale: ScaleContinuousNumeric<number, number>,
+  ): AxisPoint[] {
+    const axis: AxisPoint[] = new Array(tickCount);
+    const [min, max] = scale.domain();
+    const tickDistance = (max - min) / (tickCount - 1);
 
-  setXNice(xNice: boolean) {
-    this.xNice = xNice;
-    this.hasChanged = true;
-    return this;
-  }
+    for (let i = 0; i < tickCount; i++) {
+      const rawValue = min + tickDistance * i;
+      const value = roundToNearest(rawValue, roundTo);
 
-  getYNice() {
-    return this.yNice;
-  }
+      axis[i] = {
+        value: labelAccessor(value, i),
+        position: Math.round(scale(rawValue)),
+      };
+    }
 
-  setYNice(yNice: boolean) {
-    this.yNice = yNice;
-    this.hasChanged = true;
-    return this;
-  }
-
-  getXAxisLabelAccessor() {
-    return this.xAxisLabelAccessor;
-  }
-
-  setXAxisLabelAccessor(xAxisLabelAccessor: AxisLabelAccessor | undefined) {
-    this.xAxisLabelAccessor = xAxisLabelAccessor;
-    this.hasChanged = true;
-    return this;
-  }
-
-  getYAxisLabelAccessor() {
-    return this.yAxisLabelAccessor;
-  }
-
-  setYAxisLabelAccessor(yAxisLabelAccessor: AxisLabelAccessor | undefined) {
-    this.yAxisLabelAccessor = yAxisLabelAccessor;
-    this.hasChanged = true;
-    return this;
+    return axis;
   }
 
   calculate(width: number, height: number) {
-    const {
-      pointAccessor, xAxisLabelAccessor, yAxisLabelAccessor,
-      rawData,
-      xScaleType, yScaleType,
-      hasChanged,
-      forWidth, forHeight,
-      xTicksCount, yTicksCount,
-      xNice, yNice,
-    } = this;
-    if (!hasChanged && forWidth === width && forHeight === height) {
+    this.processData();
+    if (this.forWidth === width && this.forHeight === height) {
       return;
     }
-    this.hasChanged = false;
     this.forWidth = width;
     this.forHeight = height;
+
+    const { series, xAxisParameters, yAxisParameters } = this;
+
+    const xScale = this.xScale!
+      .range([0, width]);
+    const yScale = this.yScale!
+      .range([height, 0]);
+
+    for (let i = 0, l = series.length; i < l; i++) {
+      const singleSeries = series[i].data;
+      for (let j = 0, jl = singleSeries.length; j < jl; j++) {
+        const point = singleSeries[j];
+        point.vx = xScale(point.x);
+        point.vy = yScale(point.y);
+      }
+    }
+
+    this.xAxis = this.prepareAxisValues(xAxisParameters, xScale);
+    this.yAxis = this.prepareAxisValues(yAxisParameters, yScale);
+    this.series = series;
+    this.postEvent(DataContainerEvent.CALCULATION);
+  }
+
+  getDataSeries(width: number, height: number, name: string | undefined): DataSeries<XYPoint & ViewPoint> | undefined {
+    if (!name) {
+      return undefined;
+    }
+    this.calculate(width, height);
+    return this.series[this.namedData[name]];
+  }
+
+  getXAxisData(): AxisPoint[] {
+    return this.xAxis;
+  }
+
+  getYAxisData(): AxisPoint[] {
+    return this.yAxis;
+  }
+
+  private processData() {
+    if (!this.hasChanged) {
+      return;
+    }
+    const { rawData, pointAccessor } = this;
+    this.hasChanged = false;
     if (!rawData || !rawData.length) {
-      this.series = this.xAxis = this.yAxis = [];
+      this.series = [];
       return;
     }
 
-    const series: DataSeries<XYPoint>[] = new Array(rawData.length);
+    const series: DataSeries<XYPoint & ViewPoint>[] = new Array(rawData.length);
     let minX: number = Math.min(...this.xBounds);
     let maxX: number = Math.max(...this.xBounds);
     let minY: number = Math.min(...this.yBounds);
@@ -203,68 +273,21 @@ export class DataContainer<DataPoint = XYPoint> {
 
       series[i] = {
         name: rawSeries.name,
-        data,
+        data: data as (XYPoint & ViewPoint)[],
       };
     }
 
-    const xScale = getContinuousNumericScale(xScaleType)
-      .range([0, width])
-      .domain([minX, maxX]);
-    if (xNice) {
-      xScale.nice(xTicksCount);
-    }
-    const yScale = getContinuousNumericScale(yScaleType)
-      .range([height, 0])
-      .domain([minY, maxY]);
-    if (yNice) {
-      yScale.nice(yTicksCount);
-    }
-
-    for (let i = 0, l = series.length; i < l; i++) {
-      const singleSeries = series[i].data;
-      for (let j = 0, jl = singleSeries.length; j < jl; j++) {
-        const point = singleSeries[j];
-        point.x = xScale(point.x);
-        point.y = yScale(point.y);
-      }
-    }
-
-    this.xAxis = xScale.ticks(xTicksCount).map(xAxisLabelAccessor
-      ? (value: number, index: number, series: number[]) => ({
-        value: xAxisLabelAccessor(value, index, series),
-        position: xScale(value),
-      })
-      : (value: number) => ({
-        value: String(value),
-        position: xScale(value),
-      }),
-    );
-    this.yAxis = yScale.ticks(yTicksCount).map(yAxisLabelAccessor
-      ? (value: number, index: number, series: number[]) => ({
-        value: yAxisLabelAccessor(value, index, series),
-        position: yScale(value),
-      })
-      : (value: number) => ({
-        value: String(value),
-        position: yScale(value),
-      }),
-    );
     this.series = series;
+    this.xScale = getContinuousNumericScale(this.xScaleType)
+      .domain([minX, maxX]);
+    this.yScale = getContinuousNumericScale(this.yScaleType)
+      .domain([minY, maxY]);
   }
 
-  getDataSeries(width: number, height: number, name: string | undefined): DataSeries<XYPoint> | undefined {
-    if (!name) {
-      return undefined;
+  private postEvent(change: DataContainerEvent) {
+    const listeners = this.eventListeners;
+    for (let i = 0, l = listeners.length; i < l; i++) {
+      listeners[i](change);
     }
-    this.calculate(width, height);
-    return this.series[this.namedData[name]];
-  }
-
-  getXAxisData(): AxisPoint[] {
-    return this.xAxis;
-  }
-
-  getYAxisData(): AxisPoint[] {
-    return this.yAxis;
   }
 }

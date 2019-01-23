@@ -39,7 +39,9 @@ describe('View Layout Utils', () => {
         () => resolveDimensionDependencies([b], horizontalLayoutDependencies),
       ).toThrowError(
         'Dependencies between views can\'t be resolved. ' +
-        'This may be a result of a circular dependency or not including referred view in a container',
+        'This may be a result of a circular dependency or not including referred view in a container. ' +
+        'Children that can\'t be processed:\n' +
+        'B[5] that has unresolved references to "4: a view that is not a sibling',
       );
     });
     it('throws an error in case of circular dependency', () => {

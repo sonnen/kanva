@@ -2,12 +2,6 @@ import { AreaChartViewStyle, AxisViewStyle, DataDisplayType } from '@kanva/chart
 import { TextAlign, TextBaseline } from '@kanva/core';
 import { rgba } from '../utils/color.utils';
 
-export const Views = {
-  X_AXIS: 'xAxis',
-  Y_AXIS: 'yAxis',
-  CHART: 'chart',
-};
-
 export enum Series {
   CONSUMPTION = 'consumption',
   PRODUCTION = 'production',
@@ -49,14 +43,12 @@ export const SeriesStyles: Record<Series, AreaChartViewStyle> = {
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  strokeColor: LABEL_COLOR,
   textColor: LABEL_COLOR,
   textAlign: TextAlign.START,
   textBaseline: TextBaseline.MIDDLE,
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  strokeColor: LABEL_COLOR,
   textColor: LABEL_COLOR,
   textAlign: TextAlign.END,
   textBaseline: TextBaseline.BOTTOM,

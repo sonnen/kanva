@@ -1,13 +1,14 @@
 import { AxisOrientation, DataContainer, ReactCharts, XYPoint } from '@kanva/charts';
-import { MATCH_PARENT, PARENT_ID, Visibility } from '@kanva/core';
-import { Kanva } from '@kanva/react';
+import { Visibility } from '@kanva/core';
+import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
-import { Series, SeriesColors, SeriesStyles, Views, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
+import { layout, Views } from './area-chart-sample.layout';
+import { Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
 import { MOCK } from './mock';
 
 const { AreaChartView, AxisView } = ReactCharts;
 
-const normalize = ({x, y}: Partial<XYPoint>, _: number, all: Partial<XYPoint>[]) => ({
+const normalize = ({ x, y }: Partial<XYPoint>, _: number, all: Partial<XYPoint>[]) => ({
   y: y!,
   x: (x! - all[0].x!) / 60,
 });
@@ -27,20 +28,18 @@ const container = new DataContainer<Partial<XYPoint>>()
       data: MOCK.productionPower,
     },
   ])
-  .setXTicksCount(8)
-  .setYTicksCount(8)
+  .setXAxisParameters({
+    tickCount: 9,
+    labelAccessor: (value: number) => `${`0${Math.floor(value / 60)}`.slice(-2)}:${`0${value % 60}`.slice(-2)}`,
+    roundTo: 60,
+  })
+  .setYAxisParameters({
+    tickCount: 8,
+    roundTo: 100,
+    labelAccessor: (value: number) => (value / 1000) + ' kWh',
+  })
   .setXBounds([24 * 60])
-  .setPointAccessor(normalize)
-  .setXAxisLabelAccessor((value: number, index: number, values: number[]) =>
-    index === values.length - 1
-      ? ''
-      : `${`0${Math.floor(value / 60)}`.slice(-2)}:${`0${value % 60}`.slice(-2)}`,
-  )
-  .setYAxisLabelAccessor((value: number, index: number, values: number[]) =>
-    index === values.length - 1
-      ? ''
-      : (value / 1000) + ' kWh',
-  );
+  .setPointAccessor(normalize);
 
 const percentageContainer = new DataContainer<any>()
   .setData([
@@ -102,67 +101,41 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.DIRECT_USAGE)}
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
-        <Kanva className={'c-sample-canvas'}>
-          <AreaChartView
-            id={Views.CHART}
-            layoutParams={{
-              width: MATCH_PARENT,
-              height: MATCH_PARENT,
-              alignTop: PARENT_ID,
-              above: Views.X_AXIS,
-              toEndOf: Views.Y_AXIS,
-              alignEnd: PARENT_ID,
-            }}
-            dataContainer={container}
-            dataSeries={Series.CONSUMPTION}
-            visibility={this.isVisible(Series.CONSUMPTION)}
-            style={SeriesStyles[Series.CONSUMPTION]}
-          />
-          <AreaChartView
-            layoutParams={{
-              alignTop: Views.CHART,
-              alignBottom: Views.CHART,
-              alignStart: Views.CHART,
-              alignEnd: Views.CHART,
-            }}
-            dataContainer={container}
-            dataSeries={Series.DIRECT_USAGE}
-            visibility={this.isVisible(Series.DIRECT_USAGE)}
-            style={SeriesStyles[Series.DIRECT_USAGE]}
-          />
-          <AreaChartView
-            layoutParams={{
-              alignTop: Views.CHART,
-              alignBottom: Views.CHART,
-              alignStart: Views.CHART,
-              alignEnd: Views.CHART,
-            }}
-            dataContainer={container}
-            dataSeries={Series.PRODUCTION}
-            visibility={this.isVisible(Series.PRODUCTION)}
-            style={SeriesStyles[Series.PRODUCTION]}
-          />
-          <AreaChartView
-            layoutParams={{
-              alignTop: Views.CHART,
-              alignBottom: Views.CHART,
-              alignStart: Views.CHART,
-              alignEnd: Views.CHART,
-            }}
-            dataContainer={percentageContainer}
-            dataSeries={Series.BATTERY_STATE}
-            visibility={this.isVisible(Series.BATTERY_STATE)}
-            style={SeriesStyles[Series.BATTERY_STATE]}
-          />
+        <Kanva className={'c-sample-canvas'} debug>
+          <View layoutParams={layout.areaChartWrapper}>
+            <AreaChartView
+              id={Views.CHART}
+              layoutParams={layout.areaChart}
+              dataContainer={container}
+              dataSeries={Series.CONSUMPTION}
+              visibility={this.isVisible(Series.CONSUMPTION)}
+              style={SeriesStyles[Series.CONSUMPTION]}
+            />
+            <AreaChartView
+              layoutParams={layout.areaChart}
+              dataContainer={container}
+              dataSeries={Series.DIRECT_USAGE}
+              visibility={this.isVisible(Series.DIRECT_USAGE)}
+              style={SeriesStyles[Series.DIRECT_USAGE]}
+            />
+            <AreaChartView
+              layoutParams={layout.areaChart}
+              dataContainer={container}
+              dataSeries={Series.PRODUCTION}
+              visibility={this.isVisible(Series.PRODUCTION)}
+              style={SeriesStyles[Series.PRODUCTION]}
+            />
+            <AreaChartView
+              layoutParams={layout.areaChart}
+              dataContainer={percentageContainer}
+              dataSeries={Series.BATTERY_STATE}
+              visibility={this.isVisible(Series.BATTERY_STATE)}
+              style={SeriesStyles[Series.BATTERY_STATE]}
+            />
+          </View>
           <AxisView
             id={Views.X_AXIS}
-            layoutParams={{
-              width: MATCH_PARENT,
-              height: 40,
-              alignEnd: PARENT_ID,
-              alignBottom: PARENT_ID,
-              padding: { left: 64 },
-            }}
+            layoutParams={layout.xAxis}
             dataContainer={container}
             orientation={AxisOrientation.HORIZONTAL}
             style={xAxisStyle}
@@ -171,13 +144,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           />
           <AxisView
             id={Views.Y_AXIS}
-            layoutParams={{
-              width: 60,
-              height: MATCH_PARENT,
-              top: PARENT_ID,
-              bottom: PARENT_ID,
-              padding: { right: 4 },
-            }}
+            layoutParams={layout.yAxis}
             dataContainer={container}
             orientation={AxisOrientation.VERTICAL}
             borderColor={'#FFF'}

@@ -18,11 +18,16 @@ export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Cont
   layoutParams.dependenciesModified = false;
 };
 
+interface Dependency {
+  id: number;
+  dependencies: number[];
+}
+
 export const resolveDimensionDependencies = (
   children: View[],
   dependencySelector: (lp: LayoutParams) => (undefined | number)[],
 ): number[] => {
-  const dimension = children.map(child => ({
+  const dimension: Dependency[] = children.map(child => ({
     id: child.id,
     dependencies: Array.from(new Set(
       dependencySelector(child.getLayoutParams())
@@ -36,8 +41,28 @@ export const resolveDimensionDependencies = (
   const unresolvedDependencies = (depId: number) => orderedDimension.indexOf(depId) < 0;
   while (dimension.length) {
     if (loops++ > maxLoops) {
-      throw new Error('Dependencies between views can\'t be resolved. ' +
-        'This may be a result of a circular dependency or not including referred view in a container.');
+      const getChildById = (dependency: Dependency) => ({
+        view: children.find(child => child.id === dependency.id)!,
+        dependencies: dependency.dependencies,
+      });
+      throw new Error(
+        `Dependencies between views can't be resolved. ` +
+        `This may be a result of a circular dependency or not including referred view in a container. ` +
+        `Children that can't be processed:\n` +
+        dimension
+          .map(getChildById)
+          .map(child => (
+            `${child.view.name}[${child.view.id}] that has unresolved references to "` +
+            child.dependencies
+              .map(id => {
+                const child = children.find(child => child.id === id);
+                return `${id}: ${child ? child.name : 'a view that is not a sibling'}`;
+              })
+              .join('", "') +
+            `"`
+          ))
+          .join('\n'),
+      );
     }
 
     for (let i = dimension.length - 1; i >= 0; i--) {
