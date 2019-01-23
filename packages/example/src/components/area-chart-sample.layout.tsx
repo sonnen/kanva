@@ -22,10 +22,8 @@ export const layout = createLayoutMap({
     margin: { right: endDistance, top: topDistance },
   },
   areaChart: {
-    alignTop: PARENT_ID,
-    alignBottom: PARENT_ID,
-    alignStart: PARENT_ID,
-    alignEnd: PARENT_ID,
+    width: MATCH_PARENT,
+    height: MATCH_PARENT,
   },
   xAxis: {
     width: MATCH_PARENT,

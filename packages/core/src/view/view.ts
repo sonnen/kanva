@@ -66,7 +66,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   /**
-   * Prepares the layout all children
+   * Prepares the layout for all children
    */
   layout(force?: boolean) {
     if (!this.requireGuardAndTake(RequiredViewChanges.LAYOUT, force)) {
@@ -85,6 +85,9 @@ export class View<Props extends {} = ViewProps> {
     for (let i = 0, l = horizontallyOrderedChildren.length; i < l; i++) {
       const child = horizontallyOrderedChildren[i];
       const { lp, rect } = child;
+      if (lp.w === MATCH_PARENT) {
+        child.width = innerWidth;
+      }
       if (lp.isAbsolute) {
         rect.l = lp.x;
         rect.r = rect.l + child.width;
@@ -130,6 +133,9 @@ export class View<Props extends {} = ViewProps> {
     for (let i = 0, l = verticallyOrderedChildren.length; i < l; i++) {
       const child = verticallyOrderedChildren[i];
       const { lp, rect } = child;
+      if (lp.h === MATCH_PARENT) {
+        child.height = innerHeight;
+      }
       if (lp.isAbsolute) {
         rect.t = lp.y;
         rect.b = rect.t + child.height;
