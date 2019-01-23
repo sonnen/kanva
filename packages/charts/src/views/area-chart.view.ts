@@ -1,6 +1,6 @@
 import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
 import { DataDisplayType } from '../chart.types';
-import { DataContainer } from '../data-container';
+import { DataContainer, DataContainerEvent } from '../data-container';
 
 export interface AreaChartViewStyle {
   type: DataDisplayType;
@@ -30,6 +30,12 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
     super(context, 'AreaChartView');
   }
 
+  onDataContainerEvent = (event: DataContainerEvent) => {
+    if (event === DataContainerEvent.DATA_CHANGE) {
+      this.require(RequiredViewChanges.LAYOUT);
+    }
+  };
+
   getStyle() {
     return this.style;
   }
@@ -53,16 +59,15 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
   }
 
   setDataContainer(dataContainer: DataContainer<any>) {
-    this.dataContainer = dataContainer;
-    this.require(RequiredViewChanges.LAYOUT);
-  }
-
-  onLayout() {
-    const { innerWidth, innerHeight, dataSeries, dataContainer } = this;
-    if (!dataContainer) {
+    if (this.dataContainer === dataContainer) {
       return;
     }
-    dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
+    if (this.dataContainer) {
+      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+    }
+    this.dataContainer = dataContainer;
+    dataContainer.addEventListener(this.onDataContainerEvent);
+    this.require(RequiredViewChanges.LAYOUT);
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -80,11 +85,11 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
     ctx.beginPath();
     switch (type) {
       case DataDisplayType.AREA:
-        ctx.moveTo(data[0].x, innerHeight);
+        ctx.moveTo(data[0].vx, innerHeight);
         for (let i = 0, l = data.length; i < l; i++) {
-          ctx.lineTo(data[i].x, data[i].y);
+          ctx.lineTo(data[i].vx, data[i].vy);
         }
-        ctx.lineTo(data[data.length - 1].x, innerHeight);
+        ctx.lineTo(data[data.length - 1].vx, innerHeight);
         ctx.closePath();
         if (fillColor) {
           ctx.fillStyle = fillColor;
@@ -97,15 +102,15 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
         if (fillColor) {
           ctx.fillStyle = fillColor;
           for (let i = 0, l = data.length; i < l; i++) {
-            ctx.fillRect(data[i].x - radius, data[i].y - radius, size, size);
+            ctx.fillRect(data[i].vx - radius, data[i].vy - radius, size, size);
           }
         }
         break;
       default:
       case DataDisplayType.LINE:
-        ctx.moveTo(data[0].x, data[0].y);
+        ctx.moveTo(data[0].vx, data[0].vy);
         for (let i = 1, l = data.length; i < l; i++) {
-          ctx.lineTo(data[i].x, data[i].y);
+          ctx.lineTo(data[i].vx, data[i].vy);
         }
         break;
     }
@@ -113,6 +118,18 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
       ctx.strokeStyle = strokeColor;
       ctx.lineWidth = lineThickness || 1;
       ctx.stroke();
+    }
+  }
+
+  onSizeChanged(w: number, h: number, ow: number, oh: number) {
+    if (this.dataContainer) {
+      this.dataContainer.calculate(this.innerWidth, this.innerHeight);
+    }
+  }
+
+  onDestroy() {
+    if (this.dataContainer) {
+      this.dataContainer.removeEventListener(this.onDataContainerEvent);
     }
   }
 

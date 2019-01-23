@@ -3,13 +3,18 @@ export interface XYPoint {
   y: number;
 }
 
+export interface ViewPoint {
+  vx: number;
+  vy: number;
+}
+
 export interface AxisPoint {
   value: string;
   position: number;
 }
 
 export type PointAccessor = <DataPoint>(point: DataPoint, index: number, series: DataPoint[]) => XYPoint;
-export type AxisLabelAccessor = (value: number, index: number, series: number[]) => string;
+export type AxisLabelAccessor = (value: number, index: number) => string;
 
 export enum DataDisplayType {
   POINTS,

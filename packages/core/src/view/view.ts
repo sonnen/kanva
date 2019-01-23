@@ -123,7 +123,6 @@ export class View<Props extends {} = ViewProps> {
         rect.r = rect.l;
         rect.l = l;
       }
-      child.width = rect.width;
     }
 
     // Vertical layout
@@ -168,12 +167,20 @@ export class View<Props extends {} = ViewProps> {
         rect.b = rect.t;
         rect.t = t;
       }
-      child.height = rect.height;
     }
 
     // Retrigger nested layout if dimensions changed
     for (let i = 0, l = children.length; i < l; i++) {
-      children[i].layout();
+      const child = children[i];
+      const { width: oldWidth, height: oldHeight } = child;
+      child.width = child.rect.width;
+      child.height = child.rect.height;
+      const sizeChanged = child.width !== oldWidth || child.height !== oldHeight;
+
+      child.layout(sizeChanged);
+      if (sizeChanged) {
+        child.onSizeChanged(child.width, child.height, oldWidth, oldHeight);
+      }
     }
 
     this.onLayout();
@@ -319,6 +326,10 @@ export class View<Props extends {} = ViewProps> {
       height = minH;
     }
 
+    // Normalize to integers
+    width = Math.round(width);
+    height = Math.round(height);
+
     const measuredDimensions = this.onMeasure(width, height);
 
     const sizeChanged = this.width !== measuredDimensions.width || this.height !== measuredDimensions.height;
@@ -326,21 +337,18 @@ export class View<Props extends {} = ViewProps> {
     this.width = measuredDimensions.width;
     this.height = measuredDimensions.height;
 
-    // If size got changed, force the measure of all children
-    if (sizeChanged) {
-      for (let i = children.length - 1; i >= 0; i--) {
-        children[i].require(RequiredViewChanges.MEASURE);
-      }
-    }
-
     // Now all children can be measured
-    for (let i = children.length - 1; i >= 0; i--) {
+    for (let i = 0, l = children.length; i < l; i++) {
       children[i].measure(canvas, sizeChanged);
     }
   }
 
   onMeasure(width: number, height: number) {
     return { width, height };
+  }
+
+  onSizeChanged(width: number, height: number, oldWidth: number, oldHeight: number) {
+    // Views may implement this method
   }
 
   getMatchParentWidth() {
@@ -452,6 +460,10 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillText(boundsText, r, t, r - l);
     }
 
+    ctx.beginPath();
+    ctx.rect(l, t, r - l, b - t);
+    ctx.clip();
+
     // Apply padding
     l += padding.l;
     t += padding.t;
@@ -472,9 +484,6 @@ export class View<Props extends {} = ViewProps> {
     }
 
     ctx.translate(l, t);
-    ctx.beginPath();
-    ctx.rect(0, 0, r - l, b - t);
-    ctx.clip();
 
     this.onDraw(canvas);
 
@@ -489,7 +498,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   onDraw(canvas: ViewCanvas): void {
-    // Components should implement this method
+    // Views should implement this method
   }
 
   addChild(child: View, position: number = -1) {

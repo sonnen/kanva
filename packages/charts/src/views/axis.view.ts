@@ -1,9 +1,8 @@
 import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
-import { DataContainer } from '../data-container';
+import { AxisPoint } from '../chart.types';
+import { DataContainer, DataContainerEvent } from '../data-container';
 
 export interface AxisViewStyle {
-  strokeColor?: string;
-  lineThickness?: number;
   textColor?: string;
   textBaseline?: TextBaseline;
   textAlign?: TextAlign;
@@ -21,7 +20,7 @@ export interface AxisViewProps {
   style?: AxisViewStyle;
 }
 
-const DEFAULT_STYLE = {
+const DefaultAxisViewStyle = {
   strokeColor: '#000',
   textColor: '#000',
   font: { fontSize: 12, fontFamily: 'Arial' },
@@ -32,19 +31,25 @@ const DEFAULT_STYLE = {
 
 export class AxisView<DataPoint> extends View<AxisViewProps> {
   private dataContainer?: DataContainer<any>;
-  private style: AxisViewStyle = DEFAULT_STYLE;
+  private style: AxisViewStyle = DefaultAxisViewStyle;
   private orientation: AxisOrientation = AxisOrientation.HORIZONTAL;
 
   constructor(context: Context) {
     super(context, 'AxisView');
   }
 
+  onDataContainerEvent = (event: DataContainerEvent) => {
+    if (event === DataContainerEvent.CALCULATION) {
+      this.require(RequiredViewChanges.MEASURE);
+    }
+  };
+
   getStyle() {
     return this.style;
   }
 
   setStyle(style: AxisViewStyle | undefined) {
-    this.style = style || DEFAULT_STYLE;
+    this.style = style || DefaultAxisViewStyle;
     this.require(RequiredViewChanges.DRAW);
   }
 
@@ -62,45 +67,91 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   }
 
   setDataContainer(dataContainer: DataContainer<any>) {
+    if (this.dataContainer === dataContainer) {
+      return;
+    }
+    if (this.dataContainer) {
+      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+    }
     this.dataContainer = dataContainer;
+    dataContainer.addEventListener(this.onDataContainerEvent);
     this.require(RequiredViewChanges.DRAW);
   }
 
-  getInternalWrappedHeight() {
-    if (this.orientation === AxisOrientation.HORIZONTAL) {
-      if (!this.style.font) {
-        return 0;
-      }
-      return this.style.font.fontSize + (this.style.lineThickness || 0);
-    }
+  getInternalWrappedHeight(canvas: ViewCanvas) {
     if (!this.dataContainer) {
       return 0;
     }
-    const axisData = this.dataContainer.getYAxisData();
-    return Math.max(axisData[0].position, axisData[axisData.length - 1].position);
+
+    const lineHeight = (this.style.font || DefaultAxisViewStyle.font).fontSize;
+    switch (this.orientation) {
+      case AxisOrientation.VERTICAL: {
+        const axisData = this.dataContainer.getYAxisData();
+        const point = axisData[axisData.length - 1];
+        const position = point.position;
+        switch (this.style.textBaseline || DefaultAxisViewStyle.textBaseline) {
+          case TextBaseline.MIDDLE:
+            return position + lineHeight / 2;
+          case TextBaseline.TOP:
+            return position + lineHeight;
+          case TextBaseline.BOTTOM:
+          default:
+            return position;
+        }
+      }
+      case AxisOrientation.HORIZONTAL:
+      default: {
+        if (!this.style.font) {
+          return 0;
+        }
+        return lineHeight;
+      }
+    }
   }
 
   getInternalWrappedWidth(canvas: ViewCanvas) {
     if (!this.dataContainer) {
       return 0;
     }
-    if (this.orientation === AxisOrientation.VERTICAL) {
-      const axisData = this.dataContainer.getXAxisData()
-        .map(point => canvas.measureText({
-          text: point.value,
-          fontString: font(this.style.font || DEFAULT_STYLE.font),
-        }).width);
-      return Math.max(...axisData);
+
+    switch (this.orientation) {
+      case AxisOrientation.VERTICAL: {
+        const axisData = this.dataContainer.getYAxisData()
+          .map(point => this.getPointTextWidth(canvas, point));
+        return Math.max(...axisData);
+      }
+      case AxisOrientation.HORIZONTAL:
+      default: {
+        const axisData = this.dataContainer.getXAxisData();
+        const point = axisData[axisData.length - 1];
+        const position = point.position;
+        const width = this.getPointTextWidth(canvas, point);
+        switch (this.style.textAlign || DefaultAxisViewStyle.textAlign) {
+          case TextAlign.CENTER:
+            return position + width / 2;
+          case TextAlign.LEFT:
+          case TextAlign.START:
+            return position + width;
+          case TextAlign.RIGHT:
+          case TextAlign.END:
+          default:
+            return position;
+        }
+      }
     }
-    const axisData = this.dataContainer.getXAxisData();
-    return Math.max(axisData[0].position, axisData[axisData.length - 1].position);
+  }
+
+  onDestroy() {
+    if (this.dataContainer) {
+      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+    }
   }
 
   onDraw(canvas: ViewCanvas) {
     const {
       innerWidth, innerHeight,
       dataContainer,
-      style: { strokeColor, lineThickness, font: fontStyle, textColor, textBaseline, textAlign },
+      style: { font: fontStyle, textColor, textBaseline, textAlign },
       orientation,
     } = this;
     const axisData = dataContainer && (orientation === AxisOrientation.HORIZONTAL
@@ -111,15 +162,10 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return;
     }
     const ctx = canvas.context;
-
-    if (strokeColor && lineThickness) {
-      ctx.strokeStyle = strokeColor;
-      ctx.strokeRect(0, 0, innerWidth, lineThickness);
-    }
-    ctx.fillStyle = textColor || DEFAULT_STYLE.textColor;
-    ctx.font = font(fontStyle || DEFAULT_STYLE.font);
-    ctx.textBaseline = textBaseline || DEFAULT_STYLE.textBaseline;
-    ctx.textAlign = textAlign || DEFAULT_STYLE.textAlign;
+    ctx.fillStyle = textColor || DefaultAxisViewStyle.textColor;
+    ctx.font = font(fontStyle || DefaultAxisViewStyle.font);
+    ctx.textBaseline = textBaseline || DefaultAxisViewStyle.textBaseline;
+    ctx.textAlign = textAlign || DefaultAxisViewStyle.textAlign;
     if (orientation === AxisOrientation.HORIZONTAL) {
       const maxWidth = (axisData[0] && axisData[1])
         ? Math.abs(axisData[0].position - axisData[1].position)
@@ -171,4 +217,10 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     };
   }
 
+  private getPointTextWidth(canvas: ViewCanvas, point: AxisPoint) {
+    return canvas.measureText({
+      text: point.value,
+      fontString: font(this.style.font || DefaultAxisViewStyle.font),
+    }).width;
+  }
 }
