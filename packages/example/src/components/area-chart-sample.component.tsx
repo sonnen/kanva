@@ -8,11 +8,6 @@ import { MOCK } from './mock';
 
 const { AreaChartView, AxisView } = ReactCharts;
 
-const normalize = ({ x, y }: Partial<XYPoint>, _: number, all: Partial<XYPoint>[]) => ({
-  y: y!,
-  x: (x! - all[0].x!) / 60,
-});
-
 const container = new DataContainer<Partial<XYPoint>>()
   .setData([
     {
@@ -30,16 +25,21 @@ const container = new DataContainer<Partial<XYPoint>>()
   ])
   .setXAxisParameters({
     tickCount: 9,
-    labelAccessor: (value: number) => `${`0${Math.floor(value / 60)}`.slice(-2)}:${`0${value % 60}`.slice(-2)}`,
-    roundTo: 60,
+    roundTo: 60 * 60,
+    labelAccessor: (value: number) => {
+      const date = new Date(value * 1000);
+      return (
+        `0${date.getUTCHours()}`.slice(-2) +
+        ':' +
+        `0${date.getUTCMinutes()}`.slice(-2)
+      );
+    },
   })
   .setYAxisParameters({
     tickCount: 8,
     roundTo: 100,
     labelAccessor: (value: number) => (value / 1000) + ' kWh',
-  })
-  .setXBounds([24 * 60])
-  .setPointAccessor(normalize);
+  });
 
 const percentageContainer = new DataContainer<any>()
   .setData([
@@ -48,8 +48,6 @@ const percentageContainer = new DataContainer<any>()
       data: MOCK.batteryUsoc,
     },
   ])
-  .setPointAccessor(normalize)
-  .setXBounds([24 * 60])
   .setYBounds([0, 100]);
 
 interface State {

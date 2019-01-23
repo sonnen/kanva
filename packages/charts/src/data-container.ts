@@ -8,7 +8,7 @@ import {
   ViewPoint,
   XYPoint,
 } from './chart.types';
-import { getContinuousNumericScale, isXYArray, precision, roundToNearest } from './utils';
+import { getContinuousNumericScale, isXYArray, roundToNearest } from './utils';
 
 const DefaultAxisParameters = {
   TICK_COUNT: 10,
@@ -159,31 +159,6 @@ export class DataContainer<DataPoint = XYPoint> {
     return this;
   }
 
-  prepareAxisValues(
-    {
-      labelAccessor = DefaultAxisParameters.LABEL_ACCESSOR,
-      tickCount = DefaultAxisParameters.TICK_COUNT,
-      roundTo = DefaultAxisParameters.ROUND_TO,
-    }: AxisParameters,
-    scale: ScaleContinuousNumeric<number, number>,
-  ): AxisPoint[] {
-    const axis: AxisPoint[] = new Array(tickCount);
-    const [min, max] = scale.domain();
-    const tickDistance = (max - min) / (tickCount - 1);
-
-    for (let i = 0; i < tickCount; i++) {
-      const rawValue = min + tickDistance * i;
-      const value = roundToNearest(rawValue, roundTo);
-
-      axis[i] = {
-        value: labelAccessor(value, i),
-        position: Math.round(scale(rawValue)),
-      };
-    }
-
-    return axis;
-  }
-
   calculate(width: number, height: number) {
     this.processData();
     if (this.forWidth === width && this.forHeight === height) {
@@ -277,11 +252,15 @@ export class DataContainer<DataPoint = XYPoint> {
       };
     }
 
+    // Set the data for render processing
     this.series = series;
     this.xScale = getContinuousNumericScale(this.xScaleType)
       .domain([minX, maxX]);
     this.yScale = getContinuousNumericScale(this.yScaleType)
       .domain([minY, maxY]);
+    // Reset size in order to force render
+    this.forWidth = 0;
+    this.forHeight = 0;
   }
 
   private postEvent(change: DataContainerEvent) {
@@ -289,5 +268,30 @@ export class DataContainer<DataPoint = XYPoint> {
     for (let i = 0, l = listeners.length; i < l; i++) {
       listeners[i](change);
     }
+  }
+
+  private prepareAxisValues(
+    {
+      labelAccessor = DefaultAxisParameters.LABEL_ACCESSOR,
+      tickCount = DefaultAxisParameters.TICK_COUNT,
+      roundTo = DefaultAxisParameters.ROUND_TO,
+    }: AxisParameters,
+    scale: ScaleContinuousNumeric<number, number>,
+  ): AxisPoint[] {
+    const axis: AxisPoint[] = new Array(tickCount);
+    const [min, max] = scale.domain();
+    const tickDistance = (max - min) / (tickCount - 1);
+
+    for (let i = 0; i < tickCount; i++) {
+      const rawValue = min + tickDistance * i;
+      const value = roundToNearest(rawValue, roundTo);
+
+      axis[i] = {
+        value: labelAccessor(value, i),
+        position: Math.round(scale(rawValue)),
+      };
+    }
+
+    return axis;
   }
 }
