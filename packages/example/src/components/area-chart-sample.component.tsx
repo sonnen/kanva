@@ -102,7 +102,6 @@ export class AreaChartSample extends React.Component<{}, State> {
         <Kanva className={'c-sample-canvas'} debug>
           <View layoutParams={layout.areaChartWrapper}>
             <AreaChartView
-              id={Views.CHART}
               layoutParams={layout.areaChart}
               dataContainer={container}
               dataSeries={Series.CONSUMPTION}

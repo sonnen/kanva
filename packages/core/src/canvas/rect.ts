@@ -1,4 +1,4 @@
-interface RectObjectInput {
+export interface RectObjectInput {
   left?: number;
   top?: number;
   right?: number;
