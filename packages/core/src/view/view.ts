@@ -9,6 +9,7 @@ import {
   verticalLayoutDependencies,
 } from './layout-params.utils';
 import { LayoutProps } from './layout-props';
+import { CanvasPointerEvent, PointerAction } from './pointer-event';
 
 interface OrderedChildren {
   h: number[];
@@ -50,7 +51,10 @@ export class View<Props extends {} = ViewProps> {
   protected visibility: Visibility = Visibility.VISIBLE;
   protected width = 0;
   protected height = 0;
+  /** This are bounds of a view including margin and padding */
   protected rect: Rect = new Rect(0);
+  /** This are the bounds of view including padding. */
+  protected innerRect: Rect = new Rect(0);
   private oldWidth = 0;
   private oldHeight = 0;
   private parent: View | null = null;
@@ -66,6 +70,55 @@ export class View<Props extends {} = ViewProps> {
 
   constructor(public readonly context: Context, public readonly name: string = 'View') {
     this.id = View.idCounter++;
+  }
+
+  dispatchPointerEvent(event: CanvasPointerEvent): boolean {
+    // Dive to children if possible
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      const child = this.children[i];
+      if (child.innerRect.contains(event.x, event.y)) {
+        const offsetX = child.innerRect.l;
+        const offsetY = child.innerRect.t;
+
+        event.x -= offsetX;
+        event.y -= offsetY;
+
+        if (child.dispatchPointerEvent(event)) {
+          return true;
+        }
+
+        event.x += offsetX;
+        event.y += offsetY;
+      }
+    }
+    // Base the target element on primary pointer (indexed 1)
+    if (event.id === 1) {
+      const target = event.target;
+      switch (event.action) {
+        case PointerAction.MOVE:
+          if (target !== this) {
+            event.target = this;
+            event.action = PointerAction.ENTER;
+          }
+          break;
+        case PointerAction.UP:
+          if (target === this) {
+            event.target = this;
+          }
+          break;
+        case PointerAction.LEAVE:
+          break;
+        default:
+          break;
+      }
+    }
+    // Process event
+    return this.onPointerEvent(event);
+  }
+
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    console.log(event);
+    return true;
   }
 
   /**
@@ -189,8 +242,11 @@ export class View<Props extends {} = ViewProps> {
       const child = children[i];
       child.width = child.rect.width;
       child.height = child.rect.height;
+
       const { width, height, oldWidth, oldHeight } = child;
       const sizeChanged = width !== oldWidth || height !== oldHeight;
+
+      child.innerRect = child.rect.inset(child.lp.marginRect);
       child.layout(sizeChanged);
       if (sizeChanged) {
         child.onSizeChanged(width, height, oldWidth, oldHeight);
@@ -390,6 +446,14 @@ export class View<Props extends {} = ViewProps> {
     return 0;
   }
 
+  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
+    return undefined;
+  }
+
+  getInternalWrappedWidth(canvas: ViewCanvas): number | undefined {
+    return undefined;
+  }
+
   draw(canvas: ViewCanvas, force: boolean = false): void {
     if (!this.requireGuardAndTake(RequiredViewChanges.DRAW, force)) {
       return;
@@ -576,14 +640,6 @@ export class View<Props extends {} = ViewProps> {
     children.splice(startIndex, endIndex - startIndex);
 
     this.require(RequiredViewChanges.MEASURE);
-  }
-
-  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
-    return undefined;
-  }
-
-  getInternalWrappedWidth(canvas: ViewCanvas): number | undefined {
-    return undefined;
   }
 
   get innerHeight() {

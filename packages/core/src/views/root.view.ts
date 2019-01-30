@@ -1,5 +1,6 @@
 import { Canvas, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View } from '../view';
+import { domEventToPointerAction } from '../view/pointer-event';
 
 const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
 
@@ -8,6 +9,7 @@ export class RootCanvasView extends View {
   private readonly canvas: ViewCanvas;
   private dpr: number = 1;
   private isRequired: boolean = true;
+  private clearPointerEvents?: () => void;
 
   constructor(context: Context, canvas: Canvas) {
     super(context, 'RootCanvasView');
@@ -16,6 +18,45 @@ export class RootCanvasView extends View {
     const { width, height } = this.canvas.context.canvas;
     this.rect.r = this.lp.w = width;
     this.rect.b = this.lp.h = height;
+  }
+
+  setupPointerEvents() {
+    const canvas = this.canvas.context.canvas;
+    if (!canvas || !canvas.addEventListener) {
+      throw new Error('Can\'t setup event listeners.');
+    }
+    const dispatchPointerEvent = ({ type, x, y, pointerId }: PointerEvent) => {
+      const action = domEventToPointerAction(type);
+      if (!action) {
+        return;
+      }
+      this.dispatchPointerEvent({
+        action,
+        target: this,
+        isPressed: false,
+        id: pointerId,
+        x,
+        y,
+      });
+    };
+    canvas.addEventListener('pointerover', dispatchPointerEvent);
+    canvas.addEventListener('pointerup', dispatchPointerEvent);
+    canvas.addEventListener('pointerdown', dispatchPointerEvent);
+    canvas.addEventListener('pointerleave', dispatchPointerEvent);
+    canvas.addEventListener('pointercancel', dispatchPointerEvent);
+    canvas.addEventListener('pointermove', dispatchPointerEvent);
+    canvas.addEventListener('pointerout', dispatchPointerEvent);
+    canvas.addEventListener('pointerenter', dispatchPointerEvent);
+    this.clearPointerEvents = () => {
+      canvas.removeEventListener('pointerover', dispatchPointerEvent);
+      canvas.removeEventListener('pointerup', dispatchPointerEvent);
+      canvas.removeEventListener('pointerdown', dispatchPointerEvent);
+      canvas.removeEventListener('pointerleave', dispatchPointerEvent);
+      canvas.removeEventListener('pointercancel', dispatchPointerEvent);
+      canvas.removeEventListener('pointermove', dispatchPointerEvent);
+      canvas.removeEventListener('pointerout', dispatchPointerEvent);
+      canvas.removeEventListener('pointerenter', dispatchPointerEvent);
+    };
   }
 
   onSizeChanged() {
@@ -51,6 +92,9 @@ export class RootCanvasView extends View {
   }
 
   onDestroy() {
+    if (this.clearPointerEvents) {
+      this.clearPointerEvents();
+    }
     this.shouldRun = false;
   }
 

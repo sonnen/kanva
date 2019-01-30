@@ -123,4 +123,11 @@ export class Rect {
       this.t > rect.b && this.b < rect.t
     );
   }
+
+  contains(x: number, y: number) {
+    return (
+      this.l <= x && this.r >= x &&
+      this.t <= y && this.b >= y
+    );
+  }
 }
