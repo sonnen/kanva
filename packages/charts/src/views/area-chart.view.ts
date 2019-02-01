@@ -1,6 +1,6 @@
-import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
+import { Context, ViewCanvas } from '@kanva/core';
 import { DataDisplayType } from '../chart.types';
-import { DataContainer, DataContainerEvent } from '../data-container';
+import { ChartView, ChartViewProps } from './chart.view';
 
 export interface AreaChartViewStyle {
   type: DataDisplayType;
@@ -9,10 +9,7 @@ export interface AreaChartViewStyle {
   fillColor?: string;
 }
 
-export interface AreaChartViewProps {
-  dataContainer?: DataContainer<any>;
-  dataSeries: string;
-  style?: AreaChartViewStyle;
+export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
 }
 
 const DEFAULT_STYLE: AreaChartViewStyle = {
@@ -21,53 +18,9 @@ const DEFAULT_STYLE: AreaChartViewStyle = {
   lineThickness: 1.5,
 };
 
-export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
-  private dataContainer?: DataContainer<any>;
-  private dataSeries?: string;
-  private style: AreaChartViewStyle = DEFAULT_STYLE;
-
+export class AreaChartView extends ChartView<AreaChartViewProps> {
   constructor(context: Context) {
-    super(context, 'AreaChartView');
-  }
-
-  onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.DATA_CHANGE) {
-      this.require(RequiredViewChanges.LAYOUT);
-    }
-  };
-
-  getStyle() {
-    return this.style;
-  }
-
-  setStyle(style: AreaChartViewStyle | undefined) {
-    this.style = style || DEFAULT_STYLE;
-    this.require(RequiredViewChanges.DRAW);
-  }
-
-  getDataSeries() {
-    return this.dataSeries;
-  }
-
-  setDataSeries(series: string) {
-    this.dataSeries = series;
-    this.require(RequiredViewChanges.DRAW);
-  }
-
-  getDataContainer() {
-    return this.dataContainer;
-  }
-
-  setDataContainer(dataContainer: DataContainer<any>) {
-    if (this.dataContainer === dataContainer) {
-      return;
-    }
-    if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
-    }
-    this.dataContainer = dataContainer;
-    dataContainer.addEventListener(this.onDataContainerEvent);
-    this.require(RequiredViewChanges.LAYOUT);
+    super(context, 'AreaChartView', DEFAULT_STYLE);
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -120,25 +73,4 @@ export class AreaChartView<DataPoint> extends View<AreaChartViewProps> {
       ctx.stroke();
     }
   }
-
-  onSizeChanged(w: number, h: number, ow: number, oh: number) {
-    if (this.dataContainer) {
-      this.dataContainer.calculate(this.innerWidth, this.innerHeight);
-    }
-  }
-
-  onDestroy() {
-    if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
-    }
-  }
-
-  onSnapshot() {
-    return {
-      style: this.style,
-      dataContainer: this.dataContainer,
-      dataSeries: this.dataSeries,
-    };
-  }
-
 }

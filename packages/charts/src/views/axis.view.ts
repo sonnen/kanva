@@ -1,6 +1,7 @@
 import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
 import { AxisPoint } from '../chart.types';
 import { DataContainer, DataContainerEvent } from '../data-container';
+import { ChartViewProps } from './chart.view';
 
 export interface AxisViewStyle {
   textColor?: string;
@@ -14,7 +15,7 @@ export enum AxisOrientation {
   VERTICAL,
 }
 
-export interface AxisViewProps {
+export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
   orientation: AxisOrientation;
   dataContainer?: DataContainer<any>;
   style?: AxisViewStyle;
