@@ -1,10 +1,10 @@
-import { AxisOrientation, DataContainer, ReactCharts, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, DataSeriesType, ReactCharts, XYPoint } from '@kanva/charts';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { layout, Views } from './area-chart-sample.layout';
+import { MOCK } from './area-chart-sample.mock';
 import { Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
-import { MOCK } from './mock';
 
 const { AreaChartView, AxisView } = ReactCharts;
 
@@ -12,14 +12,17 @@ const container = new DataContainer<Partial<XYPoint>>()
   .setData([
     {
       name: Series.CONSUMPTION,
+      type: DataSeriesType.AREA,
       data: MOCK.consumptionPower,
     },
     {
       name: Series.DIRECT_USAGE,
+      type: DataSeriesType.AREA,
       data: MOCK.directUsagePower,
     },
     {
       name: Series.PRODUCTION,
+      type: DataSeriesType.AREA,
       data: MOCK.productionPower,
     },
   ])
@@ -45,6 +48,7 @@ const percentageContainer = new DataContainer<any>()
   .setData([
     {
       name: Series.BATTERY_STATE,
+      type: DataSeriesType.AREA,
       data: MOCK.batteryUsoc,
     },
   ])

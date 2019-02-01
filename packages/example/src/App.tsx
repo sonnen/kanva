@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { AreaChartSample } from './components/area-chart-sample.component';
+import { AreaChartSample } from './components/area-chart-sample';
+import { PieChartSample } from './components/pie-chart-sample';
 
 import './App.css';
 
@@ -29,13 +30,15 @@ export class App extends React.Component<Props, State> {
             Remove
           </button>
         )}
-        <div className='wrapper'>
-          {
-            new Array(chartCount).fill(0).map(
-              (_, index) => <AreaChartSample key={index} />,
-            )
-          }
-        </div>
+        {
+          new Array(chartCount).fill(0).map(
+            (_, index) => (
+              <div className='wrapper' key={index}>
+                <AreaChartSample />
+                <PieChartSample />
+              </div>),
+          )
+        }
       </div>
     );
   }

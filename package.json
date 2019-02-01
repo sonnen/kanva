@@ -1,6 +1,6 @@
 {
   "name": "kanva",
-  "version": "0.1.30",
+  "version": "0.1.32",
   "description": "Draw on canvas using views",
   "homepage": "https://github.com/headline-1/kanva",
   "bugs": "https://github.com/headline-1/kanva/issues",
@@ -10,7 +10,7 @@
   "scripts": {
     "postinstall": "lerna exec -- yarn && lerna bootstrap",
     "build": "lerna exec --concurrency 1 -- yarn build",
-    "start": "lerna run --parallel start",
+    "start": "yarn clean && yarn build && lerna run --parallel start",
     "clean": "rimraf packages/*/{dist,.jest,reports} && rimraf dist",
     "purge": "yarn clean && rimraf node_modules",
     "dist": "chmod 755 ./scripts/pack.sh && ./scripts/pack.sh",
@@ -41,6 +41,7 @@
     "tslint-config-airbnb-base": "^0.2.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-consistent-codestyle": "^1.15.0",
+    "tslint-no-circular-imports": "^0.6.1",
     "typescript": "^3.2.2"
   },
   "workspaces": [

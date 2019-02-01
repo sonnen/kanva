@@ -89,6 +89,9 @@ export class View<Props extends {} = ViewProps> {
       if (lp.w === MATCH_PARENT) {
         child.width = innerWidth;
       }
+      if (lp.w > 0 && lp.w < 1) {
+        child.width = innerWidth * lp.w;
+      }
       if (lp.isAbsolute) {
         rect.l = lp.x;
         rect.r = rect.l + child.width;
@@ -136,6 +139,9 @@ export class View<Props extends {} = ViewProps> {
       const { lp, rect } = child;
       if (lp.h === MATCH_PARENT) {
         child.height = innerHeight;
+      }
+      if (lp.h > 0 && lp.h < 1) {
+        child.height = innerHeight * lp.h;
       }
       if (lp.isAbsolute) {
         rect.t = lp.y;
@@ -418,7 +424,7 @@ export class View<Props extends {} = ViewProps> {
       ctx.textAlign = 'end';
       ctx.textBaseline = 'top';
       ctx.font = '9px monospace';
-      const boundsText = `${r - l}x${b - t}`;
+      const boundsText = `${(r - l).toFixed(1)}x${(b - t).toFixed(1)}`;
       const width = ctx.measureText(boundsText).width;
       ctx.fillRect(Math.max(l, r - width), t, width, 9);
       ctx.fillStyle = '#FFF';
@@ -460,7 +466,7 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillStyle = '#0F0';
       ctx.lineWidth = 1;
       ctx.strokeRect(l, t, r - l, b - t);
-      const boundsText = `${r - l}x${b - t}`;
+      const boundsText = `${(r - l).toFixed(1)}x${(b - t).toFixed(1)}`;
       const width = ctx.measureText(boundsText).width;
       ctx.fillRect(Math.max(l, r - width), t, width, 9);
       ctx.fillStyle = '#FFF';
@@ -483,7 +489,7 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillStyle = '#F00';
       ctx.lineWidth = 1;
       ctx.strokeRect(l, t, r - l, b - t);
-      const boundsText = `${r - l}x${b - t}`;
+      const boundsText = `${(r - l).toFixed(1)}x${(b - t).toFixed(1)}`;
       const width = ctx.measureText(boundsText).width;
       ctx.fillRect(Math.max(l, r - width), t, width, 9);
       ctx.fillStyle = '#FFF';
@@ -578,12 +584,14 @@ export class View<Props extends {} = ViewProps> {
 
   get innerHeight() {
     const lp = this.lp;
-    return this.height - (lp.marginRect.t + lp.marginRect.b + lp.paddingRect.t + lp.paddingRect.b);
+    const height = this.height - (lp.marginRect.t + lp.marginRect.b + lp.paddingRect.t + lp.paddingRect.b);
+    return height > 0 ? height : 0;
   }
 
   get innerWidth() {
     const lp = this.lp;
-    return this.width - (lp.marginRect.l + lp.marginRect.r + lp.paddingRect.l + lp.paddingRect.r);
+    const width = this.width - (lp.marginRect.l + lp.marginRect.r + lp.paddingRect.l + lp.paddingRect.r);
+    return width > 0 ? width : 0;
   }
 
   getLayoutParams() {

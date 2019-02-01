@@ -1,5 +1,6 @@
 import { Context } from './context';
-import { Id, LayoutParams, PARENT_ID } from './layout-params';
+import { LayoutParams, PARENT_ID } from './layout-params';
+import { Id } from './layout-props';
 import { View } from './view';
 
 export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Context) => {

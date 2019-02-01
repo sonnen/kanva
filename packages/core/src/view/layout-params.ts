@@ -1,11 +1,9 @@
 import { Rect, RectLike } from '../canvas';
-import { LayoutProps } from './layout-props';
+import { Id, LayoutProps } from './layout-props';
 
 export const MATCH_PARENT = -1;
 export const WRAP_CONTENT = -2;
 export const PARENT_ID = -1;
-
-export type Id = number | string;
 
 export const isRelativeDimension = (dimension: number) => dimension < 0;
 

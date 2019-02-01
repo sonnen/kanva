@@ -1,11 +1,19 @@
 {
-  "extends": ["tslint:recommended", "tslint-consistent-codestyle", "tslint-config-prettier"],
+  "extends": [
+    "tslint:recommended",
+    "tslint-consistent-codestyle",
+    "tslint-config-prettier",
+    "tslint-no-circular-imports"
+  ],
   "linterOptions": {
     "exclude": [
       "node_modules/**/*"
     ]
   },
   "rules": {
+    "no-circular-imports": {
+      "severity": "warning"
+    },
     "curly": true,
     "eofline": false,
     "forin": true,

@@ -1,5 +1,6 @@
 import { RectLike } from '../canvas';
-import { Id } from './layout-params';
+
+export type Id = number | string;
 
 export interface LayoutRelativePositionProps {
   below?: Id;

@@ -3,7 +3,6 @@ import { DataContainer, DataContainerEvent } from '../data-container';
 
 export interface ChartViewProps<Style> {
   dataContainer?: DataContainer<any>;
-  dataSeries: string;
   style?: Style;
 }
 
