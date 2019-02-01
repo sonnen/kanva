@@ -1,26 +1,28 @@
 import { Context, ViewCanvas } from '@kanva/core';
-import { DataContainer } from '../data-container';
 import { ChartView, ChartViewProps } from './chart.view';
 
-export interface PieChartViewStyle {
+export interface PieChartSeriesViewStyle {
   strokeColor?: string;
   lineThickness?: number;
   fillColor?: string;
+  lineCap?: CanvasLineCap;
+}
+
+export interface PieChartViewStyle extends PieChartSeriesViewStyle {
   innerRadius?: number;
-  lineCap: CanvasLineCap;
+  padding?: number;
+  series: Record<string, PieChartSeriesViewStyle>;
 }
 
 export interface PieChartViewProps extends ChartViewProps<PieChartViewStyle> {
-  dataContainer?: DataContainer<any>;
-  dataSeries: string;
-  style?: PieChartViewStyle;
 }
 
 const DEFAULT_STYLE: PieChartViewStyle = {
-  strokeColor: '#000',
+  series: {},
   lineThickness: 1.5,
   innerRadius: 0,
   lineCap: 'butt',
+  padding: 0,
 };
 
 export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
@@ -30,31 +32,66 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
-    const series = dataContainer && dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
-    const { fillColor, lineThickness, strokeColor } = style;
-
-    if (!series || !series.data.length) {
+    if (!dataContainer) {
       return;
     }
 
+    const allSeries = dataContainer.getAllDataSeries(innerWidth, innerHeight);
+    const total = dataContainer.getTotal();
+    const { fillColor, lineThickness, strokeColor, innerRadius, lineCap } = style;
     const ctx = canvas.context;
-    const data = series.data;
+    const centerX = innerWidth / 2;
+    const centerY = innerHeight / 2;
+    const radius = Math.min(centerX, centerY);
+    const inner = innerRadius && (innerRadius < 1 ? innerRadius * radius : innerRadius);
+    const pi2 = Math.PI * 2;
+    const padding = style.padding || 0;
+
+    // Draw background circle
+    const halfLineThickness = (style.lineThickness || 0) / 2;
 
     ctx.beginPath();
-    ctx.moveTo(data[0].x, innerHeight);
-    for (let i = 0, l = data.length; i < l; i++) {
-      ctx.lineTo(data[i].vx, data[i].vy);
+    ctx.arc(centerX, centerY, radius - halfLineThickness, 0, pi2, false);
+    if (inner) {
+      ctx.arc(centerX, centerY, inner, pi2, 0, true);
     }
-    ctx.lineTo(data[data.length - 1].vx, innerHeight);
-    ctx.closePath();
-    if (fillColor) {
-      ctx.fillStyle = fillColor;
+    if (style.fillColor) {
+      ctx.fillStyle = style.fillColor;
       ctx.fill();
     }
-    if (strokeColor) {
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = lineThickness || 1;
+    if (style.strokeColor && style.lineThickness) {
+      ctx.lineWidth = style.lineThickness;
+      ctx.lineCap = 'butt';
+      ctx.strokeStyle = style.strokeColor;
       ctx.stroke();
+    }
+
+    // Draw series (1 series = sum of all of it's Y values)
+    let angle = (-.25 + padding / 2) * pi2;
+    for (let i = 0, l = allSeries.length; i < l; i++) {
+      const series = allSeries[i];
+      const s = style.series[series.name] || DEFAULT_STYLE;
+      const start = angle;
+      const end = start + (series.sum! / total - padding) * pi2;
+      const halfLineThickness = (s.lineThickness || 0) / 2;
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius - halfLineThickness, start, end, false);
+      if (inner) {
+        ctx.arc(centerX, centerY, inner, end, start, true);
+      }
+
+      angle = end + padding * pi2;
+      if (s.fillColor) {
+        ctx.fillStyle = s.fillColor;
+        ctx.fill();
+      }
+      if (s.strokeColor && s.lineThickness) {
+        ctx.lineWidth = s.lineThickness;
+        ctx.lineCap = s.lineCap || DEFAULT_STYLE.lineCap!;
+        ctx.strokeStyle = s.strokeColor;
+        ctx.stroke();
+      }
     }
   }
 }

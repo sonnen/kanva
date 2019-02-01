@@ -4,11 +4,12 @@ import {
   AxisPoint,
   DataScaleType,
   DataSeries,
+  DataSeriesType,
   PointAccessor,
   ViewPoint,
   XYPoint,
-} from './chart.types';
-import { getContinuousNumericScale, isXYArray, roundToNearest } from './utils';
+} from '../chart.types';
+import { getContinuousNumericScale, isXYArray, roundToNearest } from '../utils';
 
 const DefaultAxisParameters = {
   TICK_COUNT: 10,
@@ -29,11 +30,15 @@ export enum DataContainerEvent {
 
 export type DataContainerEventListener = (event: DataContainerEvent) => void;
 
-export class DataContainer<DataPoint = XYPoint> {
+/**
+ * This is a common base for storing raw point values and converting them to format that can be consumed by ChartViews.
+ * In case of one-dimensional data (as for PieChart), a sum of Y values passed to series will be used.
+ */
+export class DataContainer<DataPoint> {
   // Data properties
   private rawData?: DataSeries<DataPoint>[];
   private namedData: Record<string, number> = {};
-  private pointAccessor?: PointAccessor;
+  private pointAccessor?: PointAccessor<DataPoint>;
   private xScaleType: DataScaleType = DataScaleType.LINEAR;
   private yScaleType: DataScaleType = DataScaleType.LINEAR;
   private xBounds: number[] = [];
@@ -49,6 +54,7 @@ export class DataContainer<DataPoint = XYPoint> {
   private forWidth: number = 0;
   private forHeight: number = 0;
   private series: DataSeries<XYPoint & ViewPoint>[] = [];
+  private total: number = 0;
   private xScale?: ScaleContinuousNumeric<number, number>;
   private yScale?: ScaleContinuousNumeric<number, number>;
   private xAxis: AxisPoint[] = [];
@@ -86,7 +92,7 @@ export class DataContainer<DataPoint = XYPoint> {
     return this.pointAccessor;
   }
 
-  setPointAccessor(pointAccessor: PointAccessor | undefined) {
+  setPointAccessor(pointAccessor: PointAccessor<DataPoint> | undefined) {
     this.pointAccessor = pointAccessor;
     this.hasChanged = true;
     this.postEvent(DataContainerEvent.DATA_CHANGE);
@@ -175,17 +181,18 @@ export class DataContainer<DataPoint = XYPoint> {
       .range([height, 0]);
 
     for (let i = 0, l = series.length; i < l; i++) {
-      const singleSeries = series[i].data;
-      for (let j = 0, jl = singleSeries.length; j < jl; j++) {
-        const point = singleSeries[j];
-        point.vx = xScale(point.x);
-        point.vy = yScale(point.y);
+      const { data, type } = series[i];
+      if (type === DataSeriesType.AREA) {
+        for (let j = 0, jl = data.length; j < jl; j++) {
+          const point = data[j];
+          point.vx = xScale(point.x);
+          point.vy = yScale(point.y);
+        }
       }
     }
 
     this.xAxis = this.prepareAxisValues(xAxisParameters, xScale);
     this.yAxis = this.prepareAxisValues(yAxisParameters, yScale);
-    this.series = series;
     this.postEvent(DataContainerEvent.CALCULATION);
   }
 
@@ -195,6 +202,16 @@ export class DataContainer<DataPoint = XYPoint> {
     }
     this.calculate(width, height);
     return this.series[this.namedData[name]];
+  }
+
+  getAllDataSeries(width: number, height: number): DataSeries<XYPoint & ViewPoint>[] {
+    this.calculate(width, height);
+    return this.series;
+  }
+
+  getTotal(): number {
+    this.processData();
+    return this.total;
   }
 
   getXAxisData(): AxisPoint[] {
@@ -222,11 +239,13 @@ export class DataContainer<DataPoint = XYPoint> {
     let minY: number = Math.min(...this.yBounds);
     let maxY: number = Math.max(...this.yBounds);
 
+    let total = 0;
     for (let i = 0, l = rawData.length; i < l; i++) {
       const rawSeries = rawData[i];
       const data: XYPoint[] = pointAccessor
         ? rawSeries.data.map(pointAccessor)
         : isXYArray(rawSeries.data) ? rawSeries.data.map(({ x, y }: XYPoint) => ({ x, y })) : [];
+      let sum = 0;
 
       if (data.length) {
         for (let i = 0, l = data.length; i < l; i++) {
@@ -243,17 +262,22 @@ export class DataContainer<DataPoint = XYPoint> {
           if (x > maxX) {
             maxX = x;
           }
+          sum += y;
         }
       }
 
       series[i] = {
         name: rawSeries.name,
+        type: rawSeries.type,
+        sum,
         data: data as (XYPoint & ViewPoint)[],
       };
+      total += sum;
     }
 
     // Set the data for render processing
     this.series = series;
+    this.total = total;
     this.xScale = getContinuousNumericScale(this.xScaleType)
       .domain([minX, maxX]);
     this.yScale = getContinuousNumericScale(this.yScaleType)

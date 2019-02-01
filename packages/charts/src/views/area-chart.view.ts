@@ -10,6 +10,7 @@ export interface AreaChartViewStyle {
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
+  dataSeries: string;
 }
 
 const DEFAULT_STYLE: AreaChartViewStyle = {
