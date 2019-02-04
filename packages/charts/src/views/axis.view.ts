@@ -17,8 +17,6 @@ export enum AxisOrientation {
 
 export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
   orientation: AxisOrientation;
-  dataContainer?: DataContainer<any>;
-  style?: AxisViewStyle;
 }
 
 const DefaultAxisViewStyle = {

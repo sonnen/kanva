@@ -1,12 +1,12 @@
-import { AxisOrientation, DataContainer, DataScaleType, DataSeriesType, ReactCharts, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, DataSeriesType, GridLines, ReactCharts, XYPoint } from '@kanva/charts';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
-import { Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
+import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
 
-const { AreaChartView, AxisView } = ReactCharts;
+const { AreaChartView, AxisView, ChartGridView } = ReactCharts;
 
 const container = new DataContainer<Partial<XYPoint>>()
   .setData([
@@ -105,6 +105,12 @@ export class AreaChartSample extends React.Component<{}, State> {
         </div>
         <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.areaChartWrapper}>
+            <ChartGridView
+              layoutParams={layout.areaChart}
+              dataContainer={container}
+              style={chartGridStyle}
+              gridLines={GridLines.HORIZONTAL}
+            />
             <AreaChartView
               layoutParams={layout.areaChart}
               dataContainer={container}

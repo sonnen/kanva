@@ -1,4 +1,4 @@
-import { AreaChartViewStyle, AxisViewStyle, DataDisplayType } from '@kanva/charts';
+import { AreaChartViewStyle, AxisViewStyle, ChartGridViewStyle, DataDisplayType } from '@kanva/charts';
 import { TextAlign, TextBaseline } from '@kanva/core';
 import { rgba } from '../../utils/color.utils';
 
@@ -33,7 +33,7 @@ export const SeriesStyles: Record<Series, AreaChartViewStyle> = {
     type: DataDisplayType.AREA,
     lineThickness: 1,
     strokeColor: SeriesColors[Series.DIRECT_USAGE],
-    fillColor: rgba(SeriesColors[Series.DIRECT_USAGE], .5),
+    fillColor: rgba(SeriesColors[Series.DIRECT_USAGE], .7),
   },
   [Series.BATTERY_STATE]: {
     type: DataDisplayType.LINE,
@@ -52,4 +52,9 @@ export const yAxisStyle: AxisViewStyle = {
   textColor: LABEL_COLOR,
   textAlign: TextAlign.END,
   textBaseline: TextBaseline.BOTTOM,
+};
+
+export const chartGridStyle: ChartGridViewStyle = {
+  strokeStyle: rgba('#FFF', .2),
+  thickness: 1,
 };

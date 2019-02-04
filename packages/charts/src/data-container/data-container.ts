@@ -327,6 +327,7 @@ export class DataContainer<DataPoint> {
     }: AxisParameters,
     scale: ScaleContinuousNumeric<number, number>,
   ): AxisPoint[] {
+    // TODO: Think of a better way of handling axis values
     if (!tickCount) {
       tickCount = this.getSeriesLength();
     }
