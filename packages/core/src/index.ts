@@ -1,3 +1,4 @@
 export * from './canvas';
 export * from './view';
 export * from './views';
+export * from './utils/color.util';
