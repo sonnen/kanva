@@ -18,15 +18,15 @@ export interface ChartGridViewProps extends ChartViewProps<ChartGridViewStyle> {
   gridLines: GridLines;
 }
 
-const DefaultChartGridViewStyle = {
-  color: '#000',
-  thickness: 1.5,
+const defaultStyle = {
+  strokeStyle: '#000',
+  thickness: 1,
 };
 
 export class ChartGridView extends View<ChartGridViewProps> {
   private dataContainer?: DataContainer<any>;
   private gridLines: GridLines = GridLines.BOTH;
-  private style: ChartGridViewStyle = DefaultChartGridViewStyle;
+  private style: ChartGridViewStyle = defaultStyle;
 
   constructor(context: Context) {
     super(context, 'ChartGridView');
@@ -54,7 +54,7 @@ export class ChartGridView extends View<ChartGridViewProps> {
   }
 
   setStyle(style: ChartGridViewStyle | undefined) {
-    this.style = style || DefaultChartGridViewStyle;
+    this.style = style || defaultStyle;
     this.require(RequiredViewChanges.DRAW);
   }
 

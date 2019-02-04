@@ -2,9 +2,9 @@ import { Context, normalizeRadius, Radius, ViewCanvas } from '@kanva/core';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartSeriesViewStyle {
-  strokeColor?: string;
-  lineThickness?: number;
-  fillColor?: string;
+  strokeStyle?: string;
+  lineWidth?: number;
+  fillStyle?: string;
   lineCap?: CanvasLineCap;
 }
 
@@ -18,7 +18,7 @@ export interface BarChartViewStyle {
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
 }
 
-const DEFAULT_STYLE: BarChartViewStyle = {
+const defaultStyle = {
   series: {},
   barWidth: .5,
   barRadius: 0,
@@ -27,7 +27,7 @@ const DEFAULT_STYLE: BarChartViewStyle = {
 
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   constructor(context: Context) {
-    super(context, 'BarChartView', DEFAULT_STYLE);
+    super(context, 'BarChartView', defaultStyle);
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -57,7 +57,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       let barRight = left + (groupWidth - barWidth * seriesCount) / 2;
       for (let j = 0; j < seriesCount; j++) {
         const series = allSeries[j];
-        const s = style.series[series.name] || DEFAULT_STYLE;
+        const s = style.series[series.name] || defaultStyle;
         const barY = series.data[i].vy;
         const top = Math.min(zeroPoint, barY);
         const bottom = Math.max(zeroPoint, barY);
@@ -66,13 +66,13 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         canvas.roundRect(barRight, top, barWidth, Math.abs(top - bottom), radius);
         ctx.closePath();
 
-        if (s.fillColor) {
-          ctx.fillStyle = s.fillColor;
+        if (s.fillStyle) {
+          ctx.fillStyle = s.fillStyle;
           ctx.fill();
         }
-        if (s.strokeColor && s.lineThickness) {
-          ctx.strokeStyle = s.strokeColor;
-          ctx.lineWidth = s.lineThickness;
+        if (s.strokeStyle && s.lineWidth) {
+          ctx.strokeStyle = s.strokeStyle;
+          ctx.lineWidth = s.lineWidth;
           ctx.lineCap = s.lineCap || 'butt';
           ctx.stroke();
         }

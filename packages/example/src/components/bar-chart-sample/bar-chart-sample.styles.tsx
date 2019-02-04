@@ -11,29 +11,29 @@ export const SeriesColors = {
   [Series.PRODUCTION]: '#7dff91',
 };
 
-export const LABEL_COLOR = '#FFF';
+export const labelColor = '#FFF';
 
 export const barChartStyle: BarChartViewStyle = {
   barWidth: .8,
   barRadius: 3,
   series: {
     [Series.CONSUMPTION]: {
-      fillColor: SeriesColors[Series.CONSUMPTION],
+      fillStyle: SeriesColors[Series.CONSUMPTION],
     },
     [Series.PRODUCTION]: {
-      fillColor: SeriesColors[Series.PRODUCTION],
+      fillStyle: SeriesColors[Series.PRODUCTION],
     },
   },
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  textColor: LABEL_COLOR,
+  fillStyle: labelColor,
   textAlign: TextAlign.CENTER,
   textBaseline: TextBaseline.MIDDLE,
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  textColor: LABEL_COLOR,
+  fillStyle: labelColor,
   textAlign: TextAlign.END,
   textBaseline: TextBaseline.BOTTOM,
 };
