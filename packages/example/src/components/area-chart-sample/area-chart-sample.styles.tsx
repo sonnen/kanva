@@ -1,4 +1,4 @@
-import { AreaChartViewStyle, AxisViewStyle, DataDisplayType } from '@kanva/charts';
+import { AreaChartViewStyle, AxisViewStyle, ChartGridViewStyle, DataDisplayType } from '@kanva/charts';
 import { TextAlign, TextBaseline } from '@kanva/core';
 import { rgba } from '../../utils/color.utils';
 
@@ -16,40 +16,45 @@ export const SeriesColors = {
   [Series.BATTERY_STATE]: '#FF57B3',
 };
 
-export const LABEL_COLOR = '#FFFFFF';
+export const labelColor = '#FFFFFF';
 
 export const SeriesStyles: Record<Series, AreaChartViewStyle> = {
   [Series.CONSUMPTION]: {
     type: DataDisplayType.LINE,
-    lineThickness: 1,
-    strokeColor: SeriesColors[Series.CONSUMPTION],
+    lineWidth: 1,
+    strokeStyle: SeriesColors[Series.CONSUMPTION],
   },
   [Series.PRODUCTION]: {
     type: DataDisplayType.POINTS,
-    lineThickness: 2,
-    fillColor: SeriesColors[Series.PRODUCTION],
+    lineWidth: 2,
+    fillStyle: SeriesColors[Series.PRODUCTION],
   },
   [Series.DIRECT_USAGE]: {
     type: DataDisplayType.AREA,
-    lineThickness: 1,
-    strokeColor: SeriesColors[Series.DIRECT_USAGE],
-    fillColor: rgba(SeriesColors[Series.DIRECT_USAGE], .5),
+    lineWidth: 1,
+    strokeStyle: SeriesColors[Series.DIRECT_USAGE],
+    fillStyle: rgba(SeriesColors[Series.DIRECT_USAGE], .7),
   },
   [Series.BATTERY_STATE]: {
     type: DataDisplayType.LINE,
-    lineThickness: 1,
-    strokeColor: SeriesColors[Series.BATTERY_STATE],
+    lineWidth: 1,
+    strokeStyle: SeriesColors[Series.BATTERY_STATE],
   },
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  textColor: LABEL_COLOR,
+  fillStyle: labelColor,
   textAlign: TextAlign.START,
   textBaseline: TextBaseline.MIDDLE,
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  textColor: LABEL_COLOR,
+  fillStyle: labelColor,
   textAlign: TextAlign.END,
   textBaseline: TextBaseline.BOTTOM,
+};
+
+export const chartGridStyle: ChartGridViewStyle = {
+  strokeStyle: rgba('#FFF', .2),
+  thickness: 1,
 };

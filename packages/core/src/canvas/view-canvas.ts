@@ -1,5 +1,5 @@
-import { DrawLineOptions, DrawOptions, DrawRectOptions, DrawTextOptions, MeasureTextOptions } from './canvas.types';
-import { normalizeRadius } from './radius.helper';
+import { DrawLineOptions, DrawOptions, DrawTextOptions, MeasureTextOptions } from './canvas.types';
+import { Radius } from './radius';
 
 export interface Canvas {
   getContext(contextId: '2d'): CanvasRenderingContext2D | null;
@@ -15,24 +15,13 @@ export class ViewCanvas {
     }
   }
 
-  drawRect(options: DrawRectOptions) {
-    const { x, y, w, h, radius } = options;
+  roundRect(x: number, y: number, w: number, h: number, r: Radius) {
     const c = this.context;
-
-    if (!radius) {
-      c.rect(x, y, w, h);
-    } else {
-      const r = normalizeRadius(radius);
-      c.beginPath();
-      c.moveTo(x + r.tl, y);
-      c.arcTo(x + w, y, x + w, y + h, r.tr);
-      c.arcTo(x + w, y + h, x, y + h, r.br);
-      c.arcTo(x, y + h, x, y, r.bl);
-      c.arcTo(x, y, x + w, y, r.tl);
-      c.closePath();
-    }
-
-    this.draw(options);
+    c.moveTo(x + (r.tl <= w ? r.tl : w), y);
+    c.arcTo(x + w, y, x + w, y + h, (r.tr <= h ? r.tr : h));
+    c.arcTo(x + w, y + h, x, y + h, (r.br <= w ? r.br : w));
+    c.arcTo(x, y + h, x, y, (r.bl <= h ? r.bl : h));
+    c.arcTo(x, y, x + w, y, (r.tl <= h ? r.tl : h));
   }
 
   measureText({

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { AreaChartSample } from './components/area-chart-sample';
+import { BarChartSample } from './components/bar-chart-sample';
 import { PieChartSample } from './components/pie-chart-sample';
 
 import './App.css';
@@ -36,6 +37,7 @@ export class App extends React.Component<Props, State> {
               <div className='wrapper' key={index}>
                 <AreaChartSample />
                 <PieChartSample />
+                <BarChartSample />
               </div>),
           )
         }

@@ -11,47 +11,47 @@ export const SeriesColors = {
   [Series.PRODUCTION]: '#7dff91',
 };
 
-export const LABEL_COLOR = '#171717';
+export const labelColor = '#171717';
 
-export const PieChartStyle: PieChartViewStyle = {
+export const pieChartStyle: PieChartViewStyle = {
   innerRadius: .7,
   series: {
     [Series.GRID]: {
-      lineThickness: 1,
-      fillColor: SeriesColors[Series.GRID],
+      lineWidth: 1,
+      fillStyle: SeriesColors[Series.GRID],
     },
     [Series.PRODUCTION]: {
-      lineThickness: 2,
-      fillColor: SeriesColors[Series.PRODUCTION],
+      lineWidth: 2,
+      fillStyle: SeriesColors[Series.PRODUCTION],
     },
   },
 };
 
-export const PieChartStyle2: PieChartViewStyle = {
+export const pieChartStyle2: PieChartViewStyle = {
   padding: 0.02,
   series: {
     [Series.GRID]: {
-      lineThickness: 10,
+      lineWidth: 10,
       lineCap: 'round',
-      strokeColor: SeriesColors[Series.GRID],
+      strokeStyle: SeriesColors[Series.GRID],
     },
     [Series.PRODUCTION]: {
-      lineThickness: 10,
+      lineWidth: 10,
       lineCap: 'round',
-      strokeColor: SeriesColors[Series.PRODUCTION],
+      strokeStyle: SeriesColors[Series.PRODUCTION],
     },
   },
 };
 
-export const PieChartStyle3: PieChartViewStyle = {
+export const pieChartStyle3: PieChartViewStyle = {
   padding: 0.02,
-  strokeColor: rgba('#FFF', .2),
-  lineThickness: 10,
+  strokeStyle: rgba('#FFF', .2),
+  lineWidth: 10,
   series: {
     [Series.PRODUCTION]: {
-      lineThickness: 10,
+      lineWidth: 10,
       lineCap: 'round',
-      strokeColor: SeriesColors[Series.PRODUCTION],
+      strokeStyle: SeriesColors[Series.PRODUCTION],
     },
   },
 };

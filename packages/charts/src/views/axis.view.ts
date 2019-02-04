@@ -4,7 +4,9 @@ import { DataContainer, DataContainerEvent } from '../data-container';
 import { ChartViewProps } from './chart.view';
 
 export interface AxisViewStyle {
-  textColor?: string;
+  lineWidth?: number;
+  strokeStyle?: string;
+  fillStyle?: string;
   textBaseline?: TextBaseline;
   textAlign?: TextAlign;
   font?: Font;
@@ -17,22 +19,20 @@ export enum AxisOrientation {
 
 export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
   orientation: AxisOrientation;
-  dataContainer?: DataContainer<any>;
-  style?: AxisViewStyle;
 }
 
-const DefaultAxisViewStyle = {
-  strokeColor: '#000',
-  textColor: '#000',
+const defaultStyle = {
+  lineWidth: 0,
+  strokeStyle: '#000',
+  fillStyle: '#000',
   font: { fontSize: 12, fontFamily: 'Arial' },
   textAlign: TextAlign.CENTER,
   textBaseline: TextBaseline.MIDDLE,
-  lineThickness: 1.5,
 };
 
 export class AxisView<DataPoint> extends View<AxisViewProps> {
   private dataContainer?: DataContainer<any>;
-  private style: AxisViewStyle = DefaultAxisViewStyle;
+  private style: AxisViewStyle = defaultStyle;
   private orientation: AxisOrientation = AxisOrientation.HORIZONTAL;
 
   constructor(context: Context) {
@@ -50,7 +50,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   }
 
   setStyle(style: AxisViewStyle | undefined) {
-    this.style = style || DefaultAxisViewStyle;
+    this.style = style || defaultStyle;
     this.require(RequiredViewChanges.DRAW);
   }
 
@@ -84,13 +84,13 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return 0;
     }
 
-    const lineHeight = (this.style.font || DefaultAxisViewStyle.font).fontSize;
+    const lineHeight = (this.style.font || defaultStyle.font).fontSize;
     switch (this.orientation) {
       case AxisOrientation.VERTICAL: {
         const axisData = this.dataContainer.getYAxisData();
         const point = axisData[axisData.length - 1];
         const position = point.position;
-        switch (this.style.textBaseline || DefaultAxisViewStyle.textBaseline) {
+        switch (this.style.textBaseline || defaultStyle.textBaseline) {
           case TextBaseline.MIDDLE:
             return position + lineHeight / 2;
           case TextBaseline.TOP:
@@ -127,7 +127,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
         const point = axisData[axisData.length - 1];
         const position = point.position;
         const width = this.getPointTextWidth(canvas, point);
-        switch (this.style.textAlign || DefaultAxisViewStyle.textAlign) {
+        switch (this.style.textAlign || defaultStyle.textAlign) {
           case TextAlign.CENTER:
             return position + width / 2;
           case TextAlign.LEFT:
@@ -152,7 +152,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     const {
       innerWidth, innerHeight,
       dataContainer,
-      style: { font: fontStyle, textColor, textBaseline, textAlign },
+      style: { font: fontStyle, strokeStyle, lineWidth, fillStyle, textBaseline, textAlign },
       orientation,
     } = this;
     const axisData = dataContainer && (orientation === AxisOrientation.HORIZONTAL
@@ -163,10 +163,12 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return;
     }
     const ctx = canvas.context;
-    ctx.fillStyle = textColor || DefaultAxisViewStyle.textColor;
-    ctx.font = font(fontStyle || DefaultAxisViewStyle.font);
-    ctx.textBaseline = textBaseline || DefaultAxisViewStyle.textBaseline;
-    ctx.textAlign = textAlign || DefaultAxisViewStyle.textAlign;
+    ctx.lineWidth = lineWidth || defaultStyle.lineWidth;
+    ctx.strokeStyle = strokeStyle || defaultStyle.strokeStyle;
+    ctx.fillStyle = fillStyle || defaultStyle.fillStyle;
+    ctx.font = font(fontStyle || defaultStyle.font);
+    ctx.textBaseline = textBaseline || defaultStyle.textBaseline;
+    ctx.textAlign = textAlign || defaultStyle.textAlign;
     if (orientation === AxisOrientation.HORIZONTAL) {
       const maxWidth = (axisData[0] && axisData[1])
         ? Math.abs(axisData[0].position - axisData[1].position)
@@ -221,7 +223,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   private getPointTextWidth(canvas: ViewCanvas, point: AxisPoint) {
     return canvas.measureText({
       text: point.value,
-      fontString: font(this.style.font || DefaultAxisViewStyle.font),
+      fontString: font(this.style.font || defaultStyle.font),
     }).width;
   }
 }

@@ -2,9 +2,9 @@ import { Context, ViewCanvas } from '@kanva/core';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface PieChartSeriesViewStyle {
-  strokeColor?: string;
-  lineThickness?: number;
-  fillColor?: string;
+  strokeStyle?: string;
+  lineWidth?: number;
+  fillStyle?: string;
   lineCap?: CanvasLineCap;
 }
 
@@ -17,9 +17,9 @@ export interface PieChartViewStyle extends PieChartSeriesViewStyle {
 export interface PieChartViewProps extends ChartViewProps<PieChartViewStyle> {
 }
 
-const DEFAULT_STYLE: PieChartViewStyle = {
+const defaultStyle: PieChartViewStyle = {
   series: {},
-  lineThickness: 1.5,
+  lineWidth: 1.5,
   innerRadius: 0,
   lineCap: 'butt',
   padding: 0,
@@ -27,7 +27,7 @@ const DEFAULT_STYLE: PieChartViewStyle = {
 
 export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
   constructor(context: Context) {
-    super(context, 'PieChartView', DEFAULT_STYLE);
+    super(context, 'PieChartView', defaultStyle);
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -38,7 +38,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
     const allSeries = dataContainer.getAllDataSeries(innerWidth, innerHeight);
     const total = dataContainer.getTotal();
-    const { fillColor, lineThickness, strokeColor, innerRadius, lineCap } = style;
+    const { fillStyle, lineWidth, strokeStyle, innerRadius, lineCap } = style;
     const ctx = canvas.context;
     const centerX = innerWidth / 2;
     const centerY = innerHeight / 2;
@@ -48,21 +48,21 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     const padding = style.padding || 0;
 
     // Draw background circle
-    const halfLineThickness = (style.lineThickness || 0) / 2;
+    const halfLineThickness = (style.lineWidth || 0) / 2;
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius - halfLineThickness, 0, pi2, false);
     if (inner) {
       ctx.arc(centerX, centerY, inner, pi2, 0, true);
     }
-    if (style.fillColor) {
-      ctx.fillStyle = style.fillColor;
+    if (style.fillStyle) {
+      ctx.fillStyle = style.fillStyle;
       ctx.fill();
     }
-    if (style.strokeColor && style.lineThickness) {
-      ctx.lineWidth = style.lineThickness;
+    if (style.strokeStyle && style.lineWidth) {
+      ctx.lineWidth = style.lineWidth;
       ctx.lineCap = 'butt';
-      ctx.strokeStyle = style.strokeColor;
+      ctx.strokeStyle = style.strokeStyle;
       ctx.stroke();
     }
 
@@ -70,10 +70,10 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     let angle = (-.25 + padding / 2) * pi2;
     for (let i = 0, l = allSeries.length; i < l; i++) {
       const series = allSeries[i];
-      const s = style.series[series.name] || DEFAULT_STYLE;
+      const s = style.series[series.name] || defaultStyle;
       const start = angle;
       const end = start + (series.sum! / total - padding) * pi2;
-      const halfLineThickness = (s.lineThickness || 0) / 2;
+      const halfLineThickness = (s.lineWidth || 0) / 2;
 
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius - halfLineThickness, start, end, false);
@@ -82,14 +82,14 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       }
 
       angle = end + padding * pi2;
-      if (s.fillColor) {
-        ctx.fillStyle = s.fillColor;
+      if (s.fillStyle) {
+        ctx.fillStyle = s.fillStyle;
         ctx.fill();
       }
-      if (s.strokeColor && s.lineThickness) {
-        ctx.lineWidth = s.lineThickness;
-        ctx.lineCap = s.lineCap || DEFAULT_STYLE.lineCap!;
-        ctx.strokeStyle = s.strokeColor;
+      if (s.strokeStyle && s.lineWidth) {
+        ctx.lineWidth = s.lineWidth;
+        ctx.lineCap = s.lineCap || defaultStyle.lineCap!;
+        ctx.strokeStyle = s.strokeStyle;
         ctx.stroke();
       }
     }

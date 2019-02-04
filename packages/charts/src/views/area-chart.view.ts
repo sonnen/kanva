@@ -4,30 +4,29 @@ import { ChartView, ChartViewProps } from './chart.view';
 
 export interface AreaChartViewStyle {
   type: DataDisplayType;
-  strokeColor?: string;
-  lineThickness?: number;
-  fillColor?: string;
+  strokeStyle?: string;
+  lineWidth?: number;
+  fillStyle?: string;
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
   dataSeries: string;
 }
 
-const DEFAULT_STYLE: AreaChartViewStyle = {
+const defaultStyle = {
   type: DataDisplayType.LINE,
-  strokeColor: '#000',
   lineThickness: 1.5,
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
   constructor(context: Context) {
-    super(context, 'AreaChartView', DEFAULT_STYLE);
+    super(context, 'AreaChartView', defaultStyle);
   }
 
   onDraw(canvas: ViewCanvas) {
     const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
     const series = dataContainer && dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
-    const { type, fillColor, lineThickness, strokeColor } = style;
+    const { type, fillStyle, lineWidth, strokeStyle } = style;
 
     if (!series || !series.data.length) {
       return;
@@ -45,16 +44,16 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
         }
         ctx.lineTo(data[data.length - 1].vx, innerHeight);
         ctx.closePath();
-        if (fillColor) {
-          ctx.fillStyle = fillColor;
+        if (fillStyle) {
+          ctx.fillStyle = fillStyle;
           ctx.fill();
         }
         break;
       case DataDisplayType.POINTS:
-        const size = lineThickness || 1;
+        const size = lineWidth || 1;
         const radius = size / 2;
-        if (fillColor) {
-          ctx.fillStyle = fillColor;
+        if (fillStyle) {
+          ctx.fillStyle = fillStyle;
           for (let i = 0, l = data.length; i < l; i++) {
             ctx.fillRect(data[i].vx - radius, data[i].vy - radius, size, size);
           }
@@ -68,9 +67,9 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
         }
         break;
     }
-    if (strokeColor) {
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = lineThickness || 1;
+    if (strokeStyle) {
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth || 1;
       ctx.stroke();
     }
   }

@@ -1,28 +1,28 @@
-import { AxisOrientation, DataContainer, DataSeriesType, ReactCharts, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, DataSeriesType, GridLines, ReactCharts, XYPoint } from '@kanva/charts';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
-import { Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
+import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
 
-const { AreaChartView, AxisView } = ReactCharts;
+const { AreaChartView, AxisView, ChartGridView } = ReactCharts;
 
 const container = new DataContainer<Partial<XYPoint>>()
   .setData([
     {
       name: Series.CONSUMPTION,
-      type: DataSeriesType.AREA,
+      type: DataSeriesType.XY,
       data: MOCK.consumptionPower,
     },
     {
       name: Series.DIRECT_USAGE,
-      type: DataSeriesType.AREA,
+      type: DataSeriesType.XY,
       data: MOCK.directUsagePower,
     },
     {
       name: Series.PRODUCTION,
-      type: DataSeriesType.AREA,
+      type: DataSeriesType.XY,
       data: MOCK.productionPower,
     },
   ])
@@ -39,8 +39,8 @@ const container = new DataContainer<Partial<XYPoint>>()
     },
   })
   .setYAxisParameters({
+    useApproximateValues: true,
     tickCount: 8,
-    roundTo: 100,
     labelAccessor: (value: number) => (value / 1000) + ' kWh',
   });
 
@@ -48,7 +48,7 @@ const percentageContainer = new DataContainer<any>()
   .setData([
     {
       name: Series.BATTERY_STATE,
-      type: DataSeriesType.AREA,
+      type: DataSeriesType.XY,
       data: MOCK.batteryUsoc,
     },
   ])
@@ -103,8 +103,14 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.DIRECT_USAGE)}
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
-        <Kanva className={'c-sample-canvas'} debug>
+        <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.areaChartWrapper}>
+            <ChartGridView
+              layoutParams={layout.areaChart}
+              dataContainer={container}
+              style={chartGridStyle}
+              gridLines={GridLines.HORIZONTAL}
+            />
             <AreaChartView
               layoutParams={layout.areaChart}
               dataContainer={container}
