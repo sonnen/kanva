@@ -27,8 +27,8 @@ export enum DataScaleType {
 }
 
 export enum DataSeriesType {
-  AREA,
-  PIE,
+  XY,
+  RADIAL,
 }
 
 export interface DataSeries<DataPoint> {

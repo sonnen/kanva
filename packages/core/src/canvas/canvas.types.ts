@@ -18,19 +18,6 @@ export interface TextOptions {
   text: string;
 }
 
-export interface Radius {
-  tl: number;
-  tr: number;
-  bl: number;
-  br: number;
-}
-
-export interface DrawRectOptions extends PositionOptions, DrawOptions {
-  w: number;
-  h: number;
-  radius?: number | Partial<Radius>;
-}
-
 export interface DrawLineOptions extends PositionOptions, DrawOptions {
   x2: number;
   y2: number;

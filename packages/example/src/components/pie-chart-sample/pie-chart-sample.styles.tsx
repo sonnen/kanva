@@ -13,7 +13,7 @@ export const SeriesColors = {
 
 export const LABEL_COLOR = '#171717';
 
-export const PieChartStyle: PieChartViewStyle = {
+export const pieChartStyle: PieChartViewStyle = {
   innerRadius: .7,
   series: {
     [Series.GRID]: {
@@ -27,7 +27,7 @@ export const PieChartStyle: PieChartViewStyle = {
   },
 };
 
-export const PieChartStyle2: PieChartViewStyle = {
+export const pieChartStyle2: PieChartViewStyle = {
   padding: 0.02,
   series: {
     [Series.GRID]: {
@@ -43,7 +43,7 @@ export const PieChartStyle2: PieChartViewStyle = {
   },
 };
 
-export const PieChartStyle3: PieChartViewStyle = {
+export const pieChartStyle3: PieChartViewStyle = {
   padding: 0.02,
   strokeColor: rgba('#FFF', .2),
   lineThickness: 10,
