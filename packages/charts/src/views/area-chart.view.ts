@@ -19,7 +19,7 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
-  data: ViewPoint[] = [];
+  private data: ViewPoint[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
@@ -32,7 +32,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       return;
     }
     const series = dataContainer.getDataSeries(dataSeries);
-    if (!series) {
+    if (!series || !series.data.length) {
       this.data = [];
       return;
     }

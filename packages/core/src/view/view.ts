@@ -51,6 +51,8 @@ export class View<Props extends {} = ViewProps> {
   protected width = 0;
   protected height = 0;
   protected rect: Rect = new Rect(0);
+  private oldWidth = 0;
+  private oldHeight = 0;
   private parent: View | null = null;
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
@@ -185,14 +187,16 @@ export class View<Props extends {} = ViewProps> {
     // Retrigger nested layout if dimensions changed
     for (let i = 0, l = children.length; i < l; i++) {
       const child = children[i];
-      const { width: oldWidth, height: oldHeight } = child;
       child.width = child.rect.width;
       child.height = child.rect.height;
-      const sizeChanged = child.width !== oldWidth || child.height !== oldHeight;
-
+      const { width, height, oldWidth, oldHeight } = child;
+      const sizeChanged = width !== oldWidth || height !== oldHeight;
+      if (this.name === 'View') {
+        console.log(child.name, sizeChanged);
+      }
       child.layout(sizeChanged);
       if (sizeChanged) {
-        child.onSizeChanged(child.width, child.height, oldWidth, oldHeight);
+        child.onSizeChanged(width, height, oldWidth, oldHeight);
       }
     }
 
@@ -255,6 +259,9 @@ export class View<Props extends {} = ViewProps> {
     if (context.debugEnabled) {
       console.log(`${this.name}[${this.id}]: measure()`);
     }
+    this.oldWidth = this.width;
+    this.oldHeight = this.height;
+
     if (visibility === Visibility.GONE) {
       this.width = this.height = 0;
       return;
@@ -345,7 +352,7 @@ export class View<Props extends {} = ViewProps> {
 
     const measuredDimensions = this.onMeasure(width, height);
 
-    const sizeChanged = this.width !== measuredDimensions.width || this.height !== measuredDimensions.height;
+    const sizeChanged = this.oldWidth !== measuredDimensions.width || this.oldHeight !== measuredDimensions.height;
 
     this.width = measuredDimensions.width;
     this.height = measuredDimensions.height;
