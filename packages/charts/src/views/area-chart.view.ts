@@ -1,5 +1,5 @@
 import { Context, ViewCanvas } from '@kanva/core';
-import { DataDisplayType } from '../chart.types';
+import { DataDisplayType, ViewPoint } from '../chart.types';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface AreaChartViewStyle {
@@ -19,22 +19,44 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
+  data: ViewPoint[] = [];
+
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
   }
 
-  onDraw(canvas: ViewCanvas) {
-    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
-    const series = dataContainer && dataContainer.getDataSeries(innerWidth, innerHeight, dataSeries);
-    const { type, fillStyle, lineWidth, strokeStyle } = style;
-
-    if (!series || !series.data.length) {
+  onLayout(): void {
+    const { dataContainer, dataSeries, innerHeight, innerWidth, style } = this;
+    if (!dataContainer) {
+      this.data = [];
+      return;
+    }
+    const series = dataContainer.getDataSeries(dataSeries);
+    if (!series) {
+      this.data = [];
       return;
     }
 
-    const ctx = canvas.context;
-    const data = series.data;
+    const halfLineWidth = (style.lineWidth || 0);
+    const { xScale, yScale } = dataContainer.getScales(
+      innerWidth - halfLineWidth,
+      innerHeight - halfLineWidth,
+    );
 
+    this.data = series.data.map(({ x, y }) => ({
+      vx: xScale(x),
+      vy: yScale(y),
+    }));
+  }
+
+  onDraw(canvas: ViewCanvas) {
+    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    const { type, fillStyle, lineWidth = 0, strokeStyle } = style;
+
+    const ctx = canvas.context;
+    const data = this.data;
+
+    ctx.translate(lineWidth / 2, lineWidth / 2);
     ctx.beginPath();
     switch (type) {
       case DataDisplayType.AREA:

@@ -36,19 +36,19 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       return;
     }
 
-    const allSeries = dataContainer.getAllDataSeries(innerWidth, innerHeight);
+    const allSeries = dataContainer.getAllDataSeries();
     const total = dataContainer.getTotal();
-    const { fillStyle, lineWidth, strokeStyle, innerRadius, lineCap } = style;
+    const { fillStyle, lineWidth = 0, strokeStyle, innerRadius = 0, lineCap } = style;
     const ctx = canvas.context;
     const centerX = innerWidth / 2;
     const centerY = innerHeight / 2;
     const radius = Math.min(centerX, centerY);
-    const inner = innerRadius && (innerRadius < 1 ? innerRadius * radius : innerRadius);
+    const inner = innerRadius < 1 ? innerRadius * radius : innerRadius;
     const pi2 = Math.PI * 2;
     const padding = style.padding || 0;
 
     // Draw background circle
-    const halfLineThickness = (style.lineWidth || 0) / 2;
+    const halfLineThickness = lineWidth / 2;
 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius - halfLineThickness, 0, pi2, false);
@@ -72,7 +72,10 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       const series = allSeries[i];
       const s = style.series[series.name] || defaultStyle;
       const start = angle;
-      const end = start + (series.sum! / total - padding) * pi2;
+      const slice = series.sum! / total;
+
+      const end = start + (slice < padding ? slice : (slice - padding)) * pi2;
+
       const halfLineThickness = (s.lineWidth || 0) / 2;
 
       ctx.beginPath();

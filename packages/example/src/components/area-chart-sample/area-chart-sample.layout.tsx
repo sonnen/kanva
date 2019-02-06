@@ -14,7 +14,7 @@ export const layout = createLayoutMap({
     height: MATCH_PARENT,
     alignTop: PARENT_ID,
     above: Views.X_AXIS,
-    toEndOf: Views.Y_AXIS,
+    alignStart: PARENT_ID,
     alignEnd: PARENT_ID,
     margin: { right: endDistance, top: topDistance },
   },
@@ -27,7 +27,7 @@ export const layout = createLayoutMap({
     height: 40,
     alignEnd: PARENT_ID,
     alignBottom: PARENT_ID,
-    toEndOf: Views.Y_AXIS,
+    alignStart: PARENT_ID,
     padding: { right: endDistance },
   },
   yAxis: {

@@ -23,14 +23,27 @@ const container = new DataContainer<number>()
   .setPointAccessor(point => ({
     x: point as number,
     y: point as number,
-  }))
-  .setYAxisParameters({
-    tickCount: 8,
-    roundTo: 100,
-    labelAccessor: (value: number) => (value / 1000) + ' kWh',
-  });
+  }));
 
-export class PieChartSample extends React.Component<{}> {
+const container2 = new DataContainer<number>()
+  .setData([
+    {
+      name: Series.PRODUCTION,
+      type: DataSeriesType.RADIAL,
+      data: [1],
+    },
+    {
+      name: Series.GRID,
+      type: DataSeriesType.RADIAL,
+      data: [99],
+    },
+  ])
+  .setPointAccessor(point => ({
+    x: point as number,
+    y: point as number,
+  }));
+
+export class PieChartSample extends React.Component {
 
   render() {
     return (
@@ -43,7 +56,7 @@ export class PieChartSample extends React.Component<{}> {
           />
           <PieChartView
             layoutParams={layout.pieChart2}
-            dataContainer={container}
+            dataContainer={container2}
             style={pieChartStyle2}
           />
           <PieChartView

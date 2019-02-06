@@ -155,7 +155,7 @@ export class AreaChartSample extends React.Component<{}, State> {
             dataContainer={container}
             orientation={AxisOrientation.VERTICAL}
             borderColor={'#FFF'}
-            border={{ right: 1 }}
+            border={{ left: 1 }}
             style={yAxisStyle}
           />
         </Kanva>

@@ -1,6 +1,6 @@
 import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
-import { AxisPoint } from '../chart.types';
 import { DataContainer, DataContainerEvent } from '../data-container';
+import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartViewProps } from './chart.view';
 
 export interface AxisViewStyle {
@@ -34,14 +34,20 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   private dataContainer?: DataContainer<any>;
   private style: AxisViewStyle = defaultStyle;
   private orientation: AxisOrientation = AxisOrientation.HORIZONTAL;
+  // Calculated values
+  private data: AxisPoint[] = [];
 
   constructor(context: Context) {
     super(context, 'AxisView');
   }
 
+  onLayout(): void {
+    this.data = this.getPoints();
+  }
+
   onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.CALCULATION) {
-      this.require(RequiredViewChanges.MEASURE);
+    if (event === DataContainerEvent.DATA_CHANGE) {
+      this.require(RequiredViewChanges.LAYOUT);
     }
   };
 
@@ -88,8 +94,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     switch (this.orientation) {
       case AxisOrientation.VERTICAL: {
         const axisData = this.dataContainer.getYAxisData();
-        const point = axisData[axisData.length - 1];
-        const position = point.position;
+        const position = axisData.length * lineHeight;
         switch (this.style.textBaseline || defaultStyle.textBaseline) {
           case TextBaseline.MIDDLE:
             return position + lineHeight / 2;
@@ -117,15 +122,14 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
 
     switch (this.orientation) {
       case AxisOrientation.VERTICAL: {
-        const axisData = this.dataContainer.getYAxisData()
-          .map(point => this.getPointTextWidth(canvas, point));
+        const axisData = this.dataContainer.getYAxisData().map(point => this.getPointTextWidth(canvas, point));
         return Math.max(...axisData);
       }
       case AxisOrientation.HORIZONTAL:
       default: {
         const axisData = this.dataContainer.getXAxisData();
         const point = axisData[axisData.length - 1];
-        const position = point.position;
+        const position = axisData.length;
         const width = this.getPointTextWidth(canvas, point);
         switch (this.style.textAlign || defaultStyle.textAlign) {
           case TextAlign.CENTER:
@@ -155,11 +159,8 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       style: { font: fontStyle, strokeStyle, lineWidth, fillStyle, textBaseline, textAlign },
       orientation,
     } = this;
-    const axisData = dataContainer && (orientation === AxisOrientation.HORIZONTAL
-        ? dataContainer.getXAxisData()
-        : dataContainer.getYAxisData()
-    );
-    if (!axisData || !axisData.length) {
+    const axisData = this.data;
+    if (!axisData.length) {
       return;
     }
     const ctx = canvas.context;
@@ -190,7 +191,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
         ctx.fillText(axisData[i].value, axisData[i].position, y, maxWidth);
       }
     } else {
-      const maxWidth = this.innerWidth;
+      const maxWidth = innerWidth;
       let x: number;
       switch (ctx.textAlign) {
         case TextAlign.START:
@@ -225,5 +226,25 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       text: point.value,
       fontString: font(this.style.font || defaultStyle.font),
     }).width;
+  }
+
+  private getPoints(): AxisPoint[] {
+    if (!this.dataContainer) {
+      return [];
+    }
+    const scales = this.dataContainer.getScales(this.innerWidth, this.innerHeight);
+    switch (this.orientation) {
+      case AxisOrientation.HORIZONTAL:
+        return prepareAxisPoints(
+          this.dataContainer.getXAxisData(),
+          scales.xScale,
+        );
+      case AxisOrientation.VERTICAL:
+      default:
+        return prepareAxisPoints(
+          this.dataContainer.getYAxisData(),
+          scales.yScale,
+        );
+    }
   }
 }

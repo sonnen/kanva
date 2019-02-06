@@ -1,4 +1,5 @@
 import { Context, normalizeRadius, Radius, ViewCanvas } from '@kanva/core';
+import { DataSeries } from '../chart.types';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartSeriesViewStyle {
@@ -26,20 +27,45 @@ const defaultStyle = {
 };
 
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
+  // Calculated series
+  series: DataSeries<number>[] = [];
+  seriesLength: number = 0;
+  zeroPoint: number = 0;
+
   constructor(context: Context) {
     super(context, 'BarChartView', defaultStyle);
   }
 
-  onDraw(canvas: ViewCanvas) {
-    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+  onLayout(): void {
+    const { innerWidth, innerHeight, dataContainer } = this;
     if (!dataContainer) {
+      this.zeroPoint = 0;
+      this.seriesLength = 0;
+      this.series = [];
       return;
     }
+    const allSeries = dataContainer.getAllDataSeries();
 
-    const allSeries = dataContainer.getAllDataSeries(innerWidth, innerHeight);
-    const zeroPoint = dataContainer.getZeroPoint(innerWidth, innerHeight).y;
-    const total = dataContainer.getTotal();
-    const seriesLength = dataContainer.getSeriesLength();
+    const { xScale, yScale } = dataContainer.getScales(innerWidth, innerHeight);
+
+    this.zeroPoint = yScale(0);
+    this.seriesLength = dataContainer.getSeriesLength();
+    this.series = allSeries.map(series => ({
+      ...series,
+      data: series.data.map(value => yScale(value.y)),
+    }));
+  }
+
+  onDraw(canvas: ViewCanvas) {
+    const {
+      innerWidth,
+      innerHeight,
+      zeroPoint,
+      series: allSeries,
+      seriesLength,
+      style,
+    } = this;
+
     const seriesCount = allSeries.length;
     const ctx = canvas.context;
     const groupWidth = innerWidth / seriesLength;
@@ -58,7 +84,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       for (let j = 0; j < seriesCount; j++) {
         const series = allSeries[j];
         const s = style.series[series.name] || defaultStyle;
-        const barY = series.data[i].vy;
+        const barY = series.data[i];
         const top = Math.min(zeroPoint, barY);
         const bottom = Math.max(zeroPoint, barY);
 

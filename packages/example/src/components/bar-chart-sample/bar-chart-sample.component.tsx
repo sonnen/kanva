@@ -1,11 +1,12 @@
-import { AxisOrientation, DataContainer, DataSeriesType, ReactCharts } from '@kanva/charts';
+import { AxisOrientation, DataContainer, DataSeriesType, GridLines, ReactCharts } from '@kanva/charts';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
+import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
 import { barChartStyle, Series, xAxisStyle, yAxisStyle } from './bar-chart-sample.styles';
 
-const { BarChartView, AxisView } = ReactCharts;
+const { BarChartView, AxisView, ChartGridView } = ReactCharts;
 
 const container = new DataContainer<number>()
   .setData([
@@ -36,12 +37,18 @@ const container = new DataContainer<number>()
     labelAccessor: (value: number) => (value / 1000) + ' kWh',
   });
 
-export class BarChartSample extends React.Component<{}> {
+export class BarChartSample extends React.Component {
   render() {
     return (
       <div className={'c-area-chart-sample'}>
         <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.chartWrapper}>
+            <ChartGridView
+              layoutParams={layout.barChart}
+              dataContainer={container}
+              style={chartGridStyle}
+              gridLines={GridLines.HORIZONTAL}
+            />
             <BarChartView
               layoutParams={layout.barChart}
               dataContainer={container}

@@ -1,5 +1,7 @@
 import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
 import { DataContainer, DataContainerEvent } from '../data-container';
+import { AxisParameters, AxisPoint, prepareAxisPoints, prepareAxisValues } from '../utils';
+import { AxisOrientation } from './axis.view';
 import { ChartViewProps } from './chart.view';
 
 export enum GridLines {
@@ -11,7 +13,7 @@ export enum GridLines {
 export interface ChartGridViewStyle {
   strokeStyle?: string;
   lineCap?: CanvasLineCap;
-  thickness?: number;
+  lineWidth?: number;
 }
 
 export interface ChartGridViewProps extends ChartViewProps<ChartGridViewStyle> {
@@ -27,13 +29,32 @@ export class ChartGridView extends View<ChartGridViewProps> {
   private dataContainer?: DataContainer<any>;
   private gridLines: GridLines = GridLines.BOTH;
   private style: ChartGridViewStyle = defaultStyle;
+  // Calculated values
+  private xAxis: AxisPoint[] = [];
+  private yAxis: AxisPoint[] = [];
 
   constructor(context: Context) {
     super(context, 'ChartGridView');
   }
 
+  onLayout(): void {
+    if (!this.dataContainer) {
+      this.xAxis = this.yAxis = [];
+      return;
+    }
+    const scales = this.dataContainer.getScales(this.innerWidth, this.innerHeight);
+    this.xAxis = prepareAxisPoints(
+      this.dataContainer.getXAxisData(),
+      scales.xScale,
+    );
+    this.yAxis = prepareAxisPoints(
+      this.dataContainer.getYAxisData(),
+      scales.yScale,
+    );
+  }
+
   onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.CALCULATION) {
+    if (event === DataContainerEvent.DATA_CHANGE) {
       this.require(RequiredViewChanges.DRAW);
     }
   };
@@ -43,10 +64,8 @@ export class ChartGridView extends View<ChartGridViewProps> {
   }
 
   setGridLines(gridLines: GridLines) {
-    if (this.gridLines !== gridLines) {
-      this.gridLines = gridLines;
-      this.require(RequiredViewChanges.DRAW);
-    }
+    this.gridLines = gridLines;
+    this.require(RequiredViewChanges.DRAW);
   }
 
   getStyle() {
@@ -85,16 +104,21 @@ export class ChartGridView extends View<ChartGridViewProps> {
       gridLines,
       innerWidth, innerHeight,
       dataContainer,
-      style: { strokeStyle, lineCap, thickness },
+      style: { strokeStyle, lineCap, lineWidth = 1 },
+      xAxis,
+      yAxis,
     } = this;
     if (!strokeStyle) {
       return;
     }
 
-    const xAxis = dataContainer && dataContainer.getXAxisData() || [];
-    const yAxis = dataContainer && dataContainer.getYAxisData() || [];
-
     const ctx = canvas.context;
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineCap = lineCap || 'butt';
+    ctx.lineWidth = lineWidth;
+    const halfLineWidth = ctx.lineWidth / 2;
+
+    ctx.translate(lineWidth / 2, lineWidth / 2);
     ctx.beginPath();
     if (gridLines !== GridLines.HORIZONTAL) {
       for (let i = 0, l = xAxis.length; i < l; i++) {
@@ -110,9 +134,6 @@ export class ChartGridView extends View<ChartGridViewProps> {
         ctx.lineTo(innerWidth, position);
       }
     }
-    ctx.strokeStyle = strokeStyle;
-    ctx.lineCap = lineCap || 'butt';
-    ctx.lineWidth = thickness || 1;
     ctx.stroke();
   }
 }

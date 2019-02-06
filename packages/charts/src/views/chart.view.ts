@@ -57,12 +57,6 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
     this.require(RequiredViewChanges.LAYOUT);
   }
 
-  onSizeChanged(w: number, h: number, ow: number, oh: number) {
-    if (this.dataContainer) {
-      this.dataContainer.calculate(this.innerWidth, this.innerHeight);
-    }
-  }
-
   onDestroy() {
     if (this.dataContainer) {
       this.dataContainer.removeEventListener(this.onDataContainerEvent);

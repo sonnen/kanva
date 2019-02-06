@@ -5,9 +5,6 @@ export const Views = {
   Y_AXIS: 'yAxis',
 };
 
-const topDistance = 40;
-const endDistance = 40;
-
 export const layout = createLayoutMap({
   chartWrapper: {
     width: MATCH_PARENT,
@@ -16,7 +13,6 @@ export const layout = createLayoutMap({
     above: Views.X_AXIS,
     toEndOf: Views.Y_AXIS,
     alignEnd: PARENT_ID,
-    margin: { right: endDistance, top: topDistance },
   },
   barChart: {
     width: MATCH_PARENT,
@@ -28,7 +24,6 @@ export const layout = createLayoutMap({
     alignEnd: PARENT_ID,
     alignBottom: PARENT_ID,
     toEndOf: Views.Y_AXIS,
-    padding: { right: endDistance },
   },
   yAxis: {
     width: WRAP_CONTENT,
@@ -36,6 +31,6 @@ export const layout = createLayoutMap({
     alignTop: PARENT_ID,
     alignBottom: PARENT_ID,
     above: Views.X_AXIS,
-    padding: { top: topDistance, right: 4 },
+    padding: { right: 4 },
   },
 });

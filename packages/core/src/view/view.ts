@@ -584,13 +584,13 @@ export class View<Props extends {} = ViewProps> {
 
   get innerHeight() {
     const lp = this.lp;
-    const height = this.height - (lp.marginRect.t + lp.marginRect.b + lp.paddingRect.t + lp.paddingRect.b);
+    const height = Math.round(this.height - (lp.marginRect.t + lp.marginRect.b + lp.paddingRect.t + lp.paddingRect.b));
     return height > 0 ? height : 0;
   }
 
   get innerWidth() {
     const lp = this.lp;
-    const width = this.width - (lp.marginRect.l + lp.marginRect.r + lp.paddingRect.l + lp.paddingRect.r);
+    const width = Math.round(this.width - (lp.marginRect.l + lp.marginRect.r + lp.paddingRect.l + lp.paddingRect.r));
     return width > 0 ? width : 0;
   }
 

@@ -56,5 +56,5 @@ export const yAxisStyle: AxisViewStyle = {
 
 export const chartGridStyle: ChartGridViewStyle = {
   strokeStyle: rgba('#FFF', .2),
-  thickness: 1,
+  lineWidth: 1,
 };

@@ -17,11 +17,18 @@ export class ViewCanvas {
 
   roundRect(x: number, y: number, w: number, h: number, r: Radius) {
     const c = this.context;
-    c.moveTo(x + (r.tl <= w ? r.tl : w), y);
-    c.arcTo(x + w, y, x + w, y + h, (r.tr <= h ? r.tr : h));
-    c.arcTo(x + w, y + h, x, y + h, (r.br <= w ? r.br : w));
-    c.arcTo(x, y + h, x, y, (r.bl <= h ? r.bl : h));
-    c.arcTo(x, y, x + w, y, (r.tl <= h ? r.tl : h));
+    const d = Math.min(w, h);
+
+    const tl = (r.tl + r.bl > d) || (r.tl + r.tr > d) ? d / 2 : r.tl;
+    const br = (r.br + r.bl > d) || (r.tr + r.br > d) ? d / 2 : r.br;
+    const tr = (tl + r.tr > d) || (r.tr + br > d) ? d / 2 : r.tr;
+    const bl = (tl + r.bl > d) || (r.bl + br > d) ? d / 2 : r.bl;
+
+    c.moveTo(x + tl, y);
+    c.arcTo(x + w, y, x + w, y + h, tr);
+    c.arcTo(x + w, y + h, x, y + h, br);
+    c.arcTo(x, y + h, x, y, bl);
+    c.arcTo(x, y, x + w, y, tl);
   }
 
   measureText({
