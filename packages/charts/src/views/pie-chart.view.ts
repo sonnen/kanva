@@ -38,22 +38,22 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
     const allSeries = dataContainer.getAllDataSeries();
     const total = dataContainer.getTotal();
-    const { fillStyle, lineWidth = 0, strokeStyle, innerRadius = 0, lineCap } = style;
+    const { fillStyle, lineWidth = 0, strokeStyle, lineCap } = style;
     const ctx = canvas.context;
     const centerX = innerWidth / 2;
     const centerY = innerHeight / 2;
     const radius = Math.min(centerX, centerY);
-    const inner = innerRadius < 1 ? innerRadius * radius : innerRadius;
+    const inner = style.innerRadius || 0;
+    const outerRadius = Math.max(0, radius - lineWidth / 2);
+    const innerRadius = Math.max(0, inner < 1 ? inner * outerRadius : inner);
     const pi2 = Math.PI * 2;
     const padding = style.padding || 0;
 
     // Draw background circle
-    const halfLineThickness = lineWidth / 2;
-
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - halfLineThickness, 0, pi2, false);
-    if (inner) {
-      ctx.arc(centerX, centerY, inner, pi2, 0, true);
+    ctx.arc(centerX, centerY, outerRadius, 0, pi2, false);
+    if (innerRadius) {
+      ctx.arc(centerX, centerY, innerRadius, pi2, 0, true);
     }
     if (style.fillStyle) {
       ctx.fillStyle = style.fillStyle;
@@ -75,16 +75,16 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       const start = angle;
       const slice = series.sum! / total;
       const end = start + slice * pi2;
-
       const halfLineThickness = (s.lineWidth || 0) / 2;
+      const outerRadius = Math.max(0, radius - halfLineThickness);
 
       // Assume that padding can't be bigger than half of the whole arc area
       const maxPad = Math.min((end - start) / 4, pad);
 
       ctx.beginPath();
-      ctx.arc(centerX, centerY, radius - halfLineThickness, start + maxPad, end - maxPad, false);
-      if (inner) {
-        ctx.arc(centerX, centerY, inner, end - maxPad, start + maxPad, true);
+      ctx.arc(centerX, centerY, outerRadius, start + maxPad, end - maxPad, false);
+      if (innerRadius) {
+        ctx.arc(centerX, centerY, innerRadius, end - maxPad, start + maxPad, true);
       }
 
       angle = end;

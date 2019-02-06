@@ -4,6 +4,7 @@ import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartViewProps } from './chart.view';
 
 export interface AxisViewStyle {
+  paddingBetweenLabels?: number;
   lineWidth?: number;
   strokeStyle?: string;
   fillStyle?: string;
@@ -22,6 +23,7 @@ export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
 }
 
 const defaultStyle = {
+  paddingBetweenLabels: 4,
   lineWidth: 0,
   strokeStyle: '#000',
   fillStyle: '#000',
@@ -156,7 +158,15 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     const {
       innerWidth, innerHeight,
       dataContainer,
-      style: { font: fontStyle, strokeStyle, lineWidth, fillStyle, textBaseline, textAlign },
+      style: {
+        font: fontStyle = defaultStyle.font,
+        strokeStyle = defaultStyle.strokeStyle,
+        lineWidth = defaultStyle.lineWidth,
+        fillStyle = defaultStyle.fillStyle,
+        textBaseline = defaultStyle.textBaseline,
+        textAlign = defaultStyle.textAlign,
+        paddingBetweenLabels = defaultStyle.paddingBetweenLabels,
+      } = defaultStyle,
       orientation,
     } = this;
     const axisData = this.data;
@@ -164,12 +174,12 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return;
     }
     const ctx = canvas.context;
-    ctx.lineWidth = lineWidth || defaultStyle.lineWidth;
-    ctx.strokeStyle = strokeStyle || defaultStyle.strokeStyle;
-    ctx.fillStyle = fillStyle || defaultStyle.fillStyle;
-    ctx.font = font(fontStyle || defaultStyle.font);
-    ctx.textBaseline = textBaseline || defaultStyle.textBaseline;
-    ctx.textAlign = textAlign || defaultStyle.textAlign;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeStyle;
+    ctx.fillStyle = fillStyle;
+    ctx.font = font(fontStyle);
+    ctx.textBaseline = textBaseline;
+    ctx.textAlign = textAlign;
     if (orientation === AxisOrientation.HORIZONTAL) {
       const maxWidth = (axisData[0] && axisData[1])
         ? Math.abs(axisData[0].position - axisData[1].position)
@@ -187,8 +197,20 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           y = innerHeight / 2;
           break;
       }
+      let lastEnd = -this.lp.paddingRect.l;
       for (let i = 0, l = axisData.length; i < l; i++) {
-        ctx.fillText(axisData[i].value, axisData[i].position, y, maxWidth);
+        const point = axisData[i];
+        const width = ctx.measureText(point.value).width;
+        // TODO RTL support
+        const start = (ctx.textAlign === 'start' || ctx.textAlign === 'left')
+          ? point.position
+          : (ctx.textAlign === 'center')
+            ? (point.position - width / 2)
+            : (point.position - width);
+        if (lastEnd <= start) {
+          ctx.fillText(point.value, point.position, y, maxWidth);
+          lastEnd = start + width + paddingBetweenLabels;
+        }
       }
     } else {
       const maxWidth = innerWidth;
@@ -207,8 +229,20 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           x = innerWidth / 2;
           break;
       }
+      const height = fontStyle.fontSize;
+      let lastEnd = innerHeight + this.lp.paddingRect.b;
       for (let i = 0, l = axisData.length; i < l; i++) {
-        ctx.fillText(axisData[i].value, x, axisData[i].position, maxWidth);
+        const point = axisData[i];
+        const start = (ctx.textBaseline === 'bottom')
+          ? (point.position - height)
+          : (ctx.textBaseline === 'middle')
+            ? (point.position - height / 2)
+            : point.position;
+        console.log(lastEnd, start);
+        if (lastEnd >= start) {
+          ctx.fillText(point.value, x, point.position, maxWidth);
+          lastEnd = start - height - paddingBetweenLabels;
+        }
       }
     }
   }
