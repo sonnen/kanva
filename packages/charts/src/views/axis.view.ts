@@ -238,7 +238,6 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           : (ctx.textBaseline === 'middle')
             ? (point.position - height / 2)
             : point.position;
-        console.log(lastEnd, start);
         if (lastEnd >= start) {
           ctx.fillText(point.value, x, point.position, maxWidth);
           lastEnd = start - height - paddingBetweenLabels;
