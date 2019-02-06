@@ -191,9 +191,6 @@ export class View<Props extends {} = ViewProps> {
       child.height = child.rect.height;
       const { width, height, oldWidth, oldHeight } = child;
       const sizeChanged = width !== oldWidth || height !== oldHeight;
-      if (this.name === 'View') {
-        console.log(child.name, sizeChanged);
-      }
       child.layout(sizeChanged);
       if (sizeChanged) {
         child.onSizeChanged(width, height, oldWidth, oldHeight);

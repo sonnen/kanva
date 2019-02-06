@@ -67,24 +67,27 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     }
 
     // Draw series (1 series = sum of all of it's Y values)
-    let angle = (-.25 + padding / 2) * pi2;
+    const pad = padding * 0.5 * pi2;
+    let angle = -.25 * pi2;
     for (let i = 0, l = allSeries.length; i < l; i++) {
       const series = allSeries[i];
       const s = style.series[series.name] || defaultStyle;
       const start = angle;
       const slice = series.sum! / total;
-
-      const end = start + (slice < padding ? slice : (slice - padding)) * pi2;
+      const end = start + slice * pi2;
 
       const halfLineThickness = (s.lineWidth || 0) / 2;
 
+      // Assume that padding can't be bigger than half of the whole arc area
+      const maxPad = Math.min((end - start) / 4, pad);
+
       ctx.beginPath();
-      ctx.arc(centerX, centerY, radius - halfLineThickness, start, end, false);
+      ctx.arc(centerX, centerY, radius - halfLineThickness, start + maxPad, end - maxPad, false);
       if (inner) {
-        ctx.arc(centerX, centerY, inner, end, start, true);
+        ctx.arc(centerX, centerY, inner, end - maxPad, start + maxPad, true);
       }
 
-      angle = end + padding * pi2;
+      angle = end;
       if (s.fillStyle) {
         ctx.fillStyle = s.fillStyle;
         ctx.fill();
