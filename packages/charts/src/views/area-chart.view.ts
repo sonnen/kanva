@@ -55,6 +55,9 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     const ctx = canvas.context;
     const data = this.data;
+    if (!data.length) {
+      return;
+    }
 
     ctx.translate(lineWidth / 2, lineWidth / 2);
     ctx.beginPath();
