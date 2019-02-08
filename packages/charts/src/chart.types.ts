@@ -20,14 +20,8 @@ export enum DataScaleType {
   LINEAR,
 }
 
-export enum DataSeriesType {
-  XY,
-  RADIAL,
-}
-
 export interface DataSeries<DataPoint> {
   name: string;
-  type: DataSeriesType;
   sum?: number;
   data: DataPoint[];
 }

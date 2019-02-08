@@ -1,4 +1,4 @@
-import { AxisOrientation, DataContainer, DataSeriesType, GridLines, ReactCharts, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, GridLines, ReactCharts, XYPoint } from '@kanva/charts';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
@@ -12,17 +12,14 @@ const container = new DataContainer<Partial<XYPoint>>()
   .setData([
     {
       name: Series.CONSUMPTION,
-      type: DataSeriesType.XY,
       data: MOCK.consumptionPower,
     },
     {
       name: Series.DIRECT_USAGE,
-      type: DataSeriesType.XY,
       data: MOCK.directUsagePower,
     },
     {
       name: Series.PRODUCTION,
-      type: DataSeriesType.XY,
       data: MOCK.productionPower,
     },
   ])
@@ -48,7 +45,6 @@ const percentageContainer = new DataContainer<any>()
   .setData([
     {
       name: Series.BATTERY_STATE,
-      type: DataSeriesType.XY,
       data: MOCK.batteryUsoc,
     },
   ])

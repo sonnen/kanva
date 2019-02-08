@@ -40,16 +40,14 @@ export const prepareAxisValues = (
   const [min, max] = scale.domain();
   const tickDistance = (max - min) / (tickCount - 1);
 
-  const groupMultiplier = isGrouped
-    ? (value: number) => 0.5 + value * (tickCount - 1) / tickCount
-    : (value: number) => value;
-
   for (let i = 0; i < tickCount; i++) {
     const rawValue = min + tickDistance * i;
 
     axis[i] = {
       value: labelAccessor(roundToNearest(rawValue, roundTo), i),
-      position: groupMultiplier(rawValue),
+      position: isGrouped
+        ? (.5 + i) * (tickCount - 1) / tickCount
+        : rawValue,
     };
   }
 

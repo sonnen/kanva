@@ -1,4 +1,4 @@
-import { DataContainer, DataSeriesType, ReactCharts } from '@kanva/charts';
+import { DataContainer, ReactCharts } from '@kanva/charts';
 import { Kanva } from '@kanva/react';
 import * as React from 'react';
 import { layout } from './pie-chart-sample.layout';
@@ -11,12 +11,10 @@ const container = new DataContainer<number>()
   .setData([
     {
       name: Series.PRODUCTION,
-      type: DataSeriesType.RADIAL,
       data: MOCK.production,
     },
     {
       name: Series.GRID,
-      type: DataSeriesType.RADIAL,
       data: MOCK.grid,
     },
   ])
@@ -29,12 +27,10 @@ const container2 = new DataContainer<number>()
   .setData([
     {
       name: Series.PRODUCTION,
-      type: DataSeriesType.RADIAL,
       data: [1],
     },
     {
       name: Series.GRID,
-      type: DataSeriesType.RADIAL,
       data: [99],
     },
   ])

@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts",
-  "version": "0.1.44",
+  "version": "0.2.1",
   "description": "Chart views for Kanva",
   "keywords": [
     "canvas",
@@ -30,15 +30,15 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@kanva/core": "^0.1.1",
-    "@kanva/react": "^0.1.1"
+    "@kanva/core": "^0.2.0",
+    "@kanva/react": "^0.2.0"
   },
   "dependencies": {
     "d3-scale": "^2.1.2"
   },
   "devDependencies": {
-    "@kanva/core": "^0.1.44",
-    "@kanva/react": "^0.1.44",
+    "@kanva/core": "^0.2.1",
+    "@kanva/react": "^0.2.1",
     "@types/react": "^16.7.18",
     "react": "^16.7.0"
   }

@@ -1,7 +1,8 @@
 import { ScaleContinuousNumeric } from 'd3-scale';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint } from '../chart.types';
 import {
-  AxisParameters, AxisPoint,
+  AxisParameters,
+  AxisPoint,
   getContinuousNumericScale,
   isXYArray,
   prepareAxisValues,
@@ -132,22 +133,22 @@ export class DataContainer<DataPoint> {
     return this;
   }
 
-  getXBounds() {
+  getXBoundsExtension() {
     return this.xBounds;
   }
 
-  setXBounds(xBounds: number[]) {
+  setXBoundsExtension(xBounds: number[]) {
     this.xBounds = xBounds;
     this.hasChanged = true;
     this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
-  getYBounds() {
+  getYBoundsExtension() {
     return this.yBounds;
   }
 
-  setYBounds(yBounds: number[]) {
+  setYBoundsExtension(yBounds: number[]) {
     this.yBounds = yBounds;
     this.hasChanged = true;
     this.postEvent(DataContainerEvent.DATA_CHANGE);
@@ -245,7 +246,6 @@ export class DataContainer<DataPoint> {
 
       series[i] = {
         name: rawSeries.name,
-        type: rawSeries.type,
         sum,
         data: data as (XYPoint & ViewPoint)[],
       };
