@@ -48,7 +48,7 @@ const percentageContainer = new DataContainer<any>()
       data: MOCK.batteryUsoc,
     },
   ])
-  .setYBounds([0, 100]);
+  .setYBoundsExtension([0, 100]);
 
 interface State {
   filters: Record<string, boolean>;

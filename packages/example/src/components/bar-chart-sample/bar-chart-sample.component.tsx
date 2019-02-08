@@ -18,7 +18,7 @@ const container = new DataContainer<number>()
       data: [],
     },
   ])
-  .setYBounds([0])
+  .setYBoundsExtension([0])
   .setPointAccessor((point, index) => ({
     x: index,
     y: point,
