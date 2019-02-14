@@ -1,11 +1,10 @@
-import { DataContainer, ReactCharts } from '@kanva/charts';
+import { DataContainer } from '@kanva/charts';
+import { PieChartView } from '@kanva/charts-react';
 import { Kanva } from '@kanva/react';
 import * as React from 'react';
 import { layout } from './pie-chart-sample.layout';
 import { MOCK } from './pie-chart-sample.mock';
 import { pieChartStyle, pieChartStyle2, pieChartStyle3, Series } from './pie-chart-sample.styles';
-
-const { PieChartView } = ReactCharts;
 
 const container = new DataContainer<number>()
   .setData([

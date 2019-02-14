@@ -1,11 +1,10 @@
-import { AxisOrientation, DataContainer, GridLines, ReactCharts } from '@kanva/charts';
+import { AxisOrientation, DataContainer, GridLines } from '@kanva/charts';
+import { AxisView, BarChartView, ChartGridView } from '@kanva/charts-react';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { layout, Views } from './bar-chart-sample.layout';
 import { barChartStyle, Series, xAxisStyle, yAxisStyle } from './bar-chart-sample.styles';
-
-const { BarChartView, AxisView, ChartGridView } = ReactCharts;
 
 const container = new DataContainer<number>()
   .setData([

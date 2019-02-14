@@ -1,13 +1,12 @@
 {
-  "name": "@kanva/react",
+  "name": "@kanva/charts-react",
   "version": "0.3.1",
-  "description": "React bindings for Kanva",
+  "description": "React bindings for @kanva/charts",
   "keywords": [
     "canvas",
-    "html5",
-    "js",
-    "views",
-    "react"
+    "react",
+    "charts",
+    "kanva"
   ],
   "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
   "homepage": "https://github.com/headline-1/kanva",
@@ -23,23 +22,20 @@
     "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --config='./jest.config.js' --watch"
   },
-  "dependencies": {
-    "resize-observer-polyfill": "^1.5.1"
-  },
-  "peerDependencies": {
-    "@kanva/core": "^0.3.0",
-    "react": "^16.4.0"
-  },
-  "devDependencies": {
-    "@kanva/core": "^0.3.1",
-    "@types/react": "^16.7.18",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0"
-  },
   "files": [
     "dist/"
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "@kanva/charts": "^0.3.0",
+    "@kanva/react": "^0.3.0"
+  },
+  "devDependencies": {
+    "@kanva/charts": "^0.3.1",
+    "@kanva/react": "^0.3.1",
+    "@types/react": "^16.7.18",
+    "react": "^16.7.0"
   }
 }
