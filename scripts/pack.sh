@@ -6,10 +6,11 @@ function pack(){
   DIR=$1
   PACKAGE_NAME=$(cd ${DIR} && npm pack 2>&1 | grep filename | awk -F ': *' '{print $2}')
   mv ${DIR}/${PACKAGE_NAME} ${DIST_DIR}
-  echo Packed ${DIR} to ${DIST_DIR}/${PACKAGE_NAME}
+  echo "Packed ${DIR} to ${DIST_DIR}/${PACKAGE_NAME}"
 }
 
-mkdir ${DIST_DIR}
-pack ./packages/core
-pack ./packages/react
-pack ./packages/charts
+mkdir -p ${DIST_DIR}
+for PACKAGE in ./packages/*/; do
+    echo "Processing ${PACKAGE}"
+    pack ${PACKAGE}
+done
