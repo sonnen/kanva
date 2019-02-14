@@ -1,12 +1,11 @@
-import { AxisOrientation, DataContainer, GridLines, ReactCharts, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, GridLines, XYPoint } from '@kanva/charts';
+import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
 import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
-
-const { AreaChartView, AxisView, ChartGridView } = ReactCharts;
 
 const container = new DataContainer<Partial<XYPoint>>()
   .setData([
