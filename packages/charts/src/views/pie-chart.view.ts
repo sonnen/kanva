@@ -5,12 +5,12 @@ export interface PieChartSeriesViewStyle {
   strokeStyle?: string;
   lineWidth?: number;
   fillStyle?: string;
-  lineCap?: CanvasLineCap;
 }
 
 export interface PieChartViewStyle extends PieChartSeriesViewStyle {
   innerRadius?: number;
   padding?: number;
+  lineRounding?: boolean;
   series: Record<string, PieChartSeriesViewStyle>;
 }
 
@@ -21,7 +21,7 @@ const defaultStyle: PieChartViewStyle = {
   series: {},
   lineWidth: 1.5,
   innerRadius: 0,
-  lineCap: 'butt',
+  lineRounding: false,
   padding: 0,
 };
 
@@ -38,7 +38,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
     const allSeries = dataContainer.getAllDataSeries();
     const total = dataContainer.getTotal();
-    const { fillStyle, lineWidth = 0, strokeStyle, lineCap } = style;
+    const { fillStyle, lineWidth = 0, strokeStyle } = style;
     const ctx = canvas.context;
     const centerX = innerWidth / 2;
     const centerY = innerHeight / 2;
@@ -49,21 +49,43 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     const pi2 = Math.PI * 2;
     const padding = style.padding || 0;
 
+    let maxRingThickness = 0;
+    for (let i = 0, l = allSeries.length; i < l; i++) {
+      const s = style.series[allSeries[i].name] || defaultStyle;
+      const lineThickness = s.lineWidth || 0;
+      if (maxRingThickness < lineThickness) {
+        maxRingThickness = lineThickness;
+      }
+    }
+
+    if (style.lineRounding) {
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+    } else {
+      ctx.lineJoin = 'miter';
+      ctx.lineCap = 'square';
+    }
+
     // Draw background circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, outerRadius, 0, pi2, false);
-    if (innerRadius) {
-      ctx.arc(centerX, centerY, innerRadius, pi2, 0, true);
-    }
-    if (style.fillStyle) {
-      ctx.fillStyle = style.fillStyle;
-      ctx.fill();
-    }
-    if (style.strokeStyle && style.lineWidth) {
-      ctx.lineWidth = style.lineWidth;
-      ctx.lineCap = 'butt';
-      ctx.strokeStyle = style.strokeStyle;
-      ctx.stroke();
+    {
+      const ringThickness = style.lineWidth || 0;
+      const ringShift = (maxRingThickness - ringThickness) / 2;
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, outerRadius - ringShift, 0, pi2, false);
+      if (innerRadius) {
+        ctx.arc(centerX, centerY, innerRadius - ringShift, pi2, 0, true);
+        ctx.closePath();
+      }
+      if (style.fillStyle) {
+        ctx.fillStyle = style.fillStyle;
+        ctx.fill();
+      }
+      if (style.strokeStyle && style.lineWidth) {
+        ctx.lineWidth = style.lineWidth;
+        ctx.strokeStyle = style.strokeStyle;
+        ctx.stroke();
+      }
     }
 
     // Draw series (1 series = sum of all of it's Y values)
@@ -77,14 +99,17 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       const end = start + slice * pi2;
       const halfLineThickness = (s.lineWidth || 0) / 2;
       const outerRadius = Math.max(0, radius - halfLineThickness);
+      const ringThickness = s.lineWidth || 0;
+      const ringShift = (maxRingThickness - ringThickness) / 2;
 
       // Assume that padding can't be bigger than half of the whole arc area
       const maxPad = Math.min((end - start) / 4, pad);
 
       ctx.beginPath();
-      ctx.arc(centerX, centerY, outerRadius, start + maxPad, end - maxPad, false);
+      ctx.arc(centerX, centerY, outerRadius - ringShift, start + maxPad, end - maxPad, false);
       if (innerRadius) {
-        ctx.arc(centerX, centerY, innerRadius, end - maxPad, start + maxPad, true);
+        ctx.arc(centerX, centerY, innerRadius - ringShift, end - maxPad, start + maxPad, true);
+        ctx.closePath();
       }
 
       angle = end;
@@ -94,7 +119,6 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       }
       if (s.strokeStyle && s.lineWidth) {
         ctx.lineWidth = s.lineWidth;
-        ctx.lineCap = s.lineCap || defaultStyle.lineCap!;
         ctx.strokeStyle = s.strokeStyle;
         ctx.stroke();
       }

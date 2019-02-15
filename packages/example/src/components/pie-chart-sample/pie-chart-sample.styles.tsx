@@ -29,15 +29,14 @@ export const pieChartStyle: PieChartViewStyle = {
 
 export const pieChartStyle2: PieChartViewStyle = {
   padding: 0.02,
+  lineRounding: true,
   series: {
     [Series.GRID]: {
       lineWidth: 10,
-      lineCap: 'round',
       strokeStyle: SeriesColors[Series.GRID],
     },
     [Series.PRODUCTION]: {
       lineWidth: 10,
-      lineCap: 'round',
       strokeStyle: SeriesColors[Series.PRODUCTION],
     },
   },
@@ -46,11 +45,11 @@ export const pieChartStyle2: PieChartViewStyle = {
 export const pieChartStyle3: PieChartViewStyle = {
   padding: 0.02,
   strokeStyle: rgba('#FFF', .2),
-  lineWidth: 10,
+  lineWidth: 5,
+  lineRounding: true,
   series: {
     [Series.PRODUCTION]: {
       lineWidth: 10,
-      lineCap: 'round',
       strokeStyle: SeriesColors[Series.PRODUCTION],
     },
   },
