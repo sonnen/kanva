@@ -1,6 +1,8 @@
 import { Canvas, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View } from '../view';
 
+const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
+
 export class RootCanvasView extends View {
   private shouldRun: boolean = true;
   private readonly canvas: ViewCanvas;
@@ -10,6 +12,10 @@ export class RootCanvasView extends View {
   constructor(context: Context, canvas: Canvas) {
     super(context, 'RootCanvasView');
     this.canvas = new ViewCanvas(canvas);
+
+    const { width, height } = this.canvas.context.canvas;
+    this.rect.r = this.lp.w = width;
+    this.rect.b = this.lp.h = height;
   }
 
   onSizeChanged() {
@@ -21,7 +27,7 @@ export class RootCanvasView extends View {
     const canvas = ctx.canvas;
     const parent = canvas.parentElement;
 
-    if (!canvas.style || !parent || !window) {
+    if (!isBrowser || !canvas.style || !parent) {
       // In Node environment we have canvas of constant size
       return;
     }
@@ -49,11 +55,13 @@ export class RootCanvasView extends View {
   }
 
   run = () => {
-    requestAnimationFrame(this.run);
     if (!this.shouldRun) {
       return;
     }
     this.isRequired = false;
+    if (isBrowser) {
+      requestAnimationFrame(this.run);
+    }
 
     this.onSizeChanged();
     this.measure(this.canvas);
@@ -82,7 +90,9 @@ export class RootCanvasView extends View {
       return;
     }
     this.isRequired = true;
-    requestAnimationFrame(this.run);
+    if (isBrowser) {
+      requestAnimationFrame(this.run);
+    }
   }
 
   onSnapshot() {
