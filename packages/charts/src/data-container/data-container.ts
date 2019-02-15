@@ -217,9 +217,8 @@ export class DataContainer<DataPoint> {
     let seriesLength = 0;
     for (let i = 0, l = rawData.length; i < l; i++) {
       const rawSeries = rawData[i];
-      const data: XYPoint[] = pointAccessor
-        ? rawSeries.data.map(pointAccessor)
-        : isXYArray(rawSeries.data) ? rawSeries.data.map(({ x, y }: XYPoint) => ({ x, y })) : [];
+      const data = this.getNormalizedData(rawSeries);
+
       let sum = 0;
 
       if (data.length) {
@@ -263,6 +262,17 @@ export class DataContainer<DataPoint> {
 
     this.xAxis = prepareAxisValues(this.xScale, this.xAxisParameters, seriesLength);
     this.yAxis = prepareAxisValues(this.yScale, this.yAxisParameters, seriesLength);
+  }
+
+  private getNormalizedData(rawSeries: DataSeries<DataPoint>): XYPoint[] {
+    if (this.pointAccessor) {
+      return rawSeries.data.map(this.pointAccessor);
+    }
+    if (isXYArray(rawSeries.data)) {
+      return rawSeries.data.map(({ x, y }: XYPoint) => ({ x, y }));
+    }
+    console.warn('You are probably missing PointAccessor in your DataContainer configuration.');
+    return [];
   }
 
   private postEvent(change: DataContainerEvent) {
