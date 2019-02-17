@@ -27,11 +27,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
   onLayout(): void {
     const { dataContainer, dataSeries, innerHeight, innerWidth, style } = this;
-    if (!dataContainer) {
+    if (!dataContainer || !dataSeries) {
       this.data = [];
       return;
     }
-    const series = dataContainer.getDataSeries(dataSeries);
+    const series = dataContainer.getDataSeries(dataSeries[0]);
     if (!series || !series.data.length) {
       this.data = [];
       return;

@@ -9,7 +9,7 @@ export interface ChartViewProps<Style> {
 export class ChartView<ChartProps extends ChartViewProps<any>,
   Style = NonNullable<ChartProps['style']>> extends View<ChartProps> {
   protected dataContainer?: DataContainer<any>;
-  protected dataSeries?: string;
+  protected dataSeries?: string[];
   protected style: Style;
 
   constructor(context: Context, name: string, private readonly defaultStyle: Style) {
@@ -36,8 +36,8 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
     return this.dataSeries;
   }
 
-  setDataSeries(series: string) {
-    this.dataSeries = series;
+  setDataSeries(series: string | string[]) {
+    this.dataSeries = Array.isArray(series) ? series : [series];
     this.require(RequiredViewChanges.DRAW);
   }
 

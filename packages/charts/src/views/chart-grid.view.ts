@@ -1,7 +1,6 @@
 import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
 import { DataContainer, DataContainerEvent } from '../data-container';
-import { AxisParameters, AxisPoint, prepareAxisPoints, prepareAxisValues } from '../utils';
-import { AxisOrientation } from './axis.view';
+import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartViewProps } from './chart.view';
 
 export enum GridLines {

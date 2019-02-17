@@ -32,6 +32,7 @@ export interface BarChartViewStyle {
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
+  dataSeries?: string | string[];
   labels: BarChartLabels;
 }
 
@@ -75,9 +76,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
     this.zeroPoint = yScale(0);
     this.seriesLength = dataContainer.getSeriesLength();
-    this.series = allSeries.map(series => ({
+    this.series = allSeries
+      .filter(series => !this.dataSeries || this.dataSeries.includes(series.name))
+      .map(series => ({
       ...series,
-      data: [...series.data].map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
+      data: series.data.map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
     }));
   }
 
@@ -92,7 +95,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       labels,
     } = this;
 
-    const seriesCount = allSeries.length;
+    const seriesCount = this.series.length;
     const ctx = canvas.context;
     const groupWidth = innerWidth / seriesLength;
     const rawBarWidth = style.barWidth || 1;
