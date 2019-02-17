@@ -1,5 +1,6 @@
-import { Context, normalizeRadius, Radius, ViewCanvas } from '@kanva/core';
+import { Context, Font, font, normalizeRadius, Radius, ViewCanvas } from '@kanva/core';
 import { DataSeries } from '../chart.types';
+import { AxisLabelAccessor } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartSeriesViewStyle {
@@ -7,6 +8,20 @@ export interface BarChartSeriesViewStyle {
   lineWidth?: number;
   fillStyle?: string;
   lineCap?: CanvasLineCap;
+}
+
+export enum LabelPosition {
+  START,
+  CENTER,
+  END,
+  OUT,
+}
+
+export interface BarChartLabels {
+  font: Font;
+  fillStyle: string;
+  position: LabelPosition;
+  labelAccessor: AxisLabelAccessor;
 }
 
 export interface BarChartViewStyle {
@@ -17,6 +32,7 @@ export interface BarChartViewStyle {
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
+  labels: BarChartLabels;
 }
 
 const defaultStyle = {
@@ -27,13 +43,22 @@ const defaultStyle = {
 };
 
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
+  private labels?: BarChartLabels;
   // Calculated series
-  series: DataSeries<number>[] = [];
-  seriesLength: number = 0;
-  zeroPoint: number = 0;
+  private series: DataSeries<{ y: number, barY: number }>[] = [];
+  private seriesLength: number = 0;
+  private zeroPoint: number = 0;
 
   constructor(context: Context) {
     super(context, 'BarChartView', defaultStyle);
+  }
+
+  getLabels() {
+    return this.labels;
+  }
+
+  setLabels(labels: BarChartLabels) {
+    this.labels = labels;
   }
 
   onLayout(): void {
@@ -52,7 +77,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     this.seriesLength = dataContainer.getSeriesLength();
     this.series = allSeries.map(series => ({
       ...series,
-      data: series.data.map(value => yScale(value.y)),
+      data: [...series.data].map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
     }));
   }
 
@@ -64,6 +89,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       series: allSeries,
       seriesLength,
       style,
+      labels,
     } = this;
 
     const seriesCount = allSeries.length;
@@ -77,6 +103,12 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
     let left = 0;
 
+    if (labels) {
+      ctx.textBaseline = 'bottom';
+      ctx.textAlign = 'center';
+      ctx.font = font(labels.font);
+    }
+
     for (let i = 0, l = seriesLength; i < l; i++) {
       const right = left + groupWidth;
 
@@ -84,12 +116,13 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       for (let j = 0; j < seriesCount; j++) {
         const series = allSeries[j];
         const s = style.series[series.name] || defaultStyle;
-        const barY = series.data[i];
+        const { y, barY } = series.data[i] || { y: 0, barY: zeroPoint };
         const top = Math.min(zeroPoint, barY);
         const bottom = Math.max(zeroPoint, barY);
+        const height = Math.abs(top - bottom);
 
         ctx.beginPath();
-        canvas.roundRect(barRight, top, barWidth, Math.abs(top - bottom), radius);
+        canvas.roundRect(barRight, top, barWidth, height, radius);
         ctx.closePath();
 
         if (s.fillStyle) {
@@ -101,6 +134,28 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
           ctx.lineWidth = s.lineWidth;
           ctx.lineCap = s.lineCap || 'butt';
           ctx.stroke();
+        }
+
+        if (labels) {
+          const textHeight = labels.font.fontSize;
+          let yText;
+          switch (labels.position) {
+            case LabelPosition.START:
+              yText = top <= zeroPoint ? zeroPoint : zeroPoint + textHeight;
+              break;
+            case LabelPosition.END:
+              yText = top < zeroPoint ? top + textHeight : bottom;
+              break;
+            case LabelPosition.CENTER:
+              yText = top + (height + textHeight) / 2;
+              break;
+            case LabelPosition.OUT:
+            default:
+              yText = top < zeroPoint ? top : bottom + textHeight;
+              break;
+          }
+          ctx.fillStyle = labels.fillStyle;
+          ctx.fillText(labels.labelAccessor(y, j), barRight + barWidth / 2, yText);
         }
 
         barRight += barWidth;

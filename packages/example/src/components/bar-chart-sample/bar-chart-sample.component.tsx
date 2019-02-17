@@ -1,4 +1,5 @@
 import { AxisOrientation, DataContainer, GridLines } from '@kanva/charts';
+import { BarChartLabels, LabelPosition } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView } from '@kanva/charts-react';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
@@ -49,6 +50,15 @@ export class BarChartSample extends React.Component {
             <BarChartView
               layoutParams={layout.barChart}
               dataContainer={container}
+              labels={{
+                font: {
+                  fontFamily: 'Arial',
+                  fontSize: 12,
+                },
+                fillStyle: '#FFF',
+                labelAccessor: x => x.toString(),
+                position: LabelPosition.START,
+              }}
               style={barChartStyle}
             />
           </View>
