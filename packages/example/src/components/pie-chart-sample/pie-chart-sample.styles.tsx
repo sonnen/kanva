@@ -1,5 +1,5 @@
 import { PieChartViewStyle } from '@kanva/charts';
-import { rgba } from '../../utils/color.utils';
+import { rgba } from '@kanva/core';
 
 export enum Series {
   GRID = 'grid',

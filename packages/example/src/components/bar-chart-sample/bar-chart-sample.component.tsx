@@ -1,21 +1,28 @@
-import { AxisOrientation, DataContainer, GridLines } from '@kanva/charts';
-import { BarChartLabels, LabelPosition } from '@kanva/charts';
-import { AxisView, BarChartView, ChartGridView } from '@kanva/charts-react';
+import {
+  AxisOrientation,
+  DataContainer,
+  GridLines,
+  LabelPosition,
+  LegendAlignment,
+  LegendSeriesType,
+} from '@kanva/charts';
+import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { layout, Views } from './bar-chart-sample.layout';
-import { barChartStyle, Series, xAxisStyle, yAxisStyle } from './bar-chart-sample.styles';
+import { MOCK } from './bar-chart-sample.mock';
+import { barChartStyle, Series, SeriesColors, xAxisStyle, yAxisStyle } from './bar-chart-sample.styles';
 
 const container = new DataContainer<number>()
   .setData([
     {
       name: Series.PRODUCTION,
-      data: [10, 24, 5],
+      data: MOCK[Series.PRODUCTION],
     },
     {
       name: Series.CONSUMPTION,
-      data: [],
+      data: MOCK[Series.CONSUMPTION],
     },
   ])
   .setYBoundsExtension([0])
@@ -40,6 +47,28 @@ export class BarChartSample extends React.Component {
     return (
       <div className={'c-area-chart-sample'}>
         <Kanva className={'c-sample-canvas'}>
+          <LegendView
+            id={Views.LEGEND}
+            layoutParams={layout.legend}
+            style={{
+              padding: 8,
+              alignment: LegendAlignment.ROW,
+              fillStyle: '#FFF',
+            }}
+            dataSeries={[
+              {
+                name: 'Consumption',
+                type: LegendSeriesType.PIE,
+                fillStyle: SeriesColors[Series.CONSUMPTION],
+              },
+              {
+                name: 'Production',
+                lineWidth: 2,
+                strokeStyle: SeriesColors[Series.PRODUCTION],
+                radius: 1,
+              },
+            ]}
+          />
           <View layoutParams={layout.chartWrapper}>
             <ChartGridView
               layoutParams={layout.barChart}
@@ -56,8 +85,8 @@ export class BarChartSample extends React.Component {
                   fontSize: 12,
                 },
                 fillStyle: '#FFF',
-                labelAccessor: x => x.toString(),
-                position: LabelPosition.START,
+                labelAccessor: x => Math.floor(x / 1000).toString(),
+                position: LabelPosition.OUT,
               }}
               style={barChartStyle}
             />

@@ -7,6 +7,8 @@ import {
   BarChartViewProps,
   ChartGridView as KanvaChartGridView,
   ChartGridViewProps,
+  LegendView as KanvaLegendView,
+  LegendViewProps,
   PieChartView as KanvaPieChartView,
   PieChartViewProps,
 } from '@kanva/charts';
@@ -17,3 +19,4 @@ export const ChartGridView = createReactView<ChartGridViewProps>(KanvaChartGridV
 export const AreaChartView = createReactView<AreaChartViewProps>(KanvaAreaChartView);
 export const PieChartView = createReactView<PieChartViewProps>(KanvaPieChartView);
 export const BarChartView = createReactView<BarChartViewProps>(KanvaBarChartView);
+export const LegendView = createReactView<LegendViewProps>(KanvaLegendView);

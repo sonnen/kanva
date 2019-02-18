@@ -41,3 +41,7 @@ export const rgba = (color: string, alpha: number): string => {
   const c = parseColor(color)!;
   return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
 };
+
+export const luminance = (c: Color): number => (0.299 * c.r + 0.587 * c.g + 0.114 * c.b) / 255;
+
+export const isBright = (color: Color) => luminance(color) > 0.5;

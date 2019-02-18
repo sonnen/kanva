@@ -8,7 +8,7 @@ export enum Series {
 
 export const SeriesColors = {
   [Series.CONSUMPTION]: '#FF57B3',
-  [Series.PRODUCTION]: '#7dff91',
+  [Series.PRODUCTION]: '#7DFF91',
 };
 
 export const labelColor = '#FFF';

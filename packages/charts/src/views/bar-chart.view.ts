@@ -1,4 +1,4 @@
-import { Context, Font, font, normalizeRadius, Radius, ViewCanvas } from '@kanva/core';
+import { Context, Font, font, isBright, normalizeRadius, parseColor, Radius, ViewCanvas } from '@kanva/core';
 import { DataSeries } from '../chart.types';
 import { AxisLabelAccessor } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -20,8 +20,10 @@ export enum LabelPosition {
 export interface BarChartLabels {
   font: Font;
   fillStyle: string;
+  contrastFillStyle?: string;
   position: LabelPosition;
   labelAccessor: AxisLabelAccessor;
+  padding?: number;
 }
 
 export interface BarChartViewStyle {
@@ -79,9 +81,9 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     this.series = allSeries
       .filter(series => !this.dataSeries || this.dataSeries.includes(series.name))
       .map(series => ({
-      ...series,
-      data: series.data.map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
-    }));
+        ...series,
+        data: series.data.map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
+      }));
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -140,24 +142,48 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         }
 
         if (labels) {
+          // TODO Extract to a separate method
           const textHeight = labels.font.fontSize;
           let yText;
+          const isAboveZero = top < zeroPoint || top === bottom;
           switch (labels.position) {
             case LabelPosition.START:
-              yText = top <= zeroPoint ? zeroPoint : zeroPoint + textHeight;
+              yText = isAboveZero
+                ? zeroPoint
+                : zeroPoint + textHeight;
               break;
             case LabelPosition.END:
-              yText = top < zeroPoint ? top + textHeight : bottom;
+              yText = isAboveZero
+                ? Math.min(zeroPoint, top + textHeight)
+                : Math.max(zeroPoint + textHeight, bottom);
               break;
             case LabelPosition.CENTER:
-              yText = top + (height + textHeight) / 2;
+              const center = top + (height + textHeight) / 2;
+              yText = isAboveZero
+                ? Math.min(zeroPoint, center)
+                : Math.max(zeroPoint + textHeight, center);
               break;
             case LabelPosition.OUT:
             default:
-              yText = top < zeroPoint ? top : bottom + textHeight;
+              yText = isAboveZero
+                ? top
+                : bottom + textHeight;
               break;
           }
-          ctx.fillStyle = labels.fillStyle;
+          const textInsideBar = yText + textHeight > top && yText < bottom;
+          if (textInsideBar && labels.contrastFillStyle && s.fillStyle) {
+            const barFillColor = parseColor(s.fillStyle);
+            const labelsFillColor = parseColor(labels.fillStyle);
+            if (barFillColor && labelsFillColor) {
+              const backgroundIsBright = isBright(barFillColor);
+              const fillIsBright = isBright(labelsFillColor);
+              ctx.fillStyle = backgroundIsBright === fillIsBright ? labels.contrastFillStyle : labels.fillStyle;
+            } else {
+              ctx.fillStyle = labels.fillStyle;
+            }
+          } else {
+            ctx.fillStyle = labels.fillStyle;
+          }
           ctx.fillText(labels.labelAccessor(y, j), barRight + barWidth / 2, yText);
         }
 

@@ -1,6 +1,5 @@
 import { AreaChartViewStyle, AxisViewStyle, ChartGridViewStyle, DataDisplayType } from '@kanva/charts';
-import { TextAlign, TextBaseline } from '@kanva/core';
-import { rgba } from '../../utils/color.utils';
+import { rgba, TextAlign, TextBaseline } from '@kanva/core';
 
 export enum Series {
   CONSUMPTION = 'consumption',
