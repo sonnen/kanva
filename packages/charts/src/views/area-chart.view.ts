@@ -67,7 +67,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     ctx.translate(lineWidth / 2, lineWidth / 2);
 
     for (let s = 0, sl = dataSegments.length; s < sl; s++) {
-      const data = dataSegments.length[s];
+      const data = dataSegments[s];
 
       ctx.beginPath();
 
