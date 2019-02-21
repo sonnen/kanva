@@ -19,7 +19,7 @@ export const segmentizePoints = <In, Filter, Out = In extends Filter ? never : I
       lastIndex = i + 1;
     }
 
-    if (firstIndex !== undefined && lastIndex !== undefined) {
+    if (firstIndex !== undefined && lastIndex !== undefined && firstIndex !== lastIndex) {
       dataSegments.push(data.slice(firstIndex, lastIndex) as any as XYPoint<Out>[]);
       firstIndex = lastIndex = undefined;
     }
