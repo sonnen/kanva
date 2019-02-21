@@ -1,6 +1,6 @@
 import { Context, ViewCanvas } from '@kanva/core';
 import { DataDisplayType, ViewPoint } from '../chart.types';
-import { filterByAndBreakIntoDataSegments } from '../utils';
+import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface AreaChartViewStyle {
@@ -44,7 +44,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       innerHeight - halfLineWidth,
     );
 
-    const dataSegments = filterByAndBreakIntoDataSegments(series.data);
+    const dataSegments = segmentizePoints(series.data, null);
 
     this.data = dataSegments.map(
       segment => segment.map(({ x, y }) => ({
@@ -57,7 +57,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   onDraw(canvas: ViewCanvas) {
     const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
     const { type, fillStyle, lineWidth = 0, strokeStyle } = style;
-
     const ctx = canvas.context;
     const dataSegments = this.data;
 
@@ -67,8 +66,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     ctx.translate(lineWidth / 2, lineWidth / 2);
 
-    for (const data of dataSegments) {
+    for (let s = 0, sl = dataSegments.length; s < sl; s++) {
+      const data = dataSegments.length[s];
+
       ctx.beginPath();
+
       switch (type) {
         case DataDisplayType.AREA:
           ctx.moveTo(data[0].vx, innerHeight);
@@ -100,6 +102,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           }
           break;
       }
+
       if (strokeStyle) {
         ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = lineWidth || 1;

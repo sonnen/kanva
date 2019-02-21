@@ -1,5 +1,5 @@
 import { XYPoint } from '../chart.types';
-import { filterByAndBreakIntoDataSegments } from './data.util';
+import { segmentizePoints } from './data.util';
 
 describe('Data Util', () => {
   it('should return only one segment for continuous data', () => {
@@ -11,7 +11,7 @@ describe('Data Util', () => {
       { x: 5, y: 5 },
     ];
 
-    const result = filterByAndBreakIntoDataSegments(data);
+    const result = segmentizePoints(data, null);
 
     expect(result.length).toEqual(1);
   });
@@ -25,7 +25,7 @@ describe('Data Util', () => {
       { x: 5, y: 5 },
     ];
 
-    const result = filterByAndBreakIntoDataSegments(data);
+    const result = segmentizePoints(data, null);
 
     expect(result.length).toEqual(2);
   });
@@ -42,7 +42,7 @@ describe('Data Util', () => {
       { x: 8, y: 8 },
     ];
 
-    const result = filterByAndBreakIntoDataSegments(data);
+    const result = segmentizePoints(data, null);
 
     expect(result.length).toEqual(3);
   });
@@ -59,7 +59,7 @@ describe('Data Util', () => {
       { x: 8, y: 8 },
     ];
 
-    const result = filterByAndBreakIntoDataSegments(data);
+    const result = segmentizePoints(data, null);
 
     expect(result.length).toEqual(2);
   });
@@ -76,7 +76,7 @@ describe('Data Util', () => {
       { x: 8, y: null },
     ];
 
-    const result = filterByAndBreakIntoDataSegments(data);
+    const result = segmentizePoints(data, null);
 
     expect(result.length).toEqual(2);
   });
@@ -126,6 +126,6 @@ describe('Data Util', () => {
       ],
     ];
 
-    expect(filterByAndBreakIntoDataSegments(data)).toEqual(expected);
+    expect(segmentizePoints(data, null)).toEqual(expected);
   });
 });
