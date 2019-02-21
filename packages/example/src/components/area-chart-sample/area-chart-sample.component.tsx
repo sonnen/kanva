@@ -7,11 +7,13 @@ import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
 import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
 
-const container = new DataContainer<Partial<XYPoint>>()
+const nulledConsumption = MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 1000 ? y : null }));
+
+const container = new DataContainer<XYPoint<number | null>>()
   .setData([
     {
       name: Series.CONSUMPTION,
-      data: MOCK.consumptionPower,
+      data: nulledConsumption,
     },
     {
       name: Series.DIRECT_USAGE,
