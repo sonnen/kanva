@@ -1,6 +1,6 @@
-export interface XYPoint {
+export interface XYPoint<T = number> {
   x: number;
-  y: number;
+  y: T;
 }
 
 export interface ViewPoint {
