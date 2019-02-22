@@ -45,10 +45,13 @@ export interface ViewProps {
 
 export class View<Props extends {} = ViewProps> {
   private static idCounter: number = 0;
-
   public readonly id: number;
+
+  // Layout
   protected lp: LayoutParams = new LayoutParams();
   protected visibility: Visibility = Visibility.VISIBLE;
+
+  // Dimensions
   protected width = 0;
   protected height = 0;
   /** This are bounds of a view including margin and padding */
@@ -57,13 +60,19 @@ export class View<Props extends {} = ViewProps> {
   protected innerRect: Rect = new Rect(0);
   private oldWidth = 0;
   private oldHeight = 0;
+
+  // State
   private parent: View | null = null;
+  private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
+  private hasCapturedPointer: boolean = false;
+
+  // Children
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
   private childrenMap: Record<number, View> = {};
-  private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
   private childrenGraphChanged = false;
 
+  // Style
   protected backgroundColor?: string;
   protected borderRect?: Rect;
   protected borderColor?: string;
@@ -73,51 +82,41 @@ export class View<Props extends {} = ViewProps> {
   }
 
   dispatchPointerEvent(event: CanvasPointerEvent): boolean {
+    const { target, action, primaryPointer } = event;
     // Dive to children if possible
     for (let i = this.children.length - 1; i >= 0; i--) {
       const child = this.children[i];
-      if (child.innerRect.contains(event.x, event.y)) {
+      const isPointerInside = child.innerRect.contains(primaryPointer.x, primaryPointer.y);
+      if (child.hasCapturedPointer || isPointerInside) {
         const offsetX = child.innerRect.l;
         const offsetY = child.innerRect.t;
 
-        event.x -= offsetX;
-        event.y -= offsetY;
+        event.offsetPointers(-offsetX, -offsetY);
+        if (!child.hasCapturedPointer) {
+          event.action = PointerAction.START;
+        } else if (!isPointerInside) {
+          event.action = PointerAction.END;
+        }
 
+        child.hasCapturedPointer = isPointerInside;
         if (child.dispatchPointerEvent(event)) {
           return true;
         }
 
-        event.x += offsetX;
-        event.y += offsetY;
-      }
-    }
-    // Base the target element on primary pointer (indexed 1)
-    if (event.id === 1) {
-      const target = event.target;
-      switch (event.action) {
-        case PointerAction.MOVE:
-          if (target !== this) {
-            event.target = this;
-            event.action = PointerAction.ENTER;
-          }
-          break;
-        case PointerAction.UP:
-          if (target === this) {
-            event.target = this;
-          }
-          break;
-        case PointerAction.LEAVE:
-          break;
-        default:
-          break;
+        event.offsetPointers(offsetX, offsetY);
+        event.action = action;
       }
     }
     // Process event
+    event.target = this;
     return this.onPointerEvent(event);
   }
 
   onPointerEvent(event: CanvasPointerEvent): boolean {
-    console.log(event);
+    console.group(`${event.target.name} [${event.target.id}]`);
+    console.log(PointerAction[event.action]);
+    console.log(event.pointers[0]);
+    console.groupEnd();
     return true;
   }
 
@@ -563,6 +562,14 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillStyle = '#FFF';
       ctx.fillText(boundsText, r, t, r - l);
     }
+
+    ctx.fillStyle = 'rgba(255, 255, 255, .1)';
+    ctx.fillRect(
+      this.innerRect.l,
+      this.innerRect.t,
+      this.innerRect.r - this.innerRect.l,
+      this.innerRect.b - this.innerRect.t,
+    );
 
     ctx.translate(l, t);
 

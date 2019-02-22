@@ -1,6 +1,14 @@
 import { Canvas, ViewCanvas } from '../canvas';
+import { offsetPointerPosition } from '../utils/pointer-event.util';
 import { Context, RequiredViewChanges, View } from '../view';
-import { domEventToPointerAction } from '../view/pointer-event';
+import {
+  CanvasPointer,
+  CanvasPointerEvent,
+  domEventToPointerAction,
+  MouseButton,
+  PointerAction,
+  supportedDomPointerEvents,
+} from '../view/pointer-event';
 
 const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
 
@@ -25,37 +33,48 @@ export class RootCanvasView extends View {
     if (!canvas || !canvas.addEventListener) {
       throw new Error('Can\'t setup event listeners.');
     }
-    const dispatchPointerEvent = ({ type, x, y, pointerId }: PointerEvent) => {
-      const action = domEventToPointerAction(type);
-      if (!action) {
+    const isTouchEvent = (event: MouseEvent | TouchEvent): event is TouchEvent => (event as any).touches;
+    const pointerEvent = new CanvasPointerEvent(this, PointerAction.START, []);
+
+    const dispatchPointerEvent = (event: MouseEvent | TouchEvent) => {
+      const element = event.target as HTMLElement;
+      const action = domEventToPointerAction(event.type);
+      if (action === undefined) {
         return;
       }
-      this.dispatchPointerEvent({
-        action,
-        target: this,
-        isPressed: false,
-        id: pointerId,
-        x,
-        y,
-      });
+      if (isTouchEvent(event)) {
+        const pointers: CanvasPointer[] = new Array(event.touches.length);
+        for (let i = 0; i < pointers.length; i++) {
+          const touch = event.touches[i];
+          pointers[i] = {
+            mouseButton: MouseButton.LEFT,
+            pressure: touch.force,
+            x: touch.pageX,
+            y: touch.pageY,
+          };
+          offsetPointerPosition(pointers[i], element);
+        }
+        pointerEvent.setEventValues(this, action, pointers);
+      } else {
+        const pointer = {
+          mouseButton: event.button,
+          pressure: event.buttons ? 0.5 : 0,
+          x: event.pageX,
+          y: event.pageY,
+        };
+        offsetPointerPosition(pointer, element);
+        pointerEvent.setEventValues(this, action, [pointer]);
+      }
+      this.dispatchPointerEvent(pointerEvent);
+      return true;
     };
-    canvas.addEventListener('pointerover', dispatchPointerEvent);
-    canvas.addEventListener('pointerup', dispatchPointerEvent);
-    canvas.addEventListener('pointerdown', dispatchPointerEvent);
-    canvas.addEventListener('pointerleave', dispatchPointerEvent);
-    canvas.addEventListener('pointercancel', dispatchPointerEvent);
-    canvas.addEventListener('pointermove', dispatchPointerEvent);
-    canvas.addEventListener('pointerout', dispatchPointerEvent);
-    canvas.addEventListener('pointerenter', dispatchPointerEvent);
+    for (const eventType of supportedDomPointerEvents) {
+      canvas.addEventListener(eventType, dispatchPointerEvent);
+    }
     this.clearPointerEvents = () => {
-      canvas.removeEventListener('pointerover', dispatchPointerEvent);
-      canvas.removeEventListener('pointerup', dispatchPointerEvent);
-      canvas.removeEventListener('pointerdown', dispatchPointerEvent);
-      canvas.removeEventListener('pointerleave', dispatchPointerEvent);
-      canvas.removeEventListener('pointercancel', dispatchPointerEvent);
-      canvas.removeEventListener('pointermove', dispatchPointerEvent);
-      canvas.removeEventListener('pointerout', dispatchPointerEvent);
-      canvas.removeEventListener('pointerenter', dispatchPointerEvent);
+      for (const eventType of supportedDomPointerEvents) {
+        canvas.removeEventListener(eventType, dispatchPointerEvent);
+      }
     };
   }
 

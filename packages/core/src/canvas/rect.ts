@@ -126,8 +126,8 @@ export class Rect {
 
   contains(x: number, y: number) {
     return (
-      this.l <= x && this.r >= x &&
-      this.t <= y && this.b >= y
+      this.l <= x && x <= this.r &&
+      this.t <= y && y <= this.b
     );
   }
 }
