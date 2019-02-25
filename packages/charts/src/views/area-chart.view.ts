@@ -1,7 +1,6 @@
 import { CanvasPointerEvent, Context, ViewCanvas } from '@kanva/core';
-import { sortedIndexBy } from 'lodash';
 import { DataDisplayType } from '../chart.types';
-import { ScaleFunction, segmentizePoints } from '../utils';
+import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface AreaChartViewStyle {
@@ -118,7 +117,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       return false;
     }
     const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
-    const {xScale, yScale} = this.dataContainer.getScales(
+    const { xScale, yScale } = this.dataContainer.getScales(
       this.innerWidth,
       this.innerHeight,
     );

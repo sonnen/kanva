@@ -7,7 +7,7 @@ export const offsetPointerPosition = (position: PointerPosition, element: HTMLEl
   position.x -= element.offsetLeft;
   position.y -= element.offsetTop;
 
-  let reference: HTMLElement|undefined|null = element.offsetParent as any;
+  let reference: HTMLElement | undefined | null = element.offsetParent as any;
   while (reference) {
     position.x -= reference.offsetLeft;
     position.y -= reference.offsetTop;
