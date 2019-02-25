@@ -1,5 +1,6 @@
 import { ScaleContinuousNumeric } from 'd3-scale';
-import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint } from '../chart.types';
+import { sortedIndexBy } from 'lodash';
+import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
 import {
   AxisParameters,
   AxisPoint,
@@ -173,6 +174,20 @@ export class DataContainer<DataPoint> {
     return {
       xScale: this.xScale!.range([0, width]),
       yScale: this.yScale!.range([height, 0]),
+    };
+  }
+
+  getYValuesMatch(x: number): YValuesMatch {
+    const index = Math.max(
+      0,
+      sortedIndexBy(this.series[0].data, { x, y: 0 }, point => point.x) - 1,
+    );
+    return {
+      x,
+      y: this.series.reduce((result, series) => {
+        result[series.name] = series.data[index].y;
+        return result;
+      }, {}),
     };
   }
 

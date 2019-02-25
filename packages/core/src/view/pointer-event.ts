@@ -4,6 +4,7 @@ export enum PointerAction {
   START,
   END,
   MOVE,
+  SCROLL,
 }
 
 export enum MouseButton {
@@ -31,6 +32,9 @@ export class CanvasPointerEvent implements CanvasPointerEventValues {
   target: View;
   action: PointerAction;
   pointers: CanvasPointer[];
+  scrollX: number = 0;
+  scrollY: number = 0;
+  scrollZ: number = 0;
 
   constructor(target: View, action: PointerAction, pointers: CanvasPointer[]) {
     this.target = target;
@@ -58,6 +62,8 @@ export class CanvasPointerEvent implements CanvasPointerEventValues {
   }
 }
 
+export type SupportedDomPointerEvent = MouseEvent | WheelEvent | TouchEvent;
+
 export const supportedDomPointerEvents: (
   | 'touchmove'
   | 'mousemove'
@@ -69,7 +75,8 @@ export const supportedDomPointerEvents: (
   | 'mouseout'
   | 'mouseup'
   | 'touchend'
-)[] = [
+  | 'wheel'
+  )[] = [
   'touchmove',
   'mousemove',
   'mousedown',
@@ -80,10 +87,11 @@ export const supportedDomPointerEvents: (
   'mouseout',
   'mouseup',
   'touchend',
+  'wheel',
 ];
 
-export const domEventToPointerAction = (event: string): PointerAction | undefined => {
-  switch (event as keyof GlobalEventHandlersEventMap) {
+export const domEventToPointerAction = (event: SupportedDomPointerEvent): PointerAction | undefined => {
+  switch (event.type as keyof GlobalEventHandlersEventMap) {
     case 'touchmove':
     case 'mousemove':
       return PointerAction.MOVE;
@@ -97,6 +105,8 @@ export const domEventToPointerAction = (event: string): PointerAction | undefine
     case 'mouseup':
     case 'touchend':
       return PointerAction.END;
+    case 'wheel':
+      return PointerAction.SCROLL;
     default:
       return undefined;
   }

@@ -92,10 +92,12 @@ export class View<Props extends {} = ViewProps> {
         const offsetY = child.innerRect.t;
 
         event.offsetPointers(-offsetX, -offsetY);
-        if (!child.hasCapturedPointer) {
-          event.action = PointerAction.START;
-        } else if (!isPointerInside) {
-          event.action = PointerAction.END;
+        if (event.action === PointerAction.MOVE) {
+          if (!child.hasCapturedPointer) {
+            event.action = PointerAction.START;
+          } else if (!isPointerInside) {
+            event.action = PointerAction.END;
+          }
         }
 
         child.hasCapturedPointer = isPointerInside;
@@ -113,11 +115,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   onPointerEvent(event: CanvasPointerEvent): boolean {
-    console.group(`${event.target.name} [${event.target.id}]`);
-    console.log(PointerAction[event.action]);
-    console.log(event.pointers[0]);
-    console.groupEnd();
-    return true;
+    return false;
   }
 
   /**
@@ -562,14 +560,6 @@ export class View<Props extends {} = ViewProps> {
       ctx.fillStyle = '#FFF';
       ctx.fillText(boundsText, r, t, r - l);
     }
-
-    ctx.fillStyle = 'rgba(255, 255, 255, .1)';
-    ctx.fillRect(
-      this.innerRect.l,
-      this.innerRect.t,
-      this.innerRect.r - this.innerRect.l,
-      this.innerRect.b - this.innerRect.t,
-    );
 
     ctx.translate(l, t);
 

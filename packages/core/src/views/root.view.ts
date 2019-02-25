@@ -1,14 +1,18 @@
+import { isNil } from 'lodash';
 import { Canvas, ViewCanvas } from '../canvas';
-import { offsetPointerPosition } from '../utils/pointer-event.util';
-import { Context, RequiredViewChanges, View } from '../view';
+import { offsetPointerPosition } from '../utils';
 import {
   CanvasPointer,
   CanvasPointerEvent,
+  Context,
   domEventToPointerAction,
   MouseButton,
   PointerAction,
+  RequiredViewChanges,
+  SupportedDomPointerEvent,
   supportedDomPointerEvents,
-} from '../view/pointer-event';
+  View,
+} from '../view';
 
 const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
 
@@ -33,16 +37,20 @@ export class RootCanvasView extends View {
     if (!canvas || !canvas.addEventListener) {
       throw new Error('Can\'t setup event listeners.');
     }
-    const isTouchEvent = (event: MouseEvent | TouchEvent): event is TouchEvent => (event as any).touches;
+    const isTouchEvent = (event: SupportedDomPointerEvent): event is TouchEvent => !!(event as any).touches;
+    const isWheelEvent = (event: SupportedDomPointerEvent): event is WheelEvent => !isNil((event as any).deltaX);
     const pointerEvent = new CanvasPointerEvent(this, PointerAction.START, []);
 
-    const dispatchPointerEvent = (event: MouseEvent | TouchEvent) => {
+    const dispatchPointerEvent = (event: SupportedDomPointerEvent) => {
       const element = event.target as HTMLElement;
-      const action = domEventToPointerAction(event.type);
+      const action = domEventToPointerAction(event);
       if (action === undefined) {
         return;
       }
       if (isTouchEvent(event)) {
+        pointerEvent.scrollX = 0;
+        pointerEvent.scrollY = 0;
+        pointerEvent.scrollZ = 0;
         const pointers: CanvasPointer[] = new Array(event.touches.length);
         for (let i = 0; i < pointers.length; i++) {
           const touch = event.touches[i];
@@ -64,9 +72,15 @@ export class RootCanvasView extends View {
         };
         offsetPointerPosition(pointer, element);
         pointerEvent.setEventValues(this, action, [pointer]);
+        if (isWheelEvent(event)) {
+          pointerEvent.scrollX = event.deltaX;
+          pointerEvent.scrollY = event.deltaY;
+          pointerEvent.scrollZ = event.deltaZ;
+        }
       }
-      this.dispatchPointerEvent(pointerEvent);
-      return true;
+      if (this.dispatchPointerEvent(pointerEvent)) {
+        event.preventDefault();
+      }
     };
     for (const eventType of supportedDomPointerEvents) {
       canvas.addEventListener(eventType, dispatchPointerEvent);

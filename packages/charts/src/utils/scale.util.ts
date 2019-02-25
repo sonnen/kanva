@@ -13,6 +13,8 @@ export interface ScaleFunction {
   range(): number[];
 
   range(values: number[]): this;
+
+  invert(input: number): number;
 }
 
 export const getContinuousNumericScale = (scaleType: DataScaleType): ScaleContinuousNumeric<number, number> => {
