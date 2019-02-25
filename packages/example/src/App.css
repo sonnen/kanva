@@ -23,6 +23,28 @@
   width: 80%;
 }
 
+.c-tooltip {
+  font-size: 12px;
+  height: 70px;
+  background-color: #FFF;
+  border-radius: 5px;
+  color: #333;
+  padding: 16px;
+  margin: 16px;
+}
+
+.c-tooltip__value {
+  display: block;
+  flex: 1 0 150px;
+  text-align: left;
+}
+
+.c-tooltip__values {
+  display: flex;
+  flex-flow: row nowrap;
+  list-style: none;
+}
+
 .c-text {
   font-size: 12px;
 }

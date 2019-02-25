@@ -1,6 +1,6 @@
-import { AxisOrientation, DataContainer, GridLines, XYPoint } from '@kanva/charts';
+import { AxisOrientation, DataContainer, GridLines, XYPoint, YValuesMatch } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { Visibility } from '@kanva/core';
+import { PointerAction, Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { layout, Views } from './area-chart-sample.layout';
@@ -53,6 +53,7 @@ const percentageContainer = new DataContainer<any>()
 
 interface State {
   filters: Record<string, boolean>;
+  tooltipData?: YValuesMatch;
 }
 
 export class AreaChartSample extends React.Component<{}, State> {
@@ -91,6 +92,7 @@ export class AreaChartSample extends React.Component<{}, State> {
   }
 
   render() {
+    const { tooltipData } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
         <div>
@@ -99,6 +101,20 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.PRODUCTION)}
           {this.renderFilterButton(Series.DIRECT_USAGE)}
           {this.renderFilterButton(Series.BATTERY_STATE)}
+        </div>
+        <div className={'c-tooltip'}>
+          {tooltipData ? (
+            <>
+              <span>{new Date(tooltipData.x).toString()}</span>
+              <ul className={'c-tooltip__values'}>
+                {Object.entries(tooltipData.y).map(([key, value]) => (
+                  <li key={key} className={'c-tooltip__value'}>{key}: {Math.round(value)}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            'Hover on chart to see the tooltip'
+          )}
         </div>
         <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.areaChartWrapper}>
@@ -128,6 +144,18 @@ export class AreaChartSample extends React.Component<{}, State> {
               dataSeries={Series.PRODUCTION}
               visibility={this.isVisible(Series.PRODUCTION)}
               style={SeriesStyles[Series.PRODUCTION]}
+              onChartPointerEvent={event => {
+                if (event.pointerEvent.action === PointerAction.END) {
+                  return this.setState({ tooltipData: undefined });
+                }
+                const { x, y } = event.match;
+                this.setState({
+                  tooltipData: {
+                    x,
+                    y: { ...y, ...percentageContainer.getYValuesMatch(x).y },
+                  },
+                });
+              }}
             />
             <AreaChartView
               layoutParams={layout.areaChart}

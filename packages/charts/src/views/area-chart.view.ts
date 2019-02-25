@@ -1,4 +1,4 @@
-import { Context, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, ViewCanvas } from '@kanva/core';
 import { DataDisplayType } from '../chart.types';
 import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -11,7 +11,7 @@ export interface AreaChartViewStyle {
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
-  dataSeries: string;
+  dataSeries: string | string[];
 }
 
 const defaultStyle = {
@@ -20,6 +20,7 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
+  // Calculated data
   private data: Int32Array[] = [];
 
   constructor(context: Context) {
@@ -109,5 +110,35 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       ctx.lineWidth = lineWidth || 1;
       ctx.stroke();
     }
+  }
+
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    if (!this.onChartPointerEvent || !this.dataContainer) {
+      return false;
+    }
+    const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
+    const { xScale, yScale } = this.dataContainer.getScales(
+      this.innerWidth,
+      this.innerHeight,
+    );
+    if (!dataSeries) {
+      return false;
+    }
+
+    const { x, y } = event.primaryPointer;
+    const point = {
+      x: xScale.invert(x),
+      y: yScale.invert(y),
+    };
+
+    const match = this.dataContainer.getYValuesMatch(point.x);
+
+    this.onChartPointerEvent({
+      pointerEvent: event,
+      ...point,
+      match,
+    });
+
+    return true;
   }
 }

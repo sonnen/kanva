@@ -9,6 +9,7 @@ import {
   verticalLayoutDependencies,
 } from './layout-params.utils';
 import { LayoutProps } from './layout-props';
+import { CanvasPointerEvent, PointerAction } from './pointer-event';
 
 interface OrderedChildren {
   h: number[];
@@ -44,28 +45,77 @@ export interface ViewProps {
 
 export class View<Props extends {} = ViewProps> {
   private static idCounter: number = 0;
-
   public readonly id: number;
+
+  // Layout
   protected lp: LayoutParams = new LayoutParams();
   protected visibility: Visibility = Visibility.VISIBLE;
+
+  // Dimensions
   protected width = 0;
   protected height = 0;
+  /** This are bounds of a view including margin and padding */
   protected rect: Rect = new Rect(0);
+  /** This are the bounds of view including padding. */
+  protected innerRect: Rect = new Rect(0);
   private oldWidth = 0;
   private oldHeight = 0;
+
+  // State
   private parent: View | null = null;
+  private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
+  private hasCapturedPointer: boolean = false;
+
+  // Children
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
   private childrenMap: Record<number, View> = {};
-  private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
   private childrenGraphChanged = false;
 
+  // Style
   protected backgroundColor?: string;
   protected borderRect?: Rect;
   protected borderColor?: string;
 
   constructor(public readonly context: Context, public readonly name: string = 'View') {
     this.id = View.idCounter++;
+  }
+
+  dispatchPointerEvent(event: CanvasPointerEvent): boolean {
+    const { target, action, primaryPointer } = event;
+    // Dive to children if possible
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      const child = this.children[i];
+      const isPointerInside = child.innerRect.contains(primaryPointer.x, primaryPointer.y);
+      if (child.hasCapturedPointer || isPointerInside) {
+        const offsetX = child.innerRect.l;
+        const offsetY = child.innerRect.t;
+
+        event.offsetPointers(-offsetX, -offsetY);
+        if (event.action === PointerAction.MOVE) {
+          if (!child.hasCapturedPointer) {
+            event.action = PointerAction.START;
+          } else if (!isPointerInside) {
+            event.action = PointerAction.END;
+          }
+        }
+
+        child.hasCapturedPointer = isPointerInside;
+        if (child.dispatchPointerEvent(event)) {
+          return true;
+        }
+
+        event.offsetPointers(offsetX, offsetY);
+        event.action = action;
+      }
+    }
+    // Process event
+    event.target = this;
+    return this.onPointerEvent(event);
+  }
+
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    return false;
   }
 
   /**
@@ -189,8 +239,11 @@ export class View<Props extends {} = ViewProps> {
       const child = children[i];
       child.width = child.rect.width;
       child.height = child.rect.height;
+
       const { width, height, oldWidth, oldHeight } = child;
       const sizeChanged = width !== oldWidth || height !== oldHeight;
+
+      child.innerRect = child.rect.inset(child.lp.marginRect);
       child.layout(sizeChanged);
       if (sizeChanged) {
         child.onSizeChanged(width, height, oldWidth, oldHeight);
@@ -390,6 +443,14 @@ export class View<Props extends {} = ViewProps> {
     return 0;
   }
 
+  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
+    return undefined;
+  }
+
+  getInternalWrappedWidth(canvas: ViewCanvas): number | undefined {
+    return undefined;
+  }
+
   draw(canvas: ViewCanvas, force: boolean = false): void {
     if (!this.requireGuardAndTake(RequiredViewChanges.DRAW, force)) {
       return;
@@ -576,14 +637,6 @@ export class View<Props extends {} = ViewProps> {
     children.splice(startIndex, endIndex - startIndex);
 
     this.require(RequiredViewChanges.MEASURE);
-  }
-
-  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
-    return undefined;
-  }
-
-  getInternalWrappedWidth(canvas: ViewCanvas): number | undefined {
-    return undefined;
   }
 
   get innerHeight() {

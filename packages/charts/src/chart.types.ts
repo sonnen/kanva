@@ -25,3 +25,8 @@ export interface DataSeries<DataPoint> {
   sum?: number;
   data: DataPoint[];
 }
+
+export interface YValuesMatch {
+  x: number;
+  y: Record<string, number>;
+}

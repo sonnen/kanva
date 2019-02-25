@@ -27,6 +27,7 @@ export class Kanva extends React.Component<Props, State> {
       this.setState({
         view,
       });
+      view.setupPointerEvents();
       view.run();
       this.resizeObserver = new ResizeObserver(() => {
         view.require(RequiredViewChanges.MEASURE);
