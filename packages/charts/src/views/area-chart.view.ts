@@ -1,5 +1,5 @@
 import { Context, ViewCanvas } from '@kanva/core';
-import { DataDisplayType, ViewPoint } from '../chart.types';
+import { DataDisplayType } from '../chart.types';
 import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -20,7 +20,7 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
-  private data: ViewPoint[][] = [];
+  private data: Int32Array[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
@@ -46,12 +46,15 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     const dataSegments = segmentizePoints(series.data, null);
 
-    this.data = dataSegments.map(
-      segment => segment.map(({ x, y }) => ({
-        vx: xScale(x),
-        vy: yScale(y),
-      })),
-    );
+    this.data = dataSegments.map(segment => {
+      const array = new Int32Array(segment.length * 2);
+      for (let i = 0; i < segment.length; i++) {
+        const point = segment[i];
+        array[i * 2] = xScale(point.x) | 0;
+        array[i * 2 + 1] = yScale(point.y) | 0;
+      }
+      return array;
+    });
   }
 
   onDraw(canvas: ViewCanvas) {
@@ -65,49 +68,46 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     }
 
     ctx.translate(lineWidth / 2, lineWidth / 2);
+    ctx.beginPath();
 
     for (let s = 0, sl = dataSegments.length; s < sl; s++) {
       const data = dataSegments[s];
-
-      ctx.beginPath();
-
       switch (type) {
         case DataDisplayType.AREA:
-          ctx.moveTo(data[0].vx, innerHeight);
-          for (let i = 0, l = data.length; i < l; i++) {
-            ctx.lineTo(data[i].vx, data[i].vy);
+          ctx.moveTo(data[0], innerHeight);
+          for (let i = 0, l = data.length; i < l; i += 2) {
+            ctx.lineTo(data[i], data[i + 1]);
           }
-          ctx.lineTo(data[data.length - 1].vx, innerHeight);
-          ctx.closePath();
-          if (fillStyle) {
-            ctx.fillStyle = fillStyle;
-            ctx.fill();
-          }
+          ctx.lineTo(data[data.length - 2], innerHeight);
+          ctx.lineTo(data[0], innerHeight);
           break;
         case DataDisplayType.POINTS:
           const size = lineWidth || 1;
           const radius = size / 2;
           if (fillStyle) {
             ctx.fillStyle = fillStyle;
-            for (let i = 0, l = data.length; i < l; i++) {
-              ctx.fillRect(data[i].vx - radius, data[i].vy - radius, size, size);
+            for (let i = 0, l = data.length; i < l; i += 2) {
+              ctx.fillRect(data[i] - radius, data[i + 1] - radius, size, size);
             }
           }
           break;
         default:
         case DataDisplayType.LINE:
-          ctx.moveTo(data[0].vx, data[0].vy);
-          for (let i = 1, l = data.length; i < l; i++) {
-            ctx.lineTo(data[i].vx, data[i].vy);
+          ctx.moveTo(data[0], data[1]);
+          for (let i = 2, l = data.length; i < l; i += 2) {
+            ctx.lineTo(data[i], data[i + 1]);
           }
           break;
       }
-
-      if (strokeStyle) {
-        ctx.strokeStyle = strokeStyle;
-        ctx.lineWidth = lineWidth || 1;
-        ctx.stroke();
-      }
+    }
+    if (fillStyle) {
+      ctx.fillStyle = fillStyle;
+      ctx.fill();
+    }
+    if (strokeStyle) {
+      ctx.strokeStyle = strokeStyle;
+      ctx.lineWidth = lineWidth || 1;
+      ctx.stroke();
     }
   }
 }
