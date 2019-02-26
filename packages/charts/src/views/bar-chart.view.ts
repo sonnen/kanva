@@ -79,7 +79,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     this.zeroPoint = yScale(0);
     this.seriesLength = dataContainer.getSeriesLength();
     this.series = allSeries
-      .filter(series => !this.dataSeries || this.dataSeries.includes(series.name))
+      .filter(series => !this.dataSeries || !this.dataSeries.includes(series.name))
       .map(series => ({
         ...series,
         data: series.data.map(value => ({ y: value.y || 0, barY: yScale(value.y || 0) })),
