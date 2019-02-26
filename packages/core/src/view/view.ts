@@ -88,8 +88,8 @@ export class View<Props extends {} = ViewProps> {
       const child = this.children[i];
       const isPointerInside = child.innerRect.contains(primaryPointer.x, primaryPointer.y);
       if (child.hasCapturedPointer || isPointerInside) {
-        const offsetX = child.innerRect.l;
-        const offsetY = child.innerRect.t;
+        const offsetX = child.innerRect.l + child.lp.paddingRect.l;
+        const offsetY = child.innerRect.t + child.lp.paddingRect.t;
 
         event.offsetPointers(-offsetX, -offsetY);
         if (event.action === PointerAction.MOVE) {
