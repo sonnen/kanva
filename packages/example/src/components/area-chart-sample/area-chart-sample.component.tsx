@@ -3,6 +3,7 @@ import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
 import { PointerAction, Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
+import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
 import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
@@ -102,20 +103,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.DIRECT_USAGE)}
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
-        <div className={'c-tooltip'}>
-          {tooltipData ? (
-            <>
-              <span>{new Date(tooltipData.x).toString()}</span>
-              <ul className={'c-tooltip__values'}>
-                {Object.entries(tooltipData.y).map(([key, value]) => (
-                  <li key={key} className={'c-tooltip__value'}>{key}: {Math.round(value)}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            'Hover on chart to see the tooltip'
-          )}
-        </div>
+        <Tooltip data={tooltipData} />
         <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
