@@ -1,4 +1,15 @@
-import { Context, Font, font, isBright, normalizeRadius, parseColor, Radius, ViewCanvas } from '@kanva/core';
+import {
+  CanvasPointerEvent,
+  Context,
+  font,
+  Font,
+  isBright,
+  normalizeRadius,
+  parseColor,
+  PointerAction,
+  Radius,
+  ViewCanvas,
+} from '@kanva/core';
 import { DataSeries } from '../chart.types';
 import { AxisLabelAccessor } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -95,15 +106,12 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       seriesLength,
       style,
       labels,
+      groupWidth,
+      barWidth,
     } = this;
 
     const seriesCount = this.series.length;
     const ctx = canvas.context;
-    const groupWidth = innerWidth / seriesLength;
-    const rawBarWidth = style.barWidth || 1;
-    const barWidth = rawBarWidth <= 1
-      ? rawBarWidth * groupWidth / seriesCount
-      : Math.min(rawBarWidth, groupWidth / seriesCount);
     const radius = normalizeRadius(style.barRadius || 0);
 
     let left = 0;
@@ -192,5 +200,55 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
       left = right;
     }
+  }
+
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    if (!this.onChartPointerEvent || !this.dataContainer) {
+      return false;
+    }
+    switch (event.action) {
+      case PointerAction.START:
+      case PointerAction.END:
+      case PointerAction.MOVE:
+        if (event.pointers.length === 1) {
+          const dataSeries = this.dataContainer.getAllDataSeries();
+          const { yScale } = this.dataContainer.getScales(innerWidth, innerHeight);
+          if (!dataSeries) {
+            return false;
+          }
+
+          const { x, y } = event.primaryPointer;
+          const groupId = Math.floor(x / this.groupWidth);
+          this.dataContainer.getYValuesMatch(groupId);
+          const point = {
+            x: x / this.groupWidth,
+            y: yScale.invert(y),
+          };
+
+          const match = this.dataContainer.getYValuesMatch(point.x);
+
+          this.onChartPointerEvent({
+            pointerEvent: event,
+            ...point,
+            match,
+          });
+          return true;
+        }
+        return false;
+      default:
+        return false;
+    }
+  }
+
+  private get groupWidth() {
+    return this.innerWidth / this.seriesLength;
+  }
+
+  private get barWidth() {
+    const rawBarWidth = this.style.barWidth || 1;
+    const width = this.groupWidth / this.series.length;
+    return rawBarWidth <= 1
+      ? rawBarWidth * width
+      : Math.min(rawBarWidth, width);
   }
 }

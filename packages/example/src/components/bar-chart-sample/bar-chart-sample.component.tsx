@@ -5,11 +5,14 @@ import {
   LabelPosition,
   LegendAlignment,
   LegendSeriesType,
+  YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
+import { PointerAction } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
+import { Tooltip } from '../tooltip';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
 import { barChartStyle, Series, SeriesColors, xAxisStyle, yAxisStyle } from './bar-chart-sample.styles';
@@ -42,10 +45,18 @@ const container = new DataContainer<number>()
     labelAccessor: (value: number) => (value / 1000) + ' kWh',
   });
 
-export class BarChartSample extends React.Component {
+interface State {
+  tooltipData?: YValuesMatch;
+}
+
+export class BarChartSample extends React.Component<{}, State> {
+  state: State = {};
+
   render() {
+    const { tooltipData } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
+        <Tooltip data={tooltipData} />
         <Kanva className={'c-sample-canvas'}>
           <LegendView
             id={Views.LEGEND}
@@ -89,6 +100,14 @@ export class BarChartSample extends React.Component {
                 position: LabelPosition.OUT,
               }}
               style={barChartStyle}
+              onChartPointerEvent={event => {
+                if (event.pointerEvent.action === PointerAction.END) {
+                  return this.setState({ tooltipData: undefined });
+                }
+                this.setState({
+                  tooltipData: event.match,
+                });
+              }}
             />
           </View>
           <AxisView
