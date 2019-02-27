@@ -103,7 +103,10 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.DIRECT_USAGE)}
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
-        <Tooltip data={tooltipData} />
+        <Tooltip
+          data={tooltipData}
+          xFormatter={x => new Date(x).toString()}
+        />
         <Kanva className={'c-sample-canvas'}>
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
