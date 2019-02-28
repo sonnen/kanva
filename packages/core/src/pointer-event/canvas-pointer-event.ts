@@ -1,4 +1,4 @@
-import { View } from './view';
+import { View } from '../view';
 
 export enum PointerAction {
   START,
@@ -15,9 +15,14 @@ export enum MouseButton {
   FORWARD = 4,
 }
 
-export interface CanvasPointer {
+export interface PointerPosition {
   x: number;
   y: number;
+  absoluteX: number;
+  absoluteY: number;
+}
+
+export interface CanvasPointer extends PointerPosition {
   pressure: number;
   mouseButton: MouseButton;
 }
@@ -61,53 +66,3 @@ export class CanvasPointerEvent implements CanvasPointerEventValues {
     return this.pointers[0];
   }
 }
-
-export type SupportedDomPointerEvent = MouseEvent | WheelEvent | TouchEvent;
-
-export const supportedDomPointerEvents: (
-  | 'touchmove'
-  | 'mousemove'
-  | 'mousedown'
-  | 'touchstart'
-  | 'mouseover'
-  | 'mouseenter'
-  | 'touchcancel'
-  | 'mouseout'
-  | 'mouseup'
-  | 'touchend'
-  | 'wheel'
-  )[] = [
-  'touchmove',
-  'mousemove',
-  'mousedown',
-  'touchstart',
-  'mouseover',
-  'mouseenter',
-  'touchcancel',
-  'mouseout',
-  'mouseup',
-  'touchend',
-  'wheel',
-];
-
-export const domEventToPointerAction = (event: SupportedDomPointerEvent): PointerAction | undefined => {
-  switch (event.type as keyof GlobalEventHandlersEventMap) {
-    case 'touchmove':
-    case 'mousemove':
-      return PointerAction.MOVE;
-    case 'mousedown':
-    case 'touchstart':
-    case 'mouseover':
-    case 'mouseenter':
-      return PointerAction.START;
-    case 'touchcancel':
-    case 'mouseout':
-    case 'mouseup':
-    case 'touchend':
-      return PointerAction.END;
-    case 'wheel':
-      return PointerAction.SCROLL;
-    default:
-      return undefined;
-  }
-};
