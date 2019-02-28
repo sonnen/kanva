@@ -1,4 +1,5 @@
 import { Rect, RectLike, ViewCanvas } from '../canvas';
+import { CanvasPointerEvent, PointerAction } from '../pointer-event';
 import { xor } from '../utils/boolean.util';
 import { Context } from './context';
 import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
@@ -9,7 +10,6 @@ import {
   verticalLayoutDependencies,
 } from './layout-params.utils';
 import { LayoutProps } from './layout-props';
-import { CanvasPointerEvent, PointerAction } from './pointer-event';
 
 interface OrderedChildren {
   h: number[];

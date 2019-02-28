@@ -8,7 +8,7 @@ export interface ChartViewProps<Style> {
   onChartPointerEvent?: OnChartPointerEvent;
 }
 
-interface ChartPointerEvent {
+export interface ChartPointerEvent {
   pointerEvent: DeepReadonly<CanvasPointerEvent>;
   x: number;
   y: number;
