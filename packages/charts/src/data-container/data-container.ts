@@ -185,7 +185,10 @@ export class DataContainer<DataPoint> {
     return {
       x,
       y: this.series.reduce((result, series) => {
-        result[series.name] = series.data[index].y;
+        result[series.name] = series.data[index]
+          ? series.data[index].y
+          : undefined;
+
         return result;
       }, {}),
     };
