@@ -178,12 +178,16 @@ export class DataContainer<DataPoint> {
   }
 
   getYValuesMatch(x: number): YValuesMatch {
+    this.processData();
     const index = Math.max(
       0,
       sortedIndexBy(this.series[0].data, { x, y: 0 }, point => point.x) - 1,
     );
+    const selectedValue = this.series[0].data[index];
     return {
       x,
+      snapX: this.xAxisParameters.isGrouped ? selectedValue.x + 0.5 : selectedValue.x,
+      snapY: selectedValue.y,
       y: this.series.reduce((result, series) => {
         result[series.name] = series.data[index]
           ? series.data[index].y

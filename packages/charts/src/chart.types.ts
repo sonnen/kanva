@@ -28,5 +28,7 @@ export interface DataSeries<DataPoint> {
 
 export interface YValuesMatch {
   x: number;
+  snapX: number;
+  snapY: number;
   y: Record<string, number>;
 }

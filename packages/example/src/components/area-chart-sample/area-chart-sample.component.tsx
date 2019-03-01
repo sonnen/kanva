@@ -142,7 +142,7 @@ export class AreaChartSample extends React.Component<{}, State> {
                 const { x, y } = event.match;
                 this.setState({
                   tooltipData: {
-                    x,
+                    ...event.match,
                     y: { ...y, ...percentageContainer.getYValuesMatch(x).y },
                   },
                 });
