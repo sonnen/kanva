@@ -107,7 +107,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           data={tooltipData}
           xFormatter={x => new Date(x * 1000).toString()}
         />
-        <Kanva className={'c-sample-canvas'}>
+        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
