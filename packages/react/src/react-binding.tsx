@@ -31,16 +31,26 @@ const getAllGettersAndSetters = (obj: object) => {
 export const createReactView = <Props extends {}>(viewClass: (new (...args: any[]) => View<Props>)) => {
   type ReactViewProps = Partial<ViewProps & Props>;
   return class ReactViewComponent extends React.PureComponent<ReactViewProps> {
-    static displayName: string;
-    readonly view: View;
+    static displayName: string = viewClass.name;
+    view?: View;
     readonly propNames: string[] = [];
     readonly propHandlers: Record<string, { set: (value: any) => void, get: () => any }> = {};
-    layoutParams: LayoutProps;
+    layoutParams?: LayoutProps;
 
     constructor(props: ReactViewProps, context?: any) {
       super(props, context);
+    }
+
+    get internalProps() {
+      return this.props as any as InternalProps;
+    }
+
+    get isDebugEnabled(): boolean {
+      return !!this.view && this.view.context.debugEnabled;
+    }
+
+    createAndAttachView() {
       const view = this.view = new viewClass(this.internalProps.context);
-      ReactViewComponent.displayName = view.name;
       const gettersAndSetters = getAllGettersAndSetters(view);
 
       for (const { name, get, set } of gettersAndSetters) {
@@ -60,20 +70,18 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
           }
         },
       };
-
-    }
-
-    get internalProps() {
-      return this.props as any as InternalProps;
-    }
-
-    get isDebugEnabled() {
-      return this.view.context.debugEnabled;
+      const viewRef = this.props.viewRef;
+      if (viewRef) {
+        viewRef(view);
+      }
     }
 
     refreshProps() {
       const { parent, position } = this.internalProps;
       const { propNames, propHandlers, view } = this;
+      if (!view) {
+        return;
+      }
       if (parent && !view.hasParent()) {
         parent.setChildAt(view, position);
       }
@@ -91,6 +99,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     }
 
     componentDidMount() {
+      this.createAndAttachView();
       this.refreshProps();
     }
 
@@ -100,10 +109,14 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
 
     componentWillUnmount() {
       const { parent } = this.internalProps;
+      if (!this.view) {
+        return;
+      }
       if (this.view.hasParent()) {
         return parent.removeChild(this.view);
       }
       this.view.destroy();
+      this.view = undefined;
     }
 
     assignParentProperties = (child: React.ReactChild, position: number) => typeof child === 'object'
@@ -111,7 +124,11 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
       : null;
 
     render() {
-      return React.Children.map(this.props.children || [], this.assignParentProperties) || null;
+      return (
+        <>
+          {React.Children.map(this.props.children || [], this.assignParentProperties)}
+        </>
+      );
     }
   };
 };

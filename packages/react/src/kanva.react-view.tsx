@@ -7,6 +7,7 @@ interface Props {
   className?: string;
   style?: CSSProperties;
   children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
+  enablePointerEvents?: boolean;
   debug?: boolean;
 }
 
@@ -14,7 +15,7 @@ interface State {
   view?: RootCanvasView;
 }
 
-export class Kanva extends React.Component<Props, State> {
+export class Kanva extends React.PureComponent<Props, State> {
   readonly state: State = {};
   private ctx: Context = new Context();
   private htmlDivElement: HTMLDivElement | null = null;
@@ -22,12 +23,14 @@ export class Kanva extends React.Component<Props, State> {
   private resizeObserver: ResizeObserver | null = null;
 
   componentDidMount() {
-    if (!this.state.view && this.htmlCanvasElement && this.htmlDivElement) {
+    const { enablePointerEvents } = this.props;
+    const { view } = this.state;
+    if (!view && this.htmlCanvasElement && this.htmlDivElement) {
       const view = new RootCanvasView(this.ctx, this.htmlCanvasElement);
-      this.setState({
-        view,
-      });
-      view.setupPointerEvents();
+      this.setState({ view });
+      if (enablePointerEvents) {
+        view.setupPointerEvents();
+      }
       view.run();
       this.resizeObserver = new ResizeObserver(() => {
         view.require(RequiredViewChanges.MEASURE);
@@ -77,11 +80,7 @@ export class Kanva extends React.Component<Props, State> {
           style={{ position: 'absolute', left: 0, top: 0 }}
           ref={ref => this.htmlCanvasElement = ref}
         >
-          {
-            view
-              ? React.Children.map(children, this.assignParentProperties) || null
-              : null
-          }
+          {React.Children.map(children || [], this.assignParentProperties)}
         </canvas>
       </div>
     );

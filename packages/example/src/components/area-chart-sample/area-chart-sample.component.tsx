@@ -107,7 +107,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           data={tooltipData}
           xFormatter={x => new Date(x * 1000).toString()}
         />
-        <Kanva className={'c-sample-canvas'}>
+        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
@@ -142,7 +142,7 @@ export class AreaChartSample extends React.Component<{}, State> {
                 const { x, y } = event.match;
                 this.setState({
                   tooltipData: {
-                    x,
+                    ...event.match,
                     y: { ...y, ...percentageContainer.getYValuesMatch(x).y },
                   },
                 });

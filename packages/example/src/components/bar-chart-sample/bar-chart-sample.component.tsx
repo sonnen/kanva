@@ -57,7 +57,7 @@ export class BarChartSample extends React.Component<{}, State> {
     return (
       <div className={'c-area-chart-sample'}>
         <Tooltip data={tooltipData} />
-        <Kanva className={'c-sample-canvas'}>
+        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
           <LegendView
             id={Views.LEGEND}
             layoutParams={layout.legend}

@@ -35,12 +35,13 @@ export enum Visibility {
 
 export interface ViewProps {
   id: string;
-  layoutParams: LayoutProps;
-  visibility: Visibility;
+  viewRef?: (view: View<any>) => void;
+  layoutParams?: LayoutProps;
+  visibility?: Visibility;
   backgroundColor?: string;
   borderColor?: string;
   border?: RectLike;
-  children: any;
+  children?: any;
 }
 
 export class View<Props extends {} = ViewProps> {
