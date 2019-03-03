@@ -1,7 +1,13 @@
 import { CanvasPointerEvent, Context, ViewCanvas } from '@kanva/core';
-import { DataDisplayType } from '../chart.types';
 import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
+
+export enum DataDisplayType {
+  POINTS,
+  LINE,
+  LINE_STAIRS,
+  AREA,
+}
 
 export interface AreaChartViewStyle {
   type: DataDisplayType;
@@ -90,6 +96,13 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
             for (let i = 0, l = data.length; i < l; i += 2) {
               ctx.fillRect(data[i] - radius, data[i + 1] - radius, size, size);
             }
+          }
+          break;
+        case DataDisplayType.LINE_STAIRS:
+          ctx.moveTo(data[0], data[1]);
+          for (let i = 2, l = data.length; i < l; i += 2) {
+            ctx.lineTo(data[i], data[i - 1]);
+            ctx.lineTo(data[i], data[i + 1]);
           }
           break;
         default:

@@ -19,7 +19,7 @@ export const labelColor = '#FFFFFF';
 
 export const SeriesStyles: Record<Series, AreaChartViewStyle> = {
   [Series.CONSUMPTION]: {
-    type: DataDisplayType.LINE,
+    type: DataDisplayType.LINE_STAIRS,
     lineWidth: 1,
     strokeStyle: SeriesColors[Series.CONSUMPTION],
   },

@@ -10,12 +10,6 @@ export interface ViewPoint {
 
 export type PointAccessor<DataPoint> = (point: DataPoint, index: number, series: DataPoint[]) => XYPoint;
 
-export enum DataDisplayType {
-  POINTS,
-  LINE,
-  AREA,
-}
-
 export enum DataScaleType {
   LINEAR,
 }
