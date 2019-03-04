@@ -57,7 +57,7 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
   }
 
   setDataSeries(series: string | string[]) {
-    this.dataSeries = Array.isArray(series) ? series : [series];
+    this.dataSeries = !series ? [] : Array.isArray(series) ? series : [series];
     this.require(RequiredViewChanges.DRAW);
   }
 

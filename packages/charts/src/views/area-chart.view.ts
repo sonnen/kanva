@@ -54,13 +54,41 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     const dataSegments = segmentizePoints(series.data, null);
 
     this.data = dataSegments.map(segment => {
-      const array = new Int32Array(segment.length * 2);
-      for (let i = 0; i < segment.length; i++) {
-        const point = segment[i];
-        array[i * 2] = xScale(point.x) | 0;
-        array[i * 2 + 1] = yScale(point.y) | 0;
+      if (!segment.length) {
+        return new Int32Array(0);
       }
-      return array;
+      switch (style.type) {
+        case DataDisplayType.LINE_STAIRS: {
+          const count = series.data.length;
+          const array = new Int32Array(segment.length * 4);
+          let point = segment[0];
+          let offset = 2;
+          const start = point.x;
+          const scale = (segment.length - 1) / segment.length;
+          array[0] = xScale(start + (point.x - start) * scale);
+          array[1] = yScale(point.y);
+          for (let i = 1; i < segment.length; i++) {
+            point = segment[i];
+            array[offset] = xScale(start + (point.x - start) * scale);
+            array[offset + 1] = array[offset - 1];
+            array[offset + 2] = array[offset];
+            array[offset + 3] = yScale(point.y);
+            offset += 4;
+          }
+          array[offset] = xScale(point.x);
+          array[offset + 1] = array[offset - 1];
+          return array;
+        }
+        default: {
+          const array = new Int32Array(segment.length * 2);
+          for (let i = 0; i < segment.length; i++) {
+            const point = segment[i];
+            array[i * 2] = xScale(point.x) | 0;
+            array[i * 2 + 1] = yScale(point.y) | 0;
+          }
+          return array;
+        }
+      }
     });
   }
 
@@ -98,14 +126,8 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
             }
           }
           break;
-        case DataDisplayType.LINE_STAIRS:
-          ctx.moveTo(data[0], data[1]);
-          for (let i = 2, l = data.length; i < l; i += 2) {
-            ctx.lineTo(data[i], data[i - 1]);
-            ctx.lineTo(data[i], data[i + 1]);
-          }
-          break;
         default:
+        case DataDisplayType.LINE_STAIRS:
         case DataDisplayType.LINE:
           ctx.moveTo(data[0], data[1]);
           for (let i = 2, l = data.length; i < l; i += 2) {

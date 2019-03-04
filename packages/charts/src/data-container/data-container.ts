@@ -33,8 +33,10 @@ export class DataContainer<DataPoint> {
   private pointAccessor?: PointAccessor<DataPoint>;
   private xScaleType: DataScaleType = DataScaleType.LINEAR;
   private yScaleType: DataScaleType = DataScaleType.LINEAR;
-  private xBounds: number[] = [];
-  private yBounds: number[] = [];
+  private xBoundsExtension: number[] = [];
+  private yBoundsExtension: number[] = [];
+  private xBoundsMargin: number = 0;
+  private yBoundsMargin: number = 0;
   private xAxisParameters: AxisParameters = {};
   private yAxisParameters: AxisParameters = {};
 
@@ -135,25 +137,41 @@ export class DataContainer<DataPoint> {
   }
 
   getXBoundsExtension() {
-    return this.xBounds;
+    return this.xBoundsExtension;
   }
 
   setXBoundsExtension(xBounds: number[]) {
-    this.xBounds = xBounds;
+    this.xBoundsExtension = xBounds;
     this.hasChanged = true;
     this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
   }
 
   getYBoundsExtension() {
-    return this.yBounds;
+    return this.yBoundsExtension;
   }
 
   setYBoundsExtension(yBounds: number[]) {
-    this.yBounds = yBounds;
+    this.yBoundsExtension = yBounds;
     this.hasChanged = true;
     this.postEvent(DataContainerEvent.DATA_CHANGE);
     return this;
+  }
+
+  getXBoundsMargin() {
+    return this.xBoundsMargin;
+  }
+
+  setXBoundsMargin(xBoundsMargin: number) {
+    this.xBoundsMargin = xBoundsMargin;
+  }
+
+  getYBoundsMargin() {
+    return this.yBoundsMargin;
+  }
+
+  setYBoundsMargin(yBoundsMargin: number) {
+    this.yBoundsMargin = yBoundsMargin;
   }
 
   getDataSeries(name: string | undefined): DataSeries<XYPoint> | undefined {
@@ -230,10 +248,10 @@ export class DataContainer<DataPoint> {
     }
 
     const series: DataSeries<XYPoint & ViewPoint>[] = new Array(rawData.length);
-    let minX: number = Math.min(...this.xBounds);
-    let maxX: number = Math.max(...this.xBounds);
-    let minY: number = Math.min(...this.yBounds);
-    let maxY: number = Math.max(...this.yBounds);
+    let minX: number = Math.min(...this.xBoundsExtension);
+    let maxX: number = Math.max(...this.xBoundsExtension);
+    let minY: number = Math.min(...this.yBoundsExtension);
+    let maxY: number = Math.max(...this.yBoundsExtension);
 
     let total = 0;
     let seriesLength = 0;
@@ -278,9 +296,9 @@ export class DataContainer<DataPoint> {
     this.total = total;
     this.seriesLength = seriesLength;
     this.xScale = getContinuousNumericScale(this.xScaleType)
-      .domain([minX, maxX]);
+      .domain([minX - this.xBoundsMargin, maxX + this.xBoundsMargin]);
     this.yScale = getContinuousNumericScale(this.yScaleType)
-      .domain([minY, maxY]);
+      .domain([minY - this.yBoundsMargin, maxY + this.yBoundsMargin]);
 
     this.xAxis = prepareAxisValues(this.xScale, this.xAxisParameters, seriesLength);
     this.yAxis = prepareAxisValues(this.yScale, this.yAxisParameters, seriesLength);
