@@ -72,6 +72,15 @@ export class Rect {
     });
   }
 
+  offset(rect: Rect) {
+    return new Rect({
+      right: this.r,
+      left: this.l + rect.l,
+      top: this.t + rect.t,
+      bottom: this.b,
+    });
+  }
+
   expand(rect: Rect) {
     return new Rect({
       right: this.r + rect.r,

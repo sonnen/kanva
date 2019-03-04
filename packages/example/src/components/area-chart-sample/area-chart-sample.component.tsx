@@ -1,8 +1,9 @@
-import { AxisOrientation, DataContainer, GridLines, XYPoint, YValuesMatch } from '@kanva/charts';
+import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { PointerAction, Visibility } from '@kanva/core';
+import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
+import { Crosshair } from '../crosshair';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
@@ -54,7 +55,10 @@ const percentageContainer = new DataContainer<any>()
 
 interface State {
   filters: Record<string, boolean>;
-  tooltipData?: YValuesMatch;
+  tooltipData?: {
+    snap: SnapValuesMatch,
+    match: YValuesMatch,
+  };
 }
 
 export class AreaChartSample extends React.Component<{}, State> {
@@ -104,7 +108,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
         <Tooltip
-          data={tooltipData}
+          data={tooltipData && tooltipData.match}
           xFormatter={x => new Date(x * 1000).toString()}
         />
         <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
@@ -136,16 +140,10 @@ export class AreaChartSample extends React.Component<{}, State> {
               visibility={this.isVisible(Series.PRODUCTION)}
               style={SeriesStyles[Series.PRODUCTION]}
               onChartPointerEvent={event => {
-                if (event.pointerEvent.action === PointerAction.END) {
-                  return this.setState({ tooltipData: undefined });
-                }
-                const { x, y } = event.match;
-                this.setState({
-                  tooltipData: {
-                    ...event.match,
-                    y: { ...y, ...percentageContainer.getYValuesMatch(x).y },
-                  },
-                });
+                this.setState({ tooltipData: {
+                  snap: event.snap,
+                  match: event.match,
+                } });
               }}
             />
             <AreaChartView
@@ -175,6 +173,7 @@ export class AreaChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
+        <Crosshair snap={tooltipData && tooltipData.snap} />
       </div>
     );
   }

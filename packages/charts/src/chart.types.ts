@@ -26,3 +26,8 @@ export interface YValuesMatch {
   snapY: number;
   y: Record<string, number>;
 }
+
+export interface SnapValuesMatch {
+  x: number;
+  y: number;
+}

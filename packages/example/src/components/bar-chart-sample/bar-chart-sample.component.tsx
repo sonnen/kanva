@@ -5,13 +5,14 @@ import {
   LabelPosition,
   LegendAlignment,
   LegendSeriesType,
+  SnapValuesMatch,
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
-import { PointerAction } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
+import { Crosshair } from '../crosshair';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
@@ -46,7 +47,10 @@ const container = new DataContainer<number>()
   });
 
 interface State {
-  tooltipData?: YValuesMatch;
+  tooltipData?: {
+    snap: SnapValuesMatch,
+    match: YValuesMatch,
+  };
 }
 
 export class BarChartSample extends React.Component<{}, State> {
@@ -56,7 +60,7 @@ export class BarChartSample extends React.Component<{}, State> {
     const { tooltipData } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
-        <Tooltip data={tooltipData} />
+        <Tooltip data={tooltipData && tooltipData.match} />
         <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
           <LegendView
             id={Views.LEGEND}
@@ -101,11 +105,11 @@ export class BarChartSample extends React.Component<{}, State> {
               }}
               style={barChartStyle}
               onChartPointerEvent={event => {
-                if (event.pointerEvent.action === PointerAction.END) {
-                  return this.setState({ tooltipData: undefined });
-                }
                 this.setState({
-                  tooltipData: event.match,
+                  tooltipData: {
+                    snap: event.snap,
+                    match: event.match,
+                  },
                 });
               }}
             />
@@ -129,6 +133,7 @@ export class BarChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
+        <Crosshair snap={tooltipData && tooltipData.snap} />
       </div>
     );
   }

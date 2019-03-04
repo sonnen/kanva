@@ -18,6 +18,7 @@
 }
 
 .c-area-chart-sample {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 80%;
@@ -55,4 +56,34 @@
   border: transparent;
   cursor: pointer;
   font-weight: bold;
+}
+
+.c-crosshair {
+  --x: 0;
+}
+
+.c-crosshair {
+  position: absolute;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 0px;
+  bottom: -15px;
+  left: calc(var(--x) * 1px);
+}
+
+.c-crosshair__line {
+  width: 1px;
+  height: 391px;
+  opacity: 0.5;
+  background: white;
+}
+
+.c-crosshair__handle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #F0F;
+  background: white;
+  border-radius: 50%;
 }

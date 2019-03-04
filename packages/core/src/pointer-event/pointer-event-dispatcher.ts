@@ -15,8 +15,6 @@ const touchToPointer = (touch: Touch, offset: Offset) => {
     pressure: touch.force,
     x,
     y,
-    absoluteX: x,
-    absoluteY: y,
   };
 };
 
@@ -28,8 +26,6 @@ const mouseToPointer = (event: MouseEvent, offset: Offset) => {
     pressure: event.buttons ? 0.5 : 0,
     x,
     y,
-    absoluteX: x,
-    absoluteY: y,
   };
 };
 

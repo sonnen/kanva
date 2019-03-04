@@ -226,11 +226,16 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
           };
 
           const match = this.dataContainer.getYValuesMatch(point.x);
+          const snap = {
+            x: match.snapX * this.groupWidth + this.offsetRect.l,
+            y: yScale(match.snapY) + this.offsetRect.t,
+          };
 
           this.onChartPointerEvent({
             pointerEvent: event,
             ...point,
             match,
+            snap,
           });
           return true;
         }
