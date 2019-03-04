@@ -164,6 +164,7 @@ export class DataContainer<DataPoint> {
 
   setXBoundsMargin(xBoundsMargin: number) {
     this.xBoundsMargin = xBoundsMargin;
+    return this;
   }
 
   getYBoundsMargin() {
@@ -172,6 +173,7 @@ export class DataContainer<DataPoint> {
 
   setYBoundsMargin(yBoundsMargin: number) {
     this.yBoundsMargin = yBoundsMargin;
+    return this;
   }
 
   getDataSeries(name: string | undefined): DataSeries<XYPoint> | undefined {
