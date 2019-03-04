@@ -18,8 +18,6 @@ export enum MouseButton {
 export interface PointerPosition {
   x: number;
   y: number;
-  absoluteX: number;
-  absoluteY: number;
 }
 
 export interface CanvasPointer extends PointerPosition {

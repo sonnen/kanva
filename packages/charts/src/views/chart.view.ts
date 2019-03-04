@@ -1,5 +1,5 @@
 import { CanvasPointerEvent, Context, DeepReadonly, RequiredViewChanges, View } from '@kanva/core';
-import { YValuesMatch } from '../chart.types';
+import { SnapValuesMatch, YValuesMatch } from '../chart.types';
 import { DataContainer, DataContainerEvent } from '../data-container';
 
 export interface ChartViewProps<Style> {
@@ -13,6 +13,7 @@ export interface ChartPointerEvent {
   x: number;
   y: number;
   match: YValuesMatch;
+  snap: SnapValuesMatch;
 }
 
 export type OnChartPointerEvent = (event: ChartPointerEvent) => void;

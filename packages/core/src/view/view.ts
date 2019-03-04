@@ -47,6 +47,8 @@ export interface ViewProps {
 export class View<Props extends {} = ViewProps> {
   private static idCounter: number = 0;
   public readonly id: number;
+  /** This are the bounds of view absolute offset. */
+  public offsetRect: Rect = new Rect(0);
 
   // Layout
   protected lp: LayoutParams = new LayoutParams();
@@ -245,6 +247,10 @@ export class View<Props extends {} = ViewProps> {
       const sizeChanged = width !== oldWidth || height !== oldHeight;
 
       child.innerRect = child.rect.inset(child.lp.marginRect);
+      child.offsetRect = this.rect
+        .offset(child.innerRect)
+        .offset(child.lp.paddingRect);
+
       child.layout(sizeChanged);
       if (sizeChanged) {
         child.onSizeChanged(width, height, oldWidth, oldHeight);

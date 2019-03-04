@@ -151,11 +151,13 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     if (!this.onChartPointerEvent || !this.dataContainer) {
       return false;
     }
+
     const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
     const { xScale, yScale } = this.dataContainer.getScales(
       this.innerWidth,
       this.innerHeight,
     );
+
     if (!dataSeries) {
       return false;
     }
@@ -168,10 +170,16 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     const match = this.dataContainer.getYValuesMatch(point.x);
 
+    const snap = {
+      x: xScale(match.snapX) + this.offsetRect.l,
+      y: xScale(match.snapY) + this.offsetRect.t,
+    };
+
     this.onChartPointerEvent({
       pointerEvent: event,
       ...point,
       match,
+      snap,
     });
 
     return true;

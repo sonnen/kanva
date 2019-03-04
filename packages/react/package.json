@@ -1,6 +1,6 @@
 {
   "name": "@kanva/react",
-  "version": "0.3.26",
+  "version": "0.4.3",
   "description": "React bindings for Kanva",
   "keywords": [
     "canvas",
@@ -27,11 +27,11 @@
     "resize-observer-polyfill": "^1.5.1"
   },
   "peerDependencies": {
-    "@kanva/core": "^0.3.0",
+    "@kanva/core": "^0.4.0",
     "react": "^16.4.0"
   },
   "devDependencies": {
-    "@kanva/core": "^0.3.26",
+    "@kanva/core": "^0.4.3",
     "react": "^16.7.0",
     "react-dom": "^16.7.0"
   },
