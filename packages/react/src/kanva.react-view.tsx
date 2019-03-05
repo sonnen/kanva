@@ -1,4 +1,10 @@
-import { Canvas, Context, RequiredViewChanges, RootCanvasView, ViewProps } from '@kanva/core';
+import {
+  Context,
+  EventTrigger,
+  RequiredViewChanges,
+  RootCanvasView,
+  ViewProps,
+} from '@kanva/core';
 import * as React from 'react';
 import { CSSProperties } from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
@@ -8,7 +14,9 @@ interface Props {
   style?: CSSProperties;
   children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
   enablePointerEvents?: boolean;
+  eventTrigger?: EventTrigger;
   debug?: boolean;
+  canvasRef?: (instance: HTMLCanvasElement | null) => void;
 }
 
 interface State {
@@ -19,17 +27,17 @@ export class Kanva extends React.PureComponent<Props, State> {
   readonly state: State = {};
   private ctx: Context = new Context();
   private htmlDivElement: HTMLDivElement | null = null;
-  private htmlCanvasElement: Canvas | null = null;
+  private htmlCanvasElement: HTMLCanvasElement | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
   componentDidMount() {
-    const { enablePointerEvents } = this.props;
+    const { enablePointerEvents, eventTrigger } = this.props;
     const { view } = this.state;
     if (!view && this.htmlCanvasElement && this.htmlDivElement) {
       const view = new RootCanvasView(this.ctx, this.htmlCanvasElement);
       this.setState({ view });
       if (enablePointerEvents) {
-        view.setupPointerEvents();
+        view.setupPointerEvents(eventTrigger);
       }
       view.run();
       this.resizeObserver = new ResizeObserver(() => {
@@ -39,7 +47,7 @@ export class Kanva extends React.PureComponent<Props, State> {
     }
   }
 
-  componentDidUpdate(oldProps: Props) {
+  componentDidUpdate() {
     const { view } = this.state;
     if (!view) {
       return;
@@ -68,8 +76,7 @@ export class Kanva extends React.PureComponent<Props, State> {
   setDivElement = (ref: HTMLDivElement) => this.htmlDivElement = ref;
 
   render() {
-    const { view } = this.state;
-    const { className, children } = this.props;
+    const { className, children, canvasRef } = this.props;
     return (
       <div
         ref={this.setDivElement}
@@ -78,7 +85,12 @@ export class Kanva extends React.PureComponent<Props, State> {
       >
         <canvas
           style={{ position: 'absolute', left: 0, top: 0 }}
-          ref={ref => this.htmlCanvasElement = ref}
+          ref={ref => {
+            this.htmlCanvasElement = ref;
+            if (canvasRef) {
+              canvasRef(ref);
+            }
+          }}
         >
           {React.Children.map(children || [], this.assignParentProperties)}
         </canvas>

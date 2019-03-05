@@ -1,6 +1,6 @@
 import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { Visibility } from '@kanva/core';
+import { EventTrigger, getElementOffset, Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
@@ -62,6 +62,9 @@ interface State {
 }
 
 export class AreaChartSample extends React.Component<{}, State> {
+  canvasRef?: HTMLCanvasElement;
+  eventTrigger: EventTrigger = { dispatch: undefined };
+
   state: State = {
     filters: {
       [Series.BATTERY_STATE]: true,
@@ -69,6 +72,21 @@ export class AreaChartSample extends React.Component<{}, State> {
       [Series.CONSUMPTION]: true,
       [Series.DIRECT_USAGE]: true,
     },
+  };
+
+  handleMove = ({ nativeEvent }: React.TouchEvent) => {
+    if (this.eventTrigger.dispatch) {
+      // @NOTE: Hitting center of Kanvas Y dimension
+      const offset = getElementOffset(this.canvasRef!).top + this.canvasRef!.getBoundingClientRect().height / 2;
+      const fabricatedEvent = new MouseEvent('mousemove', {
+        screenX: nativeEvent.touches[0].screenX,
+        screenY: offset,
+        clientX: nativeEvent.touches[0].clientX,
+        clientY: offset,
+      });
+
+      this.eventTrigger.dispatch(fabricatedEvent);
+    }
   };
 
   onFilterClick = (filter: string) => () => {
@@ -96,6 +114,10 @@ export class AreaChartSample extends React.Component<{}, State> {
     );
   }
 
+  setCanvasRef = (instance: HTMLCanvasElement | null) => {
+    this.canvasRef = instance || undefined;
+  };
+
   render() {
     const { tooltipData } = this.state;
     return (
@@ -111,7 +133,12 @@ export class AreaChartSample extends React.Component<{}, State> {
           data={tooltipData && tooltipData.match}
           xFormatter={x => new Date(x * 1000).toString()}
         />
-        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
+        <Kanva
+          className={'c-sample-canvas'}
+          enablePointerEvents={true}
+          eventTrigger={this.eventTrigger}
+          canvasRef={this.setCanvasRef}
+        >
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
@@ -173,7 +200,10 @@ export class AreaChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
-        <Crosshair snap={tooltipData && tooltipData.snap} />
+        <Crosshair
+          snap={tooltipData && tooltipData.snap}
+          onMove={this.handleMove}
+        />
       </div>
     );
   }

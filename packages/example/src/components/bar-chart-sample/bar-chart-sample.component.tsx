@@ -9,6 +9,7 @@ import {
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
+import { EventTrigger, getElementOffset, isTouchEvent }  from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
@@ -54,14 +55,41 @@ interface State {
 }
 
 export class BarChartSample extends React.Component<{}, State> {
+  canvasRef?: HTMLCanvasElement;
+  eventTrigger: EventTrigger = { dispatch: undefined };
+
   state: State = {};
+
+  handleMove = ({ nativeEvent }: React.TouchEvent) => {
+    if (this.eventTrigger.dispatch) {
+      // @NOTE: Hitting center of Kanvas Y dimension
+      const offset = getElementOffset(this.canvasRef!).top + this.canvasRef!.getBoundingClientRect().height / 2;
+      const fabricatedEvent = new MouseEvent('mousemove', {
+        screenX: nativeEvent.touches[0].screenX,
+        screenY: offset,
+        clientX: nativeEvent.touches[0].clientX,
+        clientY: offset,
+      });
+
+      this.eventTrigger.dispatch(fabricatedEvent);
+    }
+  };
+
+  setCanvasRef = (instance: HTMLCanvasElement | null) => {
+    this.canvasRef = instance || undefined;
+  };
 
   render() {
     const { tooltipData } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
         <Tooltip data={tooltipData && tooltipData.match} />
-        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
+        <Kanva
+          className={'c-sample-canvas'}
+          enablePointerEvents={true}
+          eventTrigger={this.eventTrigger}
+          canvasRef={this.setCanvasRef}
+        >
           <LegendView
             id={Views.LEGEND}
             layoutParams={layout.legend}
@@ -133,7 +161,10 @@ export class BarChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
-        <Crosshair snap={tooltipData && tooltipData.snap} />
+        <Crosshair
+          snap={tooltipData && tooltipData.snap}
+          onMove={this.handleMove}
+        />
       </div>
     );
   }
