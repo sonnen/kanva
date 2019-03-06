@@ -3,12 +3,6 @@ import { View } from '../view';
 import { CanvasPointer, CanvasPointerEvent, MouseButton, PointerAction } from './canvas-pointer-event';
 import { domEventToPointerAction, getElementOffset, Offset, supportedDomPointerEvents } from './dom-pointer-event';
 
-export type DispatchEvent = (event: Event) => void;
-
-export interface EventTrigger {
-  dispatch: DispatchEvent | undefined;
-}
-
 export const isTouchEvent = (event: Event): event is TouchEvent => !!(event as any).touches;
 export const isMouseEvent = (event: Event): event is MouseEvent => !!(event as any).initMouseEvent;
 export const isWheelEvent = (event: Event): event is WheelEvent => !isNil((event as any).deltaX);
@@ -35,19 +29,13 @@ const mouseToPointer = (event: MouseEvent, offset: Offset) => {
   };
 };
 
-export const registerEventDispatcher = (element: Element, dispatcher: EventListener, trigger?: EventTrigger) => {
+export const registerEventDispatcher = (element: Element, dispatcher: EventListener) => {
   for (const eventType of supportedDomPointerEvents) {
     element.addEventListener(eventType, dispatcher, { passive: true });
-  }
-  if (trigger) {
-    trigger.dispatch = event => element.dispatchEvent(event);
   }
   return () => {
     for (const eventType of supportedDomPointerEvents) {
       element.removeEventListener(eventType, dispatcher);
-    }
-    if (trigger) {
-      trigger.dispatch = undefined;
     }
   };
 };

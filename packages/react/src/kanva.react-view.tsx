@@ -1,6 +1,5 @@
 import {
   Context,
-  EventTrigger,
   RequiredViewChanges,
   RootCanvasView,
   ViewProps,
@@ -14,7 +13,6 @@ interface Props {
   style?: CSSProperties;
   children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
   enablePointerEvents?: boolean;
-  eventTrigger?: EventTrigger;
   debug?: boolean;
   canvasRef?: (instance: HTMLCanvasElement | null) => void;
 }
@@ -31,13 +29,13 @@ export class Kanva extends React.PureComponent<Props, State> {
   private resizeObserver: ResizeObserver | null = null;
 
   componentDidMount() {
-    const { enablePointerEvents, eventTrigger } = this.props;
+    const { enablePointerEvents } = this.props;
     const { view } = this.state;
     if (!view && this.htmlCanvasElement && this.htmlDivElement) {
       const view = new RootCanvasView(this.ctx, this.htmlCanvasElement);
       this.setState({ view });
       if (enablePointerEvents) {
-        view.setupPointerEvents(eventTrigger);
+        view.setupPointerEvents();
       }
       view.run();
       this.resizeObserver = new ResizeObserver(() => {

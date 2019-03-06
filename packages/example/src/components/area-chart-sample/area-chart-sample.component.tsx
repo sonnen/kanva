@@ -1,6 +1,6 @@
 import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { EventTrigger, Visibility } from '@kanva/core';
+import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
@@ -64,7 +64,6 @@ interface State {
 
 export class AreaChartSample extends React.Component<{}, State> {
   canvasRef?: HTMLCanvasElement;
-  eventTrigger: EventTrigger = { dispatch: undefined };
 
   state: State = {
     filters: {
@@ -76,9 +75,9 @@ export class AreaChartSample extends React.Component<{}, State> {
   };
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
-    if (this.eventTrigger.dispatch) {
+    if (this.canvasRef) {
       const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
-      this.eventTrigger.dispatch(fabricatedEvent);
+      this.canvasRef.dispatchEvent(fabricatedEvent);
     }
   };
 
@@ -129,7 +128,6 @@ export class AreaChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          eventTrigger={this.eventTrigger}
           canvasRef={this.setCanvasRef}
         >
           <View layoutParams={layout.areaChartWrapper}>

@@ -9,7 +9,6 @@ import {
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
-import { EventTrigger }  from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
@@ -57,14 +56,13 @@ interface State {
 
 export class BarChartSample extends React.Component<{}, State> {
   canvasRef?: HTMLCanvasElement;
-  eventTrigger: EventTrigger = { dispatch: undefined };
 
   state: State = {};
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
-    if (this.eventTrigger.dispatch) {
+    if (this.canvasRef) {
       const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
-      this.eventTrigger.dispatch(fabricatedEvent);
+      this.canvasRef.dispatchEvent(fabricatedEvent);
     }
   };
 
@@ -80,7 +78,6 @@ export class BarChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          eventTrigger={this.eventTrigger}
           canvasRef={this.setCanvasRef}
         >
           <LegendView

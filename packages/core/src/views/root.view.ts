@@ -1,5 +1,5 @@
 import { Canvas, ViewCanvas } from '../canvas';
-import { createEventDispatcher, EventTrigger, registerEventDispatcher } from '../pointer-event';
+import { createEventDispatcher, registerEventDispatcher } from '../pointer-event';
 import { Context, RequiredViewChanges, View } from '../view';
 
 const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
@@ -20,14 +20,14 @@ export class RootCanvasView extends View {
     this.rect.b = this.lp.h = height;
   }
 
-  setupPointerEvents(trigger?: EventTrigger) {
+  setupPointerEvents() {
     const canvas = this.canvas.context.canvas;
     if (!canvas || !canvas.addEventListener) {
       throw new Error('Can\'t setup event listeners in canvas element.');
     }
 
     const dispatcher = createEventDispatcher(this);
-    this.clearPointerEvents = registerEventDispatcher(canvas, dispatcher, trigger);
+    this.clearPointerEvents = registerEventDispatcher(canvas, dispatcher);
   }
 
   onSizeChanged() {
