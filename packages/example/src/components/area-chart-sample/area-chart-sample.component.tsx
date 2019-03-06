@@ -1,9 +1,10 @@
 import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { EventTrigger, getElementOffset, Visibility } from '@kanva/core';
+import { EventTrigger, Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
+import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
@@ -76,15 +77,7 @@ export class AreaChartSample extends React.Component<{}, State> {
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
     if (this.eventTrigger.dispatch) {
-      // @NOTE: Hitting center of Kanvas Y dimension
-      const offset = getElementOffset(this.canvasRef!).top + this.canvasRef!.getBoundingClientRect().height / 2;
-      const fabricatedEvent = new MouseEvent('mousemove', {
-        screenX: nativeEvent.touches[0].screenX,
-        screenY: offset,
-        clientX: nativeEvent.touches[0].clientX,
-        clientY: offset,
-      });
-
+      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
       this.eventTrigger.dispatch(fabricatedEvent);
     }
   };

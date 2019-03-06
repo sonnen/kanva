@@ -35,18 +35,19 @@ const mouseToPointer = (event: MouseEvent, offset: Offset) => {
   };
 };
 
-export const registerEventTrigger = (element: Element, trigger: EventTrigger) => {
-  trigger.dispatch = event => element.dispatchEvent(event);
-  return () => trigger.dispatch = undefined;
-};
-
-export const registerEventDispatcher = (element: Element, dispatcher: EventListener) => {
+export const registerEventDispatcher = (element: Element, dispatcher: EventListener, trigger?: EventTrigger) => {
   for (const eventType of supportedDomPointerEvents) {
     element.addEventListener(eventType, dispatcher, { passive: true });
+  }
+  if (trigger) {
+    trigger.dispatch = event => element.dispatchEvent(event);
   }
   return () => {
     for (const eventType of supportedDomPointerEvents) {
       element.removeEventListener(eventType, dispatcher);
+    }
+    if (trigger) {
+      trigger.dispatch = undefined;
     }
   };
 };

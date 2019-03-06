@@ -9,11 +9,12 @@ import {
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
-import { EventTrigger, getElementOffset, isTouchEvent }  from '@kanva/core';
+import { EventTrigger }  from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { Crosshair } from '../crosshair';
+import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
@@ -62,15 +63,7 @@ export class BarChartSample extends React.Component<{}, State> {
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
     if (this.eventTrigger.dispatch) {
-      // @NOTE: Hitting center of Kanvas Y dimension
-      const offset = getElementOffset(this.canvasRef!).top + this.canvasRef!.getBoundingClientRect().height / 2;
-      const fabricatedEvent = new MouseEvent('mousemove', {
-        screenX: nativeEvent.touches[0].screenX,
-        screenY: offset,
-        clientX: nativeEvent.touches[0].clientX,
-        clientY: offset,
-      });
-
+      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
       this.eventTrigger.dispatch(fabricatedEvent);
     }
   };
