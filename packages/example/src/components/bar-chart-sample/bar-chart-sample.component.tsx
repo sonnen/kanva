@@ -13,6 +13,7 @@ import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { Crosshair } from '../crosshair';
+import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
@@ -54,14 +55,31 @@ interface State {
 }
 
 export class BarChartSample extends React.Component<{}, State> {
+  canvasRef?: HTMLCanvasElement;
+
   state: State = {};
+
+  handleMove = ({ nativeEvent }: React.TouchEvent) => {
+    if (this.canvasRef) {
+      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
+      this.canvasRef.dispatchEvent(fabricatedEvent);
+    }
+  };
+
+  setCanvasRef = (instance: HTMLCanvasElement | null) => {
+    this.canvasRef = instance || undefined;
+  };
 
   render() {
     const { tooltipData } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
         <Tooltip data={tooltipData && tooltipData.match} />
-        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
+        <Kanva
+          className={'c-sample-canvas'}
+          enablePointerEvents={true}
+          canvasRef={this.setCanvasRef}
+        >
           <LegendView
             id={Views.LEGEND}
             layoutParams={layout.legend}
@@ -133,7 +151,10 @@ export class BarChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
-        <Crosshair snap={tooltipData && tooltipData.snap} />
+        <Crosshair
+          snap={tooltipData && tooltipData.snap}
+          onMove={this.handleMove}
+        />
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
+import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
@@ -62,6 +63,8 @@ interface State {
 }
 
 export class AreaChartSample extends React.Component<{}, State> {
+  canvasRef?: HTMLCanvasElement;
+
   state: State = {
     filters: {
       [Series.BATTERY_STATE]: true,
@@ -69,6 +72,13 @@ export class AreaChartSample extends React.Component<{}, State> {
       [Series.CONSUMPTION]: true,
       [Series.DIRECT_USAGE]: true,
     },
+  };
+
+  handleMove = ({ nativeEvent }: React.TouchEvent) => {
+    if (this.canvasRef) {
+      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
+      this.canvasRef.dispatchEvent(fabricatedEvent);
+    }
   };
 
   onFilterClick = (filter: string) => () => {
@@ -96,6 +106,10 @@ export class AreaChartSample extends React.Component<{}, State> {
     );
   }
 
+  setCanvasRef = (instance: HTMLCanvasElement | null) => {
+    this.canvasRef = instance || undefined;
+  };
+
   render() {
     const { tooltipData } = this.state;
     return (
@@ -111,7 +125,11 @@ export class AreaChartSample extends React.Component<{}, State> {
           data={tooltipData && tooltipData.match}
           xFormatter={x => new Date(x * 1000).toString()}
         />
-        <Kanva className={'c-sample-canvas'} enablePointerEvents={true}>
+        <Kanva
+          className={'c-sample-canvas'}
+          enablePointerEvents={true}
+          canvasRef={this.setCanvasRef}
+        >
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
@@ -173,7 +191,10 @@ export class AreaChartSample extends React.Component<{}, State> {
             style={yAxisStyle}
           />
         </Kanva>
-        <Crosshair snap={tooltipData && tooltipData.snap} />
+        <Crosshair
+          snap={tooltipData && tooltipData.snap}
+          onMove={this.handleMove}
+        />
       </div>
     );
   }

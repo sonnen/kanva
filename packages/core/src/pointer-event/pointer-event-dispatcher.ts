@@ -3,9 +3,9 @@ import { View } from '../view';
 import { CanvasPointer, CanvasPointerEvent, MouseButton, PointerAction } from './canvas-pointer-event';
 import { domEventToPointerAction, getElementOffset, Offset, supportedDomPointerEvents } from './dom-pointer-event';
 
-const isTouchEvent = (event: Event): event is TouchEvent => !!(event as any).touches;
-const isMouseEvent = (event: Event): event is MouseEvent => !!(event as any).initMouseEvent;
-const isWheelEvent = (event: Event): event is WheelEvent => !isNil((event as any).deltaX);
+export const isTouchEvent = (event: Event): event is TouchEvent => !!(event as any).touches;
+export const isMouseEvent = (event: Event): event is MouseEvent => !!(event as any).initMouseEvent;
+export const isWheelEvent = (event: Event): event is WheelEvent => !isNil((event as any).deltaX);
 
 const touchToPointer = (touch: Touch, offset: Offset) => {
   const x = touch.pageX - offset.left;
