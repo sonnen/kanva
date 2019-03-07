@@ -31,3 +31,10 @@ export interface SnapValuesMatch {
   x: number;
   y: number;
 }
+
+export interface CanvasPosition {
+  x: number;
+  y: number;
+  absoluteX: number;
+  absoluteY: number;
+}

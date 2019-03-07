@@ -1,4 +1,5 @@
 import { CanvasPointerEvent, Context, ViewCanvas } from '@kanva/core';
+import { CanvasPosition, XYPoint } from '../chart.types';
 import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -183,5 +184,25 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     });
 
     return true;
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    if (!dataContainer) {
+      return super.getCanvasPositionForPoint(point);
+    }
+    const halfLineWidth = (style.lineWidth || 0) / 2;
+    const { xScale, yScale } = dataContainer.getScales(
+      innerWidth - halfLineWidth,
+      innerHeight - halfLineWidth,
+    );
+    const x = xScale(point.x);
+    const y = yScale(point.y);
+    return {
+      x,
+      y,
+      absoluteX: this.offsetRect.l + x,
+      absoluteY: this.offsetRect.t + y,
+    };
   }
 }
