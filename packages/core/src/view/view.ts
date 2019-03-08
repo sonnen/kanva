@@ -97,9 +97,9 @@ export class View<Props extends {} = ViewProps> {
         event.offsetPointers(-offsetX, -offsetY);
         if (event.action === PointerAction.MOVE) {
           if (!child.hasCapturedPointer) {
-            event.action = PointerAction.START;
+            event.action = event.primaryPointer.pressure > 0 ? PointerAction.DOWN : PointerAction.OVER;
           } else if (!isPointerInside) {
-            event.action = PointerAction.END;
+            event.action = PointerAction.CANCEL;
           }
         }
 

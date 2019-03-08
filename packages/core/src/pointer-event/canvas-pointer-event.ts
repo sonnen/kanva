@@ -1,10 +1,12 @@
 import { View } from '../view';
 
 export enum PointerAction {
-  START,
-  END,
-  MOVE,
-  SCROLL,
+  UP = 'UP',
+  OVER = 'OVER',
+  DOWN = 'DOWN',
+  MOVE = 'MOVE',
+  SCROLL = 'SCROLL',
+  CANCEL = 'CANCEL',
 }
 
 export enum MouseButton {
@@ -18,6 +20,8 @@ export enum MouseButton {
 export interface PointerPosition {
   x: number;
   y: number;
+  deltaX: number;
+  deltaY: number;
 }
 
 export interface CanvasPointer extends PointerPosition {
@@ -25,35 +29,23 @@ export interface CanvasPointer extends PointerPosition {
   mouseButton: MouseButton;
 }
 
-export interface CanvasPointerEventValues {
+export class CanvasPointerEvent {
+  pointers: CanvasPointer[] = new Array(10).fill(null).map(() => ({}) as any);
+  pointerCount: number = 0;
   target: View;
   action: PointerAction;
-  pointers: CanvasPointer[];
-}
-
-export class CanvasPointerEvent implements CanvasPointerEventValues {
-  target: View;
-  action: PointerAction;
-  pointers: CanvasPointer[];
   scrollX: number = 0;
   scrollY: number = 0;
   scrollZ: number = 0;
 
-  constructor(target: View, action: PointerAction, pointers: CanvasPointer[]) {
-    this.target = target;
-    this.action = action;
-    this.pointers = pointers;
-  }
-
-  setEventValues(target: View, action: PointerAction, pointers: CanvasPointer[]) {
-    this.target = target;
-    this.action = action;
-    this.pointers = pointers;
+  constructor() {
+    this.target = null as any;
+    this.action = PointerAction.OVER;
   }
 
   offsetPointers(offsetX: number, offsetY: number) {
     const pointers = this.pointers;
-    for (let i = 0, l = pointers.length; i < l; i++) {
+    for (let i = 0, l = this.pointerCount; i < l; i++) {
       const pointer = pointers[i];
       pointer.x += offsetX;
       pointer.y += offsetY;
@@ -63,4 +55,5 @@ export class CanvasPointerEvent implements CanvasPointerEventValues {
   get primaryPointer() {
     return this.pointers[0];
   }
+
 }
