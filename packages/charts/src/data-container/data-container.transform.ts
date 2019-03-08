@@ -9,16 +9,19 @@ export class DataContainerTransform {
 
   private scaleGestureDetector = new ScaleGestureDetector({
     onScale: (event: ScaleEvent) => {
-      const scaleX = Math.max(this.scaleLimit[0].x, Math.min(this.scaleLimit[1].x, this.scale.x * event.scaleFactorX));
-      if (this.scale.x !== scaleX) {
-        this.scale.x = scaleX;
+      const oldScaleX = this.scale.x;
+      const scaleX = Math.max(this.scaleLimit[0].x, Math.min(this.scaleLimit[1].x, oldScaleX * event.scaleFactorX));
+      if (oldScaleX !== scaleX) {
         const target = event.pointerEvent.target as ChartView<any, any>;
         const { xScale } = target.getDataContainer()!.getScales(target.innerWidth, target.innerHeight);
         const translateX = xScale.invert(this.translate.x);
         const centerX = xScale.invert(event.current.centerX);
         // TODO figure out how to translate the chart properly during zoom, with relation to the pointer position
-        // console.log(translateX, centerX, scaleX);
-        // this.translate.x -= xScale((translateX - centerX) * (1 - event.scaleFactorX));
+        // console.log(this.translate.x, event.current.centerX, scaleX);
+        this.scale.x = scaleX;
+        this.translate.x = Math.max(0, Math.min(target.innerWidth,
+          xScale(translateX + (centerX - translateX) * (scaleX - oldScaleX)),
+        ));
         this.onTransformChanged();
         return true;
       }
@@ -54,10 +57,10 @@ export class DataContainerTransform {
   }
 
   xScaleRange(range: [number, number]) {
-    return range.map(value => (value) * this.scale.x - this.translate.x);
+    return range.map(value => (value - this.translate.x) * this.scale.x);
   }
 
   yScaleRange(range: [number, number]) {
-    return range.map(value => (value) * this.scale.y - this.translate.y);
+    return range.map(value => (value - this.translate.y) * this.scale.y);
   }
 }
