@@ -9,6 +9,8 @@ import {
   prepareAxisValues,
   ScaleFunction,
 } from '../utils';
+import { DataContainerExtension } from './data-container.extension';
+import { DataContainerTransform } from './data-container.transform';
 
 const DefaultAxisParameters = {
   TICK_COUNT: 10,
@@ -43,6 +45,12 @@ export class DataContainer<DataPoint> {
   // Data processing properties
   private hasChanged = false;
   private eventListeners: DataContainerEventListener[] = [];
+  private transform: DataContainerTransform = new DataContainerTransform(() => {
+    this.postEvent(DataContainerEvent.DATA_CHANGE);
+  });
+
+  // Extensions
+  private extensions: DataContainerExtension[] = [];
 
   // Computed values
   private series: DataSeries<XYPoint>[] = [];
@@ -79,6 +87,20 @@ export class DataContainer<DataPoint> {
       return;
     }
     this.eventListeners.splice(index, 1);
+  }
+
+  addExtension(extension: DataContainerExtension) {
+    this.extensions[extension.name] = extension;
+    return this;
+  }
+
+  getExtension(name: string): DataContainerExtension {
+    // TODO decide if we need extensions and what kind of API should they expose/have access to
+    return this.extensions[name];
+  }
+
+  getTransform() {
+    return this.transform;
   }
 
   getPointAccessor() {
@@ -191,17 +213,20 @@ export class DataContainer<DataPoint> {
 
   getScales(width: number, height: number): { xScale: ScaleFunction, yScale: ScaleFunction } {
     this.processData();
+    const transform = this.getTransform();
     return {
-      xScale: this.xScale!.range([0, width]),
-      yScale: this.yScale!.range([height, 0]),
+      xScale: this.xScale!.range(transform.xScaleRange([0, width])),
+      yScale: this.yScale!.range(transform.yScaleRange([height, 0])),
     };
   }
 
   getYValuesMatch(x: number): YValuesMatch {
     this.processData();
+    const primarySeries = this.series[0].data;
+    const delta = Math.abs(primarySeries[0].x - primarySeries[1].x);
     const index = Math.max(
       0,
-      sortedIndexBy(this.series[0].data, { x, y: 0 }, point => point.x) - 1,
+      sortedIndexBy(primarySeries, { x, y: 0 }, point => point.x - delta / 2) - 1,
     );
     const selectedValue = this.series[0].data[index];
     return {

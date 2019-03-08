@@ -1,4 +1,5 @@
-import { CanvasPointerEvent, Context, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPosition, XYPoint } from '../chart.types';
 import { segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -46,10 +47,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     }
 
     const halfLineWidth = (style.lineWidth || 0);
-    const { xScale, yScale } = dataContainer.getScales(
-      innerWidth - halfLineWidth,
-      innerHeight - halfLineWidth,
-    );
 
     const dataSegments = segmentizePoints(series.data, null);
 
@@ -65,17 +62,17 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           let offset = 2;
           const start = point.x;
           const scale = (segment.length - 1) / segment.length;
-          array[0] = xScale(start + (point.x - start) * scale);
-          array[1] = yScale(point.y);
+          array[0] = start + (point.x - start) * scale;
+          array[1] = point.y;
           for (let i = 1; i < segment.length; i++) {
             point = segment[i];
-            array[offset] = xScale(start + (point.x - start) * scale);
+            array[offset] = start + (point.x - start) * scale;
             array[offset + 1] = array[offset - 1];
             array[offset + 2] = array[offset];
-            array[offset + 3] = yScale(point.y);
+            array[offset + 3] = point.y;
             offset += 4;
           }
-          array[offset] = xScale(point.x);
+          array[offset] = point.x;
           array[offset + 1] = array[offset - 1];
           return array;
         }
@@ -83,8 +80,8 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           const array = new Int32Array(segment.length * 2);
           for (let i = 0; i < segment.length; i++) {
             const point = segment[i];
-            array[i * 2] = xScale(point.x) | 0;
-            array[i * 2 + 1] = yScale(point.y) | 0;
+            array[i * 2] = point.x | 0;
+            array[i * 2 + 1] = point.y | 0;
           }
           return array;
         }
@@ -97,24 +94,31 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     const { type, fillStyle, lineWidth = 0, strokeStyle } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
+    const halfLineWidth = lineWidth / 2;
 
-    if (!dataSegments.length) {
+    if (!dataContainer || !dataSegments.length) {
       return;
     }
 
-    ctx.translate(lineWidth / 2, lineWidth / 2);
+    const { xScale, yScale } = dataContainer.getScales(
+      innerWidth - halfLineWidth,
+      innerHeight - halfLineWidth,
+    );
+
+    const transform = dataContainer.getTransform();
+    ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
 
     for (let s = 0, sl = dataSegments.length; s < sl; s++) {
       const data = dataSegments[s];
       switch (type) {
         case DataDisplayType.AREA:
-          ctx.moveTo(data[0], innerHeight);
+          ctx.moveTo(xScale(data[0]), innerHeight);
           for (let i = 0, l = data.length; i < l; i += 2) {
-            ctx.lineTo(data[i], data[i + 1]);
+            ctx.lineTo(xScale(data[i]), yScale(data[i + 1]));
           }
-          ctx.lineTo(data[data.length - 2], innerHeight);
-          ctx.lineTo(data[0], innerHeight);
+          ctx.lineTo(xScale(data[data.length - 2]), innerHeight);
+          ctx.lineTo(xScale(data[0]), innerHeight);
           break;
         case DataDisplayType.POINTS:
           const size = lineWidth || 1;
@@ -122,16 +126,16 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           if (fillStyle) {
             ctx.fillStyle = fillStyle;
             for (let i = 0, l = data.length; i < l; i += 2) {
-              ctx.fillRect(data[i] - radius, data[i + 1] - radius, size, size);
+              ctx.fillRect(xScale(data[i]) - radius, yScale(data[i + 1]) - radius, size, size);
             }
           }
           break;
         default:
         case DataDisplayType.LINE_STAIRS:
         case DataDisplayType.LINE:
-          ctx.moveTo(data[0], data[1]);
+          ctx.moveTo(xScale(data[0]), yScale(data[1]));
           for (let i = 2, l = data.length; i < l; i += 2) {
-            ctx.lineTo(data[i], data[i + 1]);
+            ctx.lineTo(xScale(data[i]), yScale(data[i + 1]));
           }
           break;
       }
@@ -140,9 +144,9 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       ctx.fillStyle = fillStyle;
       ctx.fill();
     }
-    if (strokeStyle) {
+    if (strokeStyle && lineWidth) {
       ctx.strokeStyle = strokeStyle;
-      ctx.lineWidth = lineWidth || 1;
+      ctx.lineWidth = lineWidth;
       ctx.stroke();
     }
   }
@@ -151,7 +155,15 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     if (!this.onChartPointerEvent || !this.dataContainer) {
       return false;
     }
+    const isTooltipEvent = event.pointerCount === 1 && !event.scrollY;
 
+    const transform = this.dataContainer.getTransform();
+    const isPanEvent = transform.processPanEvent(event);
+    const isZoomEvent = transform.processZoomEvent(event);
+    if (isPanEvent || isZoomEvent) {
+      this.require(RequiredViewChanges.DRAW);
+      return true;
+    }
     const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
     const { xScale, yScale } = this.dataContainer.getScales(
       this.innerWidth,
@@ -183,5 +195,25 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     });
 
     return true;
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    if (!dataContainer) {
+      return super.getCanvasPositionForPoint(point);
+    }
+    const halfLineWidth = (style.lineWidth || 0) / 2;
+    const { xScale, yScale } = dataContainer.getScales(
+      innerWidth - halfLineWidth,
+      innerHeight - halfLineWidth,
+    );
+    const x = xScale(point.x);
+    const y = yScale(point.y);
+    return {
+      x,
+      y,
+      absoluteX: this.offsetRect.l + x,
+      absoluteY: this.offsetRect.t + y,
+    };
   }
 }

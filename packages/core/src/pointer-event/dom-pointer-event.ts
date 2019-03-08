@@ -51,14 +51,16 @@ export const domEventToPointerAction = (event: Event): PointerAction | undefined
       return PointerAction.MOVE;
     case 'mousedown':
     case 'touchstart':
+      return PointerAction.DOWN;
     case 'mouseover':
     case 'mouseenter':
-      return PointerAction.START;
+      return PointerAction.OVER;
     case 'touchcancel':
     case 'mouseout':
+      return PointerAction.CANCEL;
     case 'mouseup':
     case 'touchend':
-      return PointerAction.END;
+      return PointerAction.UP;
     case 'wheel':
       return PointerAction.SCROLL;
     default:

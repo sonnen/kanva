@@ -1,5 +1,5 @@
 import { CanvasPointerEvent, Context, DeepReadonly, RequiredViewChanges, View } from '@kanva/core';
-import { SnapValuesMatch, YValuesMatch } from '../chart.types';
+import { CanvasPosition, SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
 import { DataContainer, DataContainerEvent } from '../data-container';
 
 export interface ChartViewProps<Style> {
@@ -47,6 +47,15 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
 
   getOnChartPointerEvent() {
     return this.onChartPointerEvent;
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    return {
+      x: 0,
+      y: 0,
+      absoluteX: this.offsetRect.l,
+      absoluteY: this.offsetRect.t,
+    };
   }
 
   setOnChartPointerEvent(onChartPointerEvent: OnChartPointerEvent) {

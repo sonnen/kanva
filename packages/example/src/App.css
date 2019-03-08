@@ -80,6 +80,7 @@
   opacity: 0.5;
   margin-bottom: -30px;
   background: white;
+  pointer-events: none;
 }
 
 .c-crosshair__handle-hitbox {

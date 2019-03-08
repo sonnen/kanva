@@ -207,8 +207,8 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       return false;
     }
     switch (event.action) {
-      case PointerAction.START:
-      case PointerAction.END:
+      case PointerAction.OVER:
+      case PointerAction.DOWN:
       case PointerAction.MOVE:
         if (event.pointers.length === 1) {
           const dataSeries = this.dataContainer.getAllDataSeries();
