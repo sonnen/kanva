@@ -85,7 +85,6 @@ export class DataContainer<DataPoint> {
       return;
     }
     this.eventListeners[eventType].push(listener);
-    console.log('Attached', listener);
   }
 
   removeEventListener<T extends DataContainerEventType, P>(eventType: T, listener: DataContainerEventListener<T, P>) {
