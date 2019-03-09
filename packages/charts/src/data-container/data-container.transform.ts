@@ -1,27 +1,34 @@
-import { CanvasPointerEvent, ScaleEvent, ScaleGestureDetector } from '@kanva/core';
+import { CanvasPointerEvent, PointerAction, ScaleEvent, ScaleGestureDetector } from '@kanva/core';
 import { XYPoint } from '../chart.types';
+import { ScaleFunction } from '../utils';
 import { ChartView } from '../views';
+import { ScaleFunctions } from './data-container';
 
 export class DataContainerTransform {
   scale: XYPoint = { x: 1, y: 1 };
   scaleLimit: [XYPoint, XYPoint] = [{ x: 1, y: 1 }, { x: 10, y: 1 }];
   translate: XYPoint = { x: 0, y: 0 };
 
+  private scales?: { xScale: ScaleFunction, yScale: ScaleFunction };
   private scaleGestureDetector = new ScaleGestureDetector({
     onScale: (event: ScaleEvent) => {
       const oldScaleX = this.scale.x;
       const scaleX = Math.max(this.scaleLimit[0].x, Math.min(this.scaleLimit[1].x, oldScaleX * event.scaleFactorX));
       if (oldScaleX !== scaleX) {
         const target = event.pointerEvent.target as ChartView<any, any>;
-        const { xScale } = target.getDataContainer()!.getScales(target.innerWidth, target.innerHeight);
-        const translateX = xScale.invert(this.translate.x);
+        const { xScale } = this.scales!;
+        const [domainMin, domainMax] = xScale.domain();
+        const domainWidth = domainMax - domainMin;
+        const windowWidth = domainWidth / scaleX;
+        const oldWindowWidth = domainWidth / oldScaleX;
         const centerX = xScale.invert(event.current.centerX);
-        // TODO figure out how to translate the chart properly during zoom, with relation to the pointer position
-        // console.log(this.translate.x, event.current.centerX, scaleX);
+        const translateX = this.translate.x + domainMin;
+
+        const percentage = (centerX - translateX) / oldWindowWidth;
+        const newTranslateX = centerX - percentage * windowWidth;
+
         this.scale.x = scaleX;
-        this.translate.x = Math.max(0, Math.min(target.innerWidth,
-          xScale(translateX + (centerX - translateX) * (scaleX - oldScaleX)),
-        ));
+        this.translate.x = Math.max(0, Math.min(domainWidth - windowWidth, newTranslateX - domainMin));
         this.onTransformChanged();
         return true;
       }
@@ -36,31 +43,60 @@ export class DataContainerTransform {
   ) {
   }
 
-  processZoomEvent(event: CanvasPointerEvent) {
+  processZoomEvent(event: CanvasPointerEvent, scales: ScaleFunctions) {
+    this.scales = scales;
     return this.scaleGestureDetector.onPointerEvent(event);
   }
 
-  processPanEvent(event: CanvasPointerEvent) {
-    let xTranslate = this.translate.x;
-    if (event.scrollX) {
-      // const lastChunk = this.data[this.data.length - 1];
-      // const width = lastChunk[lastChunk.length - 2];
-      xTranslate = this.translate.x - event.scrollX / this.scale.x;
+  processPanEvent(event: CanvasPointerEvent, scales: ScaleFunctions) {
+    let newTranslateX = this.translate.x;
+    const { xScale } = scales;
+    const [domainMin, domainMax] = xScale.domain();
+    const domainWidth = domainMax - domainMin;
+    const windowWidth = domainWidth / this.scale.x;
+
+    if (event.action === PointerAction.MOVE && event.primaryPointer.pressure > 0) {
+      newTranslateX -= xScale.invert(event.primaryPointer.deltaX) - xScale.invert(0);
     }
 
-    if (this.translate.x !== xTranslate) {
-      // this.translate.x = xTranslate;
+    if (this.translate.x !== newTranslateX) {
+      this.translate.x = Math.max(0, Math.min(domainWidth - windowWidth, newTranslateX));
       this.onTransformChanged();
       return true;
     }
     return false;
   }
 
-  xScaleRange(range: [number, number]) {
-    return range.map(value => (value - this.translate.x) * this.scale.x);
+  xScale(scale: ScaleFunction) {
+    const [domainMin, domainMax] = scale.domain();
+    const [rangeMin, rangeMax] = scale.range();
+    const rangeWidth = rangeMax - rangeMin;
+    const domainWidth = domainMax - domainMin;
+    const translateX = (this.translate.x) / domainWidth * rangeWidth;
+    return scale.range([
+      (rangeMin - translateX) * this.scale.x,
+      (rangeMax - translateX) * this.scale.x,
+    ]);
   }
 
-  yScaleRange(range: [number, number]) {
-    return range.map(value => (value - this.translate.y) * this.scale.y);
+  yScale(scale: ScaleFunction) {
+    const [domainMin, domainMax] = scale.domain();
+    const [rangeMin, rangeMax] = scale.range();
+    const rangeWidth = rangeMax - rangeMin;
+    const domainWidth = domainMax - domainMin;
+    const translateY = (this.translate.y) / domainWidth * rangeWidth;
+
+    return scale.range([
+      (rangeMin - translateY) * this.scale.y,
+      (rangeMax - translateY) * this.scale.y,
+    ]);
+  }
+
+  private normalizeTranslateX(translateX: number) {
+    const { xScale } = this.scales!;
+    const [domainMin, domainMax] = xScale.domain();
+    const domainWidth = domainMax - domainMin;
+    const windowWidth = domainWidth / this.scale.x;
+    return Math.max(0, Math.min(domainWidth - windowWidth, translateX - domainMin));
   }
 }

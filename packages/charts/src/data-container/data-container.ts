@@ -18,6 +18,11 @@ const DefaultAxisParameters = {
   LABEL_ACCESSOR: (value: number) => String(value),
 };
 
+export interface ScaleFunctions {
+  xScale: ScaleFunction;
+  yScale: ScaleFunction;
+}
+
 export enum DataContainerEvent {
   DATA_CHANGE,
 }
@@ -211,12 +216,14 @@ export class DataContainer<DataPoint> {
     return this.series;
   }
 
-  getScales(width: number, height: number): { xScale: ScaleFunction, yScale: ScaleFunction } {
+  getScales(width: number, height: number): ScaleFunctions {
     this.processData();
     const transform = this.getTransform();
+    const xScale = this.xScale!.range([0, width]);
+    const yScale = this.yScale!.range([height, 0]);
     return {
-      xScale: this.xScale!.range(transform.xScaleRange([0, width])),
-      yScale: this.yScale!.range(transform.yScaleRange([height, 0])),
+      xScale: transform.xScale(xScale),
+      yScale: transform.yScale(yScale),
     };
   }
 
