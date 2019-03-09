@@ -1,10 +1,14 @@
 import { CanvasPointerEvent, PointerAction, ScaleEvent, ScaleGestureDetector } from '@kanva/core';
 import { XYPoint } from '../chart.types';
-import { ScaleFunction } from '../utils';
+import { ScaleFunction, ScaleFunctions } from '../utils';
 import { ChartView } from '../views';
-import { ScaleFunctions } from './data-container';
+import { DataContainer } from './data-container';
+import { DataContainerEventType, GetScalesEvent } from './data-container.events';
+import { DataContainerExtension } from './data-container.extension';
 
-export class DataContainerTransform {
+export const TRANSFORM_EXTENSION = 'DataContainerTransformExtension';
+
+export class DataContainerTransformExtension extends DataContainerExtension {
   scale: XYPoint = { x: 1, y: 1 };
   scaleLimit: [XYPoint, XYPoint] = [{ x: 1, y: 1 }, { x: 10, y: 1 }];
   translate: XYPoint = { x: 0, y: 0 };
@@ -29,7 +33,7 @@ export class DataContainerTransform {
 
         this.scale.x = scaleX;
         this.translate.x = Math.max(0, Math.min(domainWidth - windowWidth, newTranslateX - domainMin));
-        this.onTransformChanged();
+        this.postEvent(DataContainerEventType.DATA_CHANGE);
         return true;
       }
       return false;
@@ -38,9 +42,8 @@ export class DataContainerTransform {
     scroll: true,
   });
 
-  constructor(
-    private onTransformChanged: () => void,
-  ) {
+  constructor() {
+    super(TRANSFORM_EXTENSION);
   }
 
   processZoomEvent(event: CanvasPointerEvent, scales: ScaleFunctions) {
@@ -61,13 +64,26 @@ export class DataContainerTransform {
 
     if (this.translate.x !== newTranslateX) {
       this.translate.x = Math.max(0, Math.min(domainWidth - windowWidth, newTranslateX));
-      this.onTransformChanged();
+      this.postEvent(DataContainerEventType.DATA_CHANGE);
       return true;
     }
     return false;
   }
 
-  xScale(scale: ScaleFunction) {
+  protected onAttach(dataContainer: DataContainer<any>) {
+    dataContainer.addEventListener(DataContainerEventType.GET_SCALES, this.getScales);
+  }
+
+  protected onDetach(dataContainer: DataContainer<any>) {
+    dataContainer.removeEventListener(DataContainerEventType.GET_SCALES, this.getScales);
+  }
+
+  private getScales = ({ payload }: GetScalesEvent): ScaleFunctions => ({
+    xScale: this.xScale(payload.xScale),
+    yScale: this.yScale(payload.yScale),
+  });
+
+  private xScale(scale: ScaleFunction) {
     const [domainMin, domainMax] = scale.domain();
     const [rangeMin, rangeMax] = scale.range();
     const rangeWidth = rangeMax - rangeMin;
@@ -79,7 +95,7 @@ export class DataContainerTransform {
     ]);
   }
 
-  yScale(scale: ScaleFunction) {
+  private yScale(scale: ScaleFunction) {
     const [domainMin, domainMax] = scale.domain();
     const [rangeMin, rangeMax] = scale.range();
     const rangeWidth = rangeMax - rangeMin;

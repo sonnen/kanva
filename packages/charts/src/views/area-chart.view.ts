@@ -1,7 +1,7 @@
 import { CanvasPointerEvent, Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
-import { ScaleFunctions } from '../data-container';
-import { segmentizePoints } from '../utils';
+import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
+import { ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export enum DataDisplayType {
@@ -103,7 +103,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     const { xScale, yScale } = this.getScales();
 
-    const transform = dataContainer.getTransform();
     ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
 
@@ -155,11 +154,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     }
 
     // Pan & zoom
-    const transform = this.dataContainer.getTransform();
-    if (
-      transform.processPanEvent(event, this.getScales()) ||
-      transform.processZoomEvent(event, this.getScales())
-    ) {
+    const transformExtension = this.dataContainer.getExtension<DataContainerTransformExtension>(TRANSFORM_EXTENSION);
+    const scales = this.getScales();
+    if (transformExtension && (
+      transformExtension.processPanEvent(event, scales) || transformExtension.processZoomEvent(event, scales)
+    )) {
       this.require(RequiredViewChanges.DRAW);
       return true;
     }
