@@ -10,8 +10,7 @@ export abstract class DataContainerExtension {
   }
 
   attach(dataContainer: DataContainer<any>) {
-    const index = this.dataContainers.indexOf(dataContainer);
-    if (index >= 0) {
+    if (this.dataContainers.includes(dataContainer)) {
       return;
     }
     this.dataContainers.push(dataContainer);

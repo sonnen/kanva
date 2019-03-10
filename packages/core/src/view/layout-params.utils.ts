@@ -39,7 +39,7 @@ export const resolveDimensionDependencies = (
 
   const maxLoops = dimension.length * 10;
   let loops = 0;
-  const unresolvedDependencies = (depId: number) => orderedDimension.indexOf(depId) < 0;
+  const unresolvedDependencies = (depId: number) => !orderedDimension.includes(depId);
   while (dimension.length) {
     if (loops++ > maxLoops) {
       const getChildById = (dependency: Dependency) => ({

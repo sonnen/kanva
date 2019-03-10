@@ -80,8 +80,7 @@ export class DataContainer<DataPoint> {
   }
 
   addEventListener<T extends DataContainerEventType, P>(eventType: T, listener: DataContainerEventListener<T, P>) {
-    const index = this.eventListeners[eventType].indexOf(listener);
-    if (index >= 0) {
+    if (this.eventListeners[eventType].includes(listener)) {
       return;
     }
     this.eventListeners[eventType].push(listener);
