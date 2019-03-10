@@ -1,6 +1,7 @@
 import { CanvasPointerEvent, Context, DeepReadonly, RequiredViewChanges, View } from '@kanva/core';
 import { CanvasPosition, SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
-import { DataContainer, DataContainerEvent } from '../data-container';
+import { DataContainer } from '../data-container';
+import { DataContainerEventType } from '../data-container/data-container.events';
 
 export interface ChartViewProps<Style> {
   dataContainer?: DataContainer<any>;
@@ -30,10 +31,8 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
     this.style = defaultStyle;
   }
 
-  onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.DATA_CHANGE) {
-      this.require(RequiredViewChanges.LAYOUT);
-    }
+  onDataChange = () => {
+    this.require(RequiredViewChanges.LAYOUT);
   };
 
   getStyle() {
@@ -80,16 +79,16 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
       return;
     }
     if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+      this.dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     }
     this.dataContainer = dataContainer;
-    dataContainer.addEventListener(this.onDataContainerEvent);
+    dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     this.require(RequiredViewChanges.LAYOUT);
   }
 
   onDestroy() {
     if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+      this.dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     }
   }
 

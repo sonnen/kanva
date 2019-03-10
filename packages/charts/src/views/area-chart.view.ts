@@ -1,6 +1,7 @@
-import { CanvasPointerEvent, Context, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
-import { segmentizePoints } from '../utils';
+import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
+import { ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export enum DataDisplayType {
@@ -100,12 +101,8 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       return;
     }
 
-    const { xScale, yScale } = dataContainer.getScales(
-      innerWidth - halfLineWidth,
-      innerHeight - halfLineWidth,
-    );
+    const { xScale, yScale } = this.getScales();
 
-    const transform = dataContainer.getTransform();
     ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
 
@@ -155,15 +152,19 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     if (!this.onChartPointerEvent || !this.dataContainer) {
       return false;
     }
-    const isTooltipEvent = event.pointerCount === 1 && !event.scrollY;
 
-    const transform = this.dataContainer.getTransform();
-    const isPanEvent = transform.processPanEvent(event);
-    const isZoomEvent = transform.processZoomEvent(event);
-    if (isPanEvent || isZoomEvent) {
+    // Pan & zoom
+    const transformExtension = this.dataContainer.getExtension<DataContainerTransformExtension>(TRANSFORM_EXTENSION);
+    const scales = this.getScales();
+    if (transformExtension && (
+      transformExtension.processPanEvent(event, scales) || transformExtension.processZoomEvent(event, scales)
+    )) {
       this.require(RequiredViewChanges.DRAW);
       return true;
     }
+
+    // Tooltip
+    const isTooltipEvent = event.pointerCount === 1 && !event.scrollY;
     const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
     const { xScale, yScale } = this.dataContainer.getScales(
       this.innerWidth,
@@ -202,11 +203,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     if (!dataContainer) {
       return super.getCanvasPositionForPoint(point);
     }
-    const halfLineWidth = (style.lineWidth || 0) / 2;
-    const { xScale, yScale } = dataContainer.getScales(
-      innerWidth - halfLineWidth,
-      innerHeight - halfLineWidth,
-    );
+    const { xScale, yScale } = this.getScales();
     const x = xScale(point.x);
     const y = yScale(point.y);
     return {
@@ -215,5 +212,13 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       absoluteX: this.offsetRect.l + x,
       absoluteY: this.offsetRect.t + y,
     };
+  }
+
+  getScales(): ScaleFunctions {
+    const halfLineWidth = (this.style.lineWidth || 0) / 2;
+    return this.dataContainer!.getScales(
+      this.innerWidth - halfLineWidth,
+      this.innerHeight - halfLineWidth,
+    );
   }
 }

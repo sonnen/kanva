@@ -1,5 +1,6 @@
 import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
-import { DataContainer, DataContainerEvent } from '../data-container';
+import { DataContainer } from '../data-container';
+import { DataContainerEventType } from '../data-container/data-container.events';
 import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartViewProps } from './chart.view';
 
@@ -47,10 +48,8 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     this.data = this.getPoints();
   }
 
-  onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.DATA_CHANGE) {
-      this.require(RequiredViewChanges.LAYOUT);
-    }
+  onDataChange = () => {
+    this.require(RequiredViewChanges.LAYOUT);
   };
 
   getStyle() {
@@ -80,10 +79,10 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return;
     }
     if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+      this.dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     }
     this.dataContainer = dataContainer;
-    dataContainer.addEventListener(this.onDataContainerEvent);
+    dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     this.require(RequiredViewChanges.DRAW);
   }
 
@@ -150,7 +149,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
 
   onDestroy() {
     if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
+      this.dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     }
   }
 

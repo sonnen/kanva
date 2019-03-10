@@ -1,4 +1,5 @@
 import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
+import { DataContainerTransformExtension } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
@@ -12,7 +13,10 @@ import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisSt
 
 const nulledConsumption = MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 1000 ? y : null }));
 
+const transformExtension = new DataContainerTransformExtension();
+
 const container = new DataContainer<XYPoint<number | null>>()
+  .addExtension(transformExtension)
   .setData([
     {
       name: Series.CONSUMPTION,
@@ -46,6 +50,7 @@ const container = new DataContainer<XYPoint<number | null>>()
   });
 
 const percentageContainer = new DataContainer<any>()
+  .addExtension(transformExtension)
   .setData([
     {
       name: Series.BATTERY_STATE,

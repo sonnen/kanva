@@ -1,3 +1,4 @@
+import { Rect, RectLike } from '@kanva/core';
 import { ScaleContinuousNumeric } from 'd3-scale';
 import { sortedIndexBy } from 'lodash';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
@@ -7,22 +8,16 @@ import {
   getContinuousNumericScale,
   isXYArray,
   prepareAxisValues,
-  ScaleFunction,
+  ScaleFunctions,
 } from '../utils';
+import { DataContainerEventListener, DataContainerEventType } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
-import { DataContainerTransform } from './data-container.transform';
 
 const DefaultAxisParameters = {
   TICK_COUNT: 10,
   ROUND_TO: 1,
   LABEL_ACCESSOR: (value: number) => String(value),
 };
-
-export enum DataContainerEvent {
-  DATA_CHANGE,
-}
-
-export type DataContainerEventListener = (event: DataContainerEvent) => void;
 
 /**
  * This is a common base for storing raw point values and converting them to format that can be consumed by ChartViews.
@@ -33,21 +28,28 @@ export class DataContainer<DataPoint> {
   private rawData?: DataSeries<DataPoint>[];
   private namedData: Record<string, number> = {};
   private pointAccessor?: PointAccessor<DataPoint>;
-  private xScaleType: DataScaleType = DataScaleType.LINEAR;
-  private yScaleType: DataScaleType = DataScaleType.LINEAR;
+
+  // Data bounds
   private xBoundsExtension: number[] = [];
   private yBoundsExtension: number[] = [];
-  private xBoundsMargin: number = 0;
-  private yBoundsMargin: number = 0;
+  private boundsMargin: Rect = new Rect(0);
+
+  // Scaling
+  private xScaleType: DataScaleType = DataScaleType.LINEAR;
+  private yScaleType: DataScaleType = DataScaleType.LINEAR;
+
+  // Axes
   private xAxisParameters: AxisParameters = {};
   private yAxisParameters: AxisParameters = {};
 
   // Data processing properties
   private hasChanged = false;
-  private eventListeners: DataContainerEventListener[] = [];
-  private transform: DataContainerTransform = new DataContainerTransform(() => {
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
-  });
+  private eventListeners: Record<DataContainerEventType, DataContainerEventListener<any, any>[]> =
+    Object.values(DataContainerEventType)
+      .reduce((listeners, id) => {
+        listeners[id] = [];
+        return listeners;
+      }, {});
 
   // Extensions
   private extensions: DataContainerExtension[] = [];
@@ -73,34 +75,45 @@ export class DataContainer<DataPoint> {
     this.namedData = {};
     this.rawData.forEach((data, index) => this.namedData[data.name] = index);
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
-  addEventListener(listener: DataContainerEventListener) {
-    this.eventListeners.push(listener);
+  addEventListener<T extends DataContainerEventType, P>(eventType: T, listener: DataContainerEventListener<T, P>) {
+    if (this.eventListeners[eventType].includes(listener)) {
+      return;
+    }
+    this.eventListeners[eventType].push(listener);
   }
 
-  removeEventListener(listener: DataContainerEventListener) {
-    const index = this.eventListeners.indexOf(listener);
+  removeEventListener<T extends DataContainerEventType, P>(eventType: T, listener: DataContainerEventListener<T, P>) {
+    const index = this.eventListeners[eventType].indexOf(listener);
     if (index < 0) {
       return;
     }
-    this.eventListeners.splice(index, 1);
+    this.eventListeners[eventType].splice(index, 1);
   }
 
   addExtension(extension: DataContainerExtension) {
+    if (this.extensions[extension.name]) {
+      return this;
+    }
     this.extensions[extension.name] = extension;
+    extension.attach(this);
     return this;
   }
 
-  getExtension(name: string): DataContainerExtension {
-    // TODO decide if we need extensions and what kind of API should they expose/have access to
+  getExtension<Extension extends DataContainerExtension>(name: string): Extension | undefined {
     return this.extensions[name];
   }
 
-  getTransform() {
-    return this.transform;
+  removeExtension(extension: DataContainerExtension) {
+    if (!this.extensions[extension.name]) {
+      return this;
+    }
+    extension.detach(this);
+    delete this.extensions[name];
+    return this;
   }
 
   getPointAccessor() {
@@ -110,7 +123,7 @@ export class DataContainer<DataPoint> {
   setPointAccessor(pointAccessor: PointAccessor<DataPoint> | undefined) {
     this.pointAccessor = pointAccessor;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -121,7 +134,7 @@ export class DataContainer<DataPoint> {
   setXScaleType(scaleType: DataScaleType) {
     this.xScaleType = scaleType;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -132,7 +145,7 @@ export class DataContainer<DataPoint> {
   setYScaleType(scaleType: DataScaleType) {
     this.yScaleType = scaleType;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -143,7 +156,7 @@ export class DataContainer<DataPoint> {
   setXAxisParameters(xAxisParameters: AxisParameters) {
     this.xAxisParameters = xAxisParameters;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -154,7 +167,7 @@ export class DataContainer<DataPoint> {
   setYAxisParameters(yAxisParameters: AxisParameters) {
     this.yAxisParameters = yAxisParameters;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -165,7 +178,7 @@ export class DataContainer<DataPoint> {
   setXBoundsExtension(xBounds: number[]) {
     this.xBoundsExtension = xBounds;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
@@ -176,25 +189,16 @@ export class DataContainer<DataPoint> {
   setYBoundsExtension(yBounds: number[]) {
     this.yBoundsExtension = yBounds;
     this.hasChanged = true;
-    this.postEvent(DataContainerEvent.DATA_CHANGE);
+    this.postEvent(DataContainerEventType.DATA_CHANGE);
     return this;
   }
 
-  getXBoundsMargin() {
-    return this.xBoundsMargin;
+  getBoundsMargin() {
+    return this.boundsMargin;
   }
 
-  setXBoundsMargin(xBoundsMargin: number) {
-    this.xBoundsMargin = xBoundsMargin;
-    return this;
-  }
-
-  getYBoundsMargin() {
-    return this.yBoundsMargin;
-  }
-
-  setYBoundsMargin(yBoundsMargin: number) {
-    this.yBoundsMargin = yBoundsMargin;
+  setBoundsMargin(boundsMargin: RectLike) {
+    this.boundsMargin = Rect.from(boundsMargin);
     return this;
   }
 
@@ -211,19 +215,18 @@ export class DataContainer<DataPoint> {
     return this.series;
   }
 
-  getScales(width: number, height: number): { xScale: ScaleFunction, yScale: ScaleFunction } {
+  getScales(width: number, height: number): ScaleFunctions {
     this.processData();
-    const transform = this.getTransform();
-    return {
-      xScale: this.xScale!.range(transform.xScaleRange([0, width])),
-      yScale: this.yScale!.range(transform.yScaleRange([height, 0])),
-    };
+    return this.postEvent(DataContainerEventType.GET_SCALES, {
+      xScale: this.xScale!.range([0, width]),
+      yScale: this.yScale!.range([height, 0]),
+    });
   }
 
   getYValuesMatch(x: number): YValuesMatch {
     this.processData();
     const primarySeries = this.series[0].data;
-    const delta = Math.abs(primarySeries[0].x - primarySeries[1].x);
+    const delta = primarySeries.length >= 2 ? Math.abs(primarySeries[0].x - primarySeries[1].x) : 0;
     const index = Math.max(
       0,
       sortedIndexBy(primarySeries, { x, y: 0 }, point => point.x - delta / 2) - 1,
@@ -261,6 +264,15 @@ export class DataContainer<DataPoint> {
   getYAxisData(): AxisPoint[] {
     this.processData();
     return this.yAxis;
+  }
+
+  postEvent<T extends DataContainerEventType, P>(eventType: T, payload?: P): P {
+    const listeners = this.eventListeners[eventType];
+    const event = { type: eventType, payload };
+    for (let i = 0, l = listeners.length; i < l; i++) {
+      event.payload = listeners[i](event);
+    }
+    return event.payload!;
   }
 
   private processData() {
@@ -323,9 +335,9 @@ export class DataContainer<DataPoint> {
     this.total = total;
     this.seriesLength = seriesLength;
     this.xScale = getContinuousNumericScale(this.xScaleType)
-      .domain([minX - this.xBoundsMargin, maxX + this.xBoundsMargin]);
+      .domain([minX - this.boundsMargin.l, maxX + this.boundsMargin.r]);
     this.yScale = getContinuousNumericScale(this.yScaleType)
-      .domain([minY - this.yBoundsMargin, maxY + this.yBoundsMargin]);
+      .domain([minY - this.boundsMargin.b, maxY + this.boundsMargin.t]);
 
     this.xAxis = prepareAxisValues(this.xScale, this.xAxisParameters, seriesLength);
     this.yAxis = prepareAxisValues(this.yScale, this.yAxisParameters, seriesLength);
@@ -340,12 +352,5 @@ export class DataContainer<DataPoint> {
     }
     console.warn('You are probably missing PointAccessor in your DataContainer configuration.');
     return [];
-  }
-
-  private postEvent(change: DataContainerEvent) {
-    const listeners = this.eventListeners;
-    for (let i = 0, l = listeners.length; i < l; i++) {
-      listeners[i](change);
-    }
   }
 }

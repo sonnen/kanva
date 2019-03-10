@@ -1,7 +1,6 @@
-import { Context, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
-import { DataContainer, DataContainerEvent } from '../data-container';
+import { Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { AxisPoint, prepareAxisPoints } from '../utils';
-import { ChartViewProps } from './chart.view';
+import { ChartView, ChartViewProps } from './chart.view';
 
 export enum GridLines {
   HORIZONTAL,
@@ -24,16 +23,14 @@ const defaultStyle = {
   thickness: 1,
 };
 
-export class ChartGridView extends View<ChartGridViewProps> {
-  private dataContainer?: DataContainer<any>;
+export class ChartGridView extends ChartView<ChartGridViewProps> {
   private gridLines: GridLines = GridLines.BOTH;
-  private style: ChartGridViewStyle = defaultStyle;
   // Calculated values
   private xAxis: AxisPoint[] = [];
   private yAxis: AxisPoint[] = [];
 
   constructor(context: Context) {
-    super(context, 'ChartGridView');
+    super(context, 'ChartGridView', defaultStyle);
   }
 
   onLayout(): void {
@@ -52,12 +49,6 @@ export class ChartGridView extends View<ChartGridViewProps> {
     );
   }
 
-  onDataContainerEvent = (event: DataContainerEvent) => {
-    if (event === DataContainerEvent.DATA_CHANGE) {
-      this.require(RequiredViewChanges.DRAW);
-    }
-  };
-
   getGridLines() {
     return this.gridLines;
   }
@@ -74,28 +65,6 @@ export class ChartGridView extends View<ChartGridViewProps> {
   setStyle(style: ChartGridViewStyle | undefined) {
     this.style = style || defaultStyle;
     this.require(RequiredViewChanges.DRAW);
-  }
-
-  getDataContainer() {
-    return this.dataContainer;
-  }
-
-  setDataContainer(dataContainer: DataContainer<any>) {
-    if (this.dataContainer === dataContainer) {
-      return;
-    }
-    if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
-    }
-    this.dataContainer = dataContainer;
-    dataContainer.addEventListener(this.onDataContainerEvent);
-    this.require(RequiredViewChanges.DRAW);
-  }
-
-  onDestroy() {
-    if (this.dataContainer) {
-      this.dataContainer.removeEventListener(this.onDataContainerEvent);
-    }
   }
 
   onDraw(canvas: ViewCanvas) {

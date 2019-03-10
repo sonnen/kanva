@@ -17,6 +17,11 @@ export interface ScaleFunction {
   invert(input: number): number;
 }
 
+export interface ScaleFunctions {
+  xScale: ScaleFunction;
+  yScale: ScaleFunction;
+}
+
 export const getContinuousNumericScale = (scaleType: DataScaleType): ScaleContinuousNumeric<number, number> => {
   switch (scaleType) {
     case DataScaleType.LINEAR:
