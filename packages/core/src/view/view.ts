@@ -94,6 +94,7 @@ export class View<Props extends {} = ViewProps> {
         const offsetX = child.innerRect.l + child.lp.paddingRect.l;
         const offsetY = child.innerRect.t + child.lp.paddingRect.t;
 
+        // Shift state
         event.offsetPointers(-offsetX, -offsetY);
         if (event.action === PointerAction.MOVE) {
           if (!child.hasCapturedPointer) {
@@ -104,12 +105,15 @@ export class View<Props extends {} = ViewProps> {
         }
 
         child.hasCapturedPointer = isPointerInside;
-        if (child.dispatchPointerEvent(event)) {
-          return true;
-        }
+        const dispatched = child.dispatchPointerEvent(event);
 
+        // Restore state
         event.offsetPointers(offsetX, offsetY);
         event.action = action;
+
+        if (dispatched) {
+          return true;
+        }
       }
     }
     // Process event
