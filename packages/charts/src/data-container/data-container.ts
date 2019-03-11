@@ -231,7 +231,7 @@ export class DataContainer<DataPoint> {
       0,
       sortedIndexBy(primarySeries, { x, y: 0 }, point => point.x - delta / 2) - 1,
     );
-    const selectedValue = this.series[0].data[index];
+    const selectedValue = primarySeries[index] || { x: 0, y: 0 };
     return {
       x,
       snapX: this.xAxisParameters.isGrouped ? selectedValue.x + 0.5 : selectedValue.x,
