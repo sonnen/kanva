@@ -3,9 +3,31 @@ import { View } from '../view';
 import { CanvasPointer, CanvasPointerEvent, MouseButton } from './canvas-pointer-event';
 import { domEventToPointerAction, getElementOffset, Offset, supportedDomPointerEvents } from './dom-pointer-event';
 
+export const DEBUG_POINTER_EVENTS = false;
+
+export const logPointerEvent = (pointerEvent: CanvasPointerEvent) => {
+  const event = {
+    ...pointerEvent,
+  };
+  delete event.pointers;
+  console.group(`PointerEvent:${pointerEvent.action}`);
+  console.log(event);
+  pointerEvent.pointers
+    .map(pointer => ({ ...pointer }))
+    .slice(0, pointerEvent.pointerCount)
+    .forEach(pointer => console.log(
+      `xy: ${pointer.x}, ${pointer.y}, ` +
+      `∆xy: ${pointer.deltaX}, ${pointer.deltaY}` +
+      `👆 ${pointer.pressure}`,
+    ));
+  console.groupEnd();
+};
+
 export const isTouchEvent = (event: Event): event is TouchEvent => !!(event as any).touches;
 export const isMouseEvent = (event: Event): event is MouseEvent => !!(event as any).initMouseEvent;
 export const isWheelEvent = (event: Event): event is WheelEvent => !isNil((event as any).deltaX);
+
+const roundCoordinate = (coordinate: number) => Math.round(coordinate);
 
 const touchToPointer = (touch: Touch | null, offset: Offset, canvasPointer: CanvasPointer) => {
   if (!touch) {
@@ -13,8 +35,8 @@ const touchToPointer = (touch: Touch | null, offset: Offset, canvasPointer: Canv
   }
   canvasPointer.mouseButton = MouseButton.LEFT;
   canvasPointer.pressure = touch.force;
-  canvasPointer.x = touch.pageX - offset.left;
-  canvasPointer.y = touch.pageY - offset.top;
+  canvasPointer.x = roundCoordinate(touch.pageX - offset.left);
+  canvasPointer.y = roundCoordinate(touch.pageY - offset.top);
   canvasPointer.deltaX = 0;
   canvasPointer.deltaY = 0;
 };
@@ -22,8 +44,8 @@ const touchToPointer = (touch: Touch | null, offset: Offset, canvasPointer: Canv
 const mouseToPointer = (event: MouseEvent, offset: Offset, canvasPointer: CanvasPointer) => {
   canvasPointer.mouseButton = event.button;
   canvasPointer.pressure = event.buttons ? 0.5 : 0;
-  canvasPointer.x = event.pageX - offset.left;
-  canvasPointer.y = event.pageY - offset.top;
+  canvasPointer.x = roundCoordinate(event.pageX - offset.left);
+  canvasPointer.y = roundCoordinate(event.pageY - offset.top);
   canvasPointer.deltaX = 0;
   canvasPointer.deltaY = 0;
 };
@@ -80,11 +102,17 @@ export const createEventDispatcher = (view: View): EventListener => {
     for (let i = 0; i < pointerEvent.pointerCount; i++) {
       const pointer = pointerEvent.pointers[i];
       const oldPointer = oldPointerEvent.pointers[i];
-      pointer.deltaX = (pointer.x - oldPointer.x) || 0;
-      pointer.deltaY = (pointer.y - oldPointer.y) || 0;
+      pointer.deltaX = roundCoordinate(pointer.x - oldPointer.x) || 0;
+      pointer.deltaY = roundCoordinate(pointer.y - oldPointer.y) || 0;
+    }
+    if (DEBUG_POINTER_EVENTS) {
+      logPointerEvent(pointerEvent);
     }
     if (view.dispatchPointerEvent(pointerEvent)) {
-      event.preventDefault();
+      event.stopPropagation();
+      if (event.cancelable) {
+        event.preventDefault();
+      }
     }
 
     // Swap events
