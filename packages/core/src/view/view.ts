@@ -42,6 +42,7 @@ export interface ViewProps {
   borderColor?: string;
   border?: RectLike;
   children?: any;
+  onMount?: (view: View<any>) => void;
 }
 
 export class View<Props extends {} = ViewProps> {
@@ -65,9 +66,11 @@ export class View<Props extends {} = ViewProps> {
   private oldHeight = 0;
 
   // State
+  protected onMount?: (view: View<any>) => void;
   private parent: View | null = null;
   private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
   private hasCapturedPointer: boolean = false;
+  private mounted: boolean = false;
 
   // Children
   private children: View[] = [];
@@ -584,10 +587,26 @@ export class View<Props extends {} = ViewProps> {
     }
 
     ctx.restore();
+    this.mount();
   }
 
   onDraw(canvas: ViewCanvas): void {
     // Views should implement this method
+  }
+
+  getOnMount() {
+    return this.onMount;
+  }
+
+  setOnMount(callback: (view: View<any>) => void) {
+    this.onMount = callback;
+  }
+
+  mount() {
+    if (this.onMount && !this.mounted) {
+      this.onMount(this);
+    }
+    this.mounted = true;
   }
 
   addChild(child: View, position: number = -1) {

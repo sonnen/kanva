@@ -62,8 +62,8 @@ const percentageContainer = new DataContainer<any>()
 interface State {
   filters: Record<string, boolean>;
   tooltipData?: {
-    snap: SnapValuesMatch,
-    match: YValuesMatch,
+    snap?: SnapValuesMatch,
+    match?: YValuesMatch,
   };
 }
 
@@ -167,6 +167,24 @@ export class AreaChartSample extends React.Component<{}, State> {
                   snap: event.snap,
                   match: event.match,
                 } });
+              }}
+              onMount={view => {
+                const production = MOCK.productionPower;
+                const canvasPosition = (view as any)
+                  .getCanvasPositionForPoint({
+                    ...production[production.length - 1],
+                  });
+                const values = container
+                  .getYValuesMatch(production[production.length - 1].x);
+                this.setState({
+                  tooltipData: {
+                    snap: {
+                      x: canvasPosition.absoluteX,
+                      y: canvasPosition.absoluteY,
+                    },
+                    match: values,
+                  },
+                });
               }}
             />
             <AreaChartView

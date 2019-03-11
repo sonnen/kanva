@@ -130,6 +130,21 @@ export class BarChartSample extends React.Component<{}, State> {
                   },
                 });
               }}
+              onMount={view => {
+                const canvasPosition = (view as any)
+                  .getCanvasPositionForPoint({ x: 6, y: 0 });
+                const values = container
+                  .getYValuesMatch(5);
+                this.setState({
+                  tooltipData: {
+                    snap: {
+                      x: canvasPosition.absoluteX,
+                      y: canvasPosition.absoluteY,
+                    },
+                    match: values,
+                  },
+                });
+              }}
             />
           </View>
           <AxisView

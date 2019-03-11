@@ -44,10 +44,6 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
     this.require(RequiredViewChanges.DRAW);
   }
 
-  getOnChartPointerEvent() {
-    return this.onChartPointerEvent;
-  }
-
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
     return {
       x: 0,
@@ -55,6 +51,10 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
       absoluteX: this.offsetRect.l,
       absoluteY: this.offsetRect.t,
     };
+  }
+
+  getOnChartPointerEvent() {
+    return this.onChartPointerEvent;
   }
 
   setOnChartPointerEvent(onChartPointerEvent: OnChartPointerEvent) {
