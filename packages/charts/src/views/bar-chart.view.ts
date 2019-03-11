@@ -10,8 +10,8 @@ import {
   Radius,
   ViewCanvas,
 } from '@kanva/core';
-import { DataSeries } from '../chart.types';
-import { AxisLabelAccessor } from '../utils';
+import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
+import { AxisLabelAccessor, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartSeriesViewStyle {
@@ -210,39 +210,54 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       case PointerAction.OVER:
       case PointerAction.DOWN:
       case PointerAction.MOVE:
-        if (event.pointers.length === 1) {
-          const dataSeries = this.dataContainer.getAllDataSeries();
-          const { yScale } = this.dataContainer.getScales(innerWidth, innerHeight);
-          if (!dataSeries) {
-            return false;
-          }
-
-          const { x, y } = event.primaryPointer;
-          const groupId = Math.floor(x / this.groupWidth);
-          this.dataContainer.getYValuesMatch(groupId);
-          const point = {
-            x: x / this.groupWidth,
-            y: yScale.invert(y),
-          };
-
-          const match = this.dataContainer.getYValuesMatch(point.x);
-          const snap = {
-            x: match.snapX * this.groupWidth + this.offsetRect.l,
-            y: yScale(match.snapY) + this.offsetRect.t,
-          };
-
-          this.onChartPointerEvent({
-            pointerEvent: event,
-            ...point,
-            match,
-            snap,
-          });
-          return true;
+        const dataSeries = this.dataContainer.getAllDataSeries();
+        const { yScale } = this.dataContainer.getScales(innerWidth, innerHeight);
+        if (!dataSeries) {
+          return false;
         }
-        return false;
+
+        const { x, y } = event.primaryPointer;
+        const groupId = Math.floor(x / this.groupWidth);
+        this.dataContainer.getYValuesMatch(groupId);
+        const point = {
+          x: x / this.groupWidth,
+          y: yScale.invert(y),
+        };
+
+        const match = this.dataContainer.getYValuesMatch(point.x);
+        const snap = {
+          x: match.snapX * this.groupWidth + this.offsetRect.l,
+          y: yScale(match.snapY) + this.offsetRect.t,
+        };
+
+        this.onChartPointerEvent({
+          pointerEvent: event,
+          ...point,
+          match,
+          snap,
+        });
+        return true;
       default:
         return false;
     }
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    const { dataContainer } = this;
+    if (!dataContainer) {
+      return super.getCanvasPositionForPoint(point);
+    }
+
+    const { yScale } = this.getScales();
+    const x = (point.x + .5) * this.groupWidth;
+    const y = yScale(point.y);
+
+    return {
+      x,
+      y,
+      absoluteX: this.offsetRect.l + x,
+      absoluteY: this.offsetRect.t + y,
+    };
   }
 
   private get groupWidth() {
@@ -255,5 +270,12 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     return rawBarWidth <= 1
       ? rawBarWidth * width
       : Math.min(rawBarWidth, width);
+  }
+
+  getScales(): ScaleFunctions {
+    return this.dataContainer!.getScales(
+      this.innerWidth,
+      this.innerHeight,
+    );
   }
 }

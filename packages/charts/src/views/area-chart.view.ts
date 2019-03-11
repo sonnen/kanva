@@ -36,7 +36,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   onLayout(): void {
-    const { dataContainer, dataSeries, innerHeight, innerWidth, style } = this;
+    const { dataContainer, dataSeries, style } = this;
     if (!dataContainer || !dataSeries) {
       this.data = [];
       return;
@@ -91,7 +91,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    const { innerHeight, dataContainer, style } = this;
     const { type, fillStyle, lineWidth = 0, strokeStyle } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
@@ -160,16 +160,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       transformExtension.processPanEvent(event, scales) || transformExtension.processZoomEvent(event, scales)
     )) {
       this.require(RequiredViewChanges.DRAW);
-      return true;
     }
 
     // Tooltip
-    const isTooltipEvent = event.pointerCount === 1 && !event.scrollY;
     const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
-    const { xScale, yScale } = this.dataContainer.getScales(
-      this.innerWidth,
-      this.innerHeight,
-    );
+    const { xScale, yScale } = this.getScales();
 
     if (!dataSeries) {
       return false;
@@ -197,9 +192,8 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     return true;
   }
-
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    const { dataContainer } = this;
     if (!dataContainer) {
       return super.getCanvasPositionForPoint(point);
     }
