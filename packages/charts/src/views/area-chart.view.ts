@@ -1,4 +1,4 @@
-import { CanvasPointerEvent, Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
 import { ScaleFunctions, segmentizePoints } from '../utils';
@@ -46,8 +46,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       this.data = [];
       return;
     }
-
-    const halfLineWidth = (style.lineWidth || 0);
 
     const dataSegments = segmentizePoints(series.data, null);
 
@@ -162,33 +160,35 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       this.require(RequiredViewChanges.DRAW);
     }
 
-    // Tooltip
-    const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
-    const { xScale, yScale } = this.getScales();
+    if (event.action !== PointerAction.UP) {
+      // Tooltip
+      const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
+      const { xScale, yScale } = this.getScales();
 
-    if (!dataSeries) {
-      return false;
+      if (!dataSeries) {
+        return false;
+      }
+
+      const { x, y } = event.primaryPointer;
+      const point = {
+        x: xScale.invert(x),
+        y: yScale.invert(y),
+      };
+
+      const match = this.dataContainer.getYValuesMatch(point.x);
+
+      const snap = {
+        x: xScale(match.snapX) + this.offsetRect.l,
+        y: xScale(match.snapY) + this.offsetRect.t,
+      };
+
+      this.onChartPointerEvent({
+        pointerEvent: event,
+        ...point,
+        match,
+        snap,
+      });
     }
-
-    const { x, y } = event.primaryPointer;
-    const point = {
-      x: xScale.invert(x),
-      y: yScale.invert(y),
-    };
-
-    const match = this.dataContainer.getYValuesMatch(point.x);
-
-    const snap = {
-      x: xScale(match.snapX) + this.offsetRect.l,
-      y: xScale(match.snapY) + this.offsetRect.t,
-    };
-
-    this.onChartPointerEvent({
-      pointerEvent: event,
-      ...point,
-      match,
-      snap,
-    });
 
     return true;
   }

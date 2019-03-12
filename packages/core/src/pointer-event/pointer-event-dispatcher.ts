@@ -70,7 +70,7 @@ export const fillPointerEventData = (pointerEvent: CanvasPointerEvent, view: Vie
     }
   } else if (isMouseEvent(event)) {
     pointerEvent.pointerCount = 1;
-    const pointer = mouseToPointer(event, offset, pointerEvent.pointers[0]);
+    mouseToPointer(event, offset, pointerEvent.pointers[0]);
 
     if (isWheelEvent(event)) {
       pointerEvent.scrollX = event.deltaX;
