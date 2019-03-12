@@ -58,7 +58,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     const domainWidth = domainMax - domainMin;
     const windowWidth = domainWidth / this.scale.x;
 
-    if (event.action === PointerAction.MOVE && event.primaryPointer.pressure > 0) {
+    if (event.action === PointerAction.MOVE && event.pointerCount === 1 && event.primaryPointer.pressure > 0) {
       newTranslateX -= xScale.invert(event.primaryPointer.deltaX) - xScale.invert(0);
     }
 
