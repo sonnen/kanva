@@ -95,23 +95,25 @@ export class AreaChartSample extends React.Component<{}, State> {
     const transformExtension = new DataContainerTransformExtension({
       scale: {
         limit: { x: [1, 10] },
-        listener: (scaleX: number) => {
-          const scale = Math.floor(Math.log2(scaleX));
-          this.setState(state => {
-            if (this.state.scale === scale) {
-              return null;
-            }
-            const axisParams = this.container.getXAxisParameters();
-            axisParams.tickCount = 1 + (baseTickCount - 1) * Math.floor(scaleX);
-            this.container.setXAxisParameters(axisParams);
-            return { scale };
-          });
-        },
+        listener: this.handleScale,
       },
     });
     this.container.addExtension(transformExtension);
-    this.container.addExtension(transformExtension);
+    this.percentageContainer.addExtension(transformExtension);
   }
+
+  handleScale = (scaleX: number) => {
+    const scale = Math.floor(Math.log2(scaleX));
+    this.setState(state => {
+      if (this.state.scale === scale) {
+        return null;
+      }
+      const axisParams = this.container.getXAxisParameters();
+      axisParams.tickCount = 1 + (baseTickCount - 1) * Math.floor(scaleX);
+      this.container.setXAxisParameters(axisParams);
+      return { scale };
+    });
+  };
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
     if (this.canvasRef) {
