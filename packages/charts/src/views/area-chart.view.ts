@@ -154,9 +154,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     // Pan & zoom
     const transformExtension = this.dataContainer.getExtension<DataContainerTransformExtension>(TRANSFORM_EXTENSION);
     const scales = this.getScales();
-    if (transformExtension && (
-      transformExtension.processPanEvent(event, scales) || transformExtension.processZoomEvent(event, scales)
-    )) {
+    if (transformExtension && transformExtension.processPointerEvent(event, scales)) {
       this.require(RequiredViewChanges.DRAW);
     }
 
