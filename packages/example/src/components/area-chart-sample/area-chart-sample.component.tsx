@@ -1,5 +1,12 @@
-import { AxisOrientation, DataContainer, GridLines, SnapValuesMatch, XYPoint, YValuesMatch } from '@kanva/charts';
-import { DataContainerTransformExtension } from '@kanva/charts';
+import {
+  AxisOrientation,
+  DataContainer,
+  DataContainerTransformExtension,
+  GridLines,
+  SnapValuesMatch,
+  XYPoint,
+  YValuesMatch,
+} from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
 import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
@@ -9,55 +16,17 @@ import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
-import { chartGridStyle, Series, SeriesColors, SeriesStyles, xAxisStyle, yAxisStyle } from './area-chart-sample.styles';
+import {
+  baseTickCount,
+  chartGridStyle,
+  Series,
+  SeriesColors,
+  SeriesStyles,
+  xAxisStyle,
+  yAxisStyle,
+} from './area-chart-sample.styles';
 
 const nulledConsumption = MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 1000 ? y : null }));
-
-const transformExtension = new DataContainerTransformExtension();
-
-const container = new DataContainer<XYPoint<number | null>>()
-  .addExtension(transformExtension)
-  .setData([
-    {
-      name: Series.CONSUMPTION,
-      data: nulledConsumption,
-    },
-    {
-      name: Series.DIRECT_USAGE,
-      data: MOCK.directUsagePower,
-    },
-    {
-      name: Series.PRODUCTION,
-      data: MOCK.productionPower,
-    },
-  ])
-  .setXAxisParameters({
-    tickCount: 9,
-    roundTo: 60 * 60,
-    labelAccessor: (value: number) => {
-      const date = new Date(value * 1000);
-      return (
-        `0${date.getUTCHours()}`.slice(-2) +
-        ':' +
-        `0${date.getUTCMinutes()}`.slice(-2)
-      );
-    },
-  })
-  .setYAxisParameters({
-    useApproximateValues: true,
-    tickCount: 8,
-    labelAccessor: (value: number) => (value / 1000) + ' kWh',
-  });
-
-const percentageContainer = new DataContainer<any>()
-  .addExtension(transformExtension)
-  .setData([
-    {
-      name: Series.BATTERY_STATE,
-      data: MOCK.batteryUsoc,
-    },
-  ])
-  .setYBoundsExtension([0, 100]);
 
 interface State {
   filters: Record<string, boolean>;
@@ -65,9 +34,50 @@ interface State {
     snap?: SnapValuesMatch,
     match?: YValuesMatch,
   };
+  scale: number;
 }
 
 export class AreaChartSample extends React.Component<{}, State> {
+  container = new DataContainer<XYPoint<number | null>>()
+    .setData([
+      {
+        name: Series.CONSUMPTION,
+        data: nulledConsumption,
+      },
+      {
+        name: Series.DIRECT_USAGE,
+        data: MOCK.directUsagePower,
+      },
+      {
+        name: Series.PRODUCTION,
+        data: MOCK.productionPower,
+      },
+    ])
+    .setXAxisParameters({
+      tickCount: baseTickCount,
+      labelAccessor: (value: number) => {
+        const date = new Date(value * 1000);
+        return (
+          `0${date.getUTCHours()}`.slice(-2) +
+          ':' +
+          `0${date.getUTCMinutes()}`.slice(-2)
+        );
+      },
+    })
+    .setYAxisParameters({
+      useApproximateValues: true,
+      tickCount: 8,
+      labelAccessor: (value: number) => (value / 1000) + ' kWh',
+    });
+  percentageContainer = new DataContainer<any>()
+    .setData([
+      {
+        name: Series.BATTERY_STATE,
+        data: MOCK.batteryUsoc,
+      },
+    ])
+    .setYBoundsExtension([0, 100]);
+
   canvasRef?: HTMLCanvasElement;
 
   state: State = {
@@ -77,6 +87,32 @@ export class AreaChartSample extends React.Component<{}, State> {
       [Series.CONSUMPTION]: true,
       [Series.DIRECT_USAGE]: true,
     },
+    scale: 1,
+  };
+
+  constructor(props: {}) {
+    super(props);
+    const transformExtension = new DataContainerTransformExtension({
+      scale: {
+        limit: { x: [1, 10] },
+        listener: this.handleScale,
+      },
+    });
+    this.container.addExtension(transformExtension);
+    this.percentageContainer.addExtension(transformExtension);
+  }
+
+  handleScale = (scaleX: number) => {
+    const scale = Math.floor(Math.log2(scaleX));
+    this.setState(state => {
+      if (this.state.scale === scale) {
+        return null;
+      }
+      const axisParams = this.container.getXAxisParameters();
+      axisParams.tickCount = 1 + (baseTickCount - 1) * Math.floor(scaleX);
+      this.container.setXAxisParameters(axisParams);
+      return { scale };
+    });
   };
 
   handleMove = ({ nativeEvent }: React.TouchEvent) => {
@@ -138,35 +174,37 @@ export class AreaChartSample extends React.Component<{}, State> {
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
-              dataContainer={container}
+              dataContainer={this.container}
               style={chartGridStyle}
               gridLines={GridLines.HORIZONTAL}
             />
             <AreaChartView
               layoutParams={layout.areaChart}
-              dataContainer={container}
+              dataContainer={this.container}
               dataSeries={Series.CONSUMPTION}
               visibility={this.isVisible(Series.CONSUMPTION)}
               style={SeriesStyles[Series.CONSUMPTION]}
             />
             <AreaChartView
               layoutParams={layout.areaChart}
-              dataContainer={container}
+              dataContainer={this.container}
               dataSeries={Series.DIRECT_USAGE}
               visibility={this.isVisible(Series.DIRECT_USAGE)}
               style={SeriesStyles[Series.DIRECT_USAGE]}
             />
             <AreaChartView
               layoutParams={layout.areaChart}
-              dataContainer={container}
+              dataContainer={this.container}
               dataSeries={Series.PRODUCTION}
               visibility={this.isVisible(Series.PRODUCTION)}
               style={SeriesStyles[Series.PRODUCTION]}
               onChartPointerEvent={event => {
-                this.setState({ tooltipData: {
-                  snap: event.snap,
-                  match: event.match,
-                } });
+                this.setState({
+                  tooltipData: {
+                    snap: event.snap,
+                    match: event.match,
+                  },
+                });
               }}
               onMount={view => {
                 const production = MOCK.productionPower;
@@ -174,7 +212,7 @@ export class AreaChartSample extends React.Component<{}, State> {
                   .getCanvasPositionForPoint({
                     ...production[production.length - 1],
                   });
-                const values = container
+                const values = this.container
                   .getYValuesMatch(production[production.length - 1].x);
                 this.setState({
                   tooltipData: {
@@ -189,7 +227,7 @@ export class AreaChartSample extends React.Component<{}, State> {
             />
             <AreaChartView
               layoutParams={layout.areaChart}
-              dataContainer={percentageContainer}
+              dataContainer={this.percentageContainer}
               dataSeries={Series.BATTERY_STATE}
               visibility={this.isVisible(Series.BATTERY_STATE)}
               style={SeriesStyles[Series.BATTERY_STATE]}
@@ -198,7 +236,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           <AxisView
             id={Views.X_AXIS}
             layoutParams={layout.xAxis}
-            dataContainer={container}
+            dataContainer={this.container}
             orientation={AxisOrientation.HORIZONTAL}
             style={xAxisStyle}
             borderColor={'#FFF'}
@@ -207,7 +245,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           <AxisView
             id={Views.Y_AXIS}
             layoutParams={layout.yAxis}
-            dataContainer={container}
+            dataContainer={this.container}
             orientation={AxisOrientation.VERTICAL}
             borderColor={'#FFF'}
             border={{ left: 1 }}

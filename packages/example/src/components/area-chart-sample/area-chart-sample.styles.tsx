@@ -16,7 +16,7 @@ export const SeriesColors = {
 };
 
 export const labelColor = '#FFFFFF';
-
+export const baseTickCount = 9;
 export const SeriesStyles: Record<Series, AreaChartViewStyle> = {
   [Series.CONSUMPTION]: {
     type: DataDisplayType.LINE_STAIRS,
