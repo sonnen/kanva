@@ -52,7 +52,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         pointers: 1,
       },
     });
-    const { scale, pan } = this.options;
+    const { scale } = this.options;
 
     this.scaleGestureDetector = new ScaleGestureDetector({
       onScale: this.onScale,

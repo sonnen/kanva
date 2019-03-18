@@ -12,7 +12,6 @@ import { Visibility } from '@kanva/core';
 import { Kanva, View } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
-import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './area-chart-sample.layout';
 import { MOCK } from './area-chart-sample.mock';
@@ -78,8 +77,6 @@ export class AreaChartSample extends React.Component<{}, State> {
     ])
     .setYBoundsExtension([0, 100]);
 
-  canvasRef?: HTMLCanvasElement;
-
   state: State = {
     filters: {
       [Series.BATTERY_STATE]: true,
@@ -104,7 +101,7 @@ export class AreaChartSample extends React.Component<{}, State> {
 
   handleScale = (scaleX: number) => {
     const scale = Math.floor(Math.log2(scaleX));
-    this.setState(state => {
+    this.setState(() => {
       if (this.state.scale === scale) {
         return null;
       }
@@ -113,13 +110,6 @@ export class AreaChartSample extends React.Component<{}, State> {
       this.container.setXAxisParameters(axisParams);
       return { scale };
     });
-  };
-
-  handleMove = ({ nativeEvent }: React.TouchEvent) => {
-    if (this.canvasRef) {
-      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
-      this.canvasRef.dispatchEvent(fabricatedEvent);
-    }
   };
 
   onFilterClick = (filter: string) => () => {
@@ -147,10 +137,6 @@ export class AreaChartSample extends React.Component<{}, State> {
     );
   }
 
-  setCanvasRef = (instance: HTMLCanvasElement | null) => {
-    this.canvasRef = instance || undefined;
-  };
-
   render() {
     const { tooltipData } = this.state;
     return (
@@ -169,7 +155,6 @@ export class AreaChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          canvasRef={this.setCanvasRef}
         >
           <View layoutParams={layout.areaChartWrapper}>
             <ChartGridView
@@ -198,14 +183,6 @@ export class AreaChartSample extends React.Component<{}, State> {
               dataSeries={Series.PRODUCTION}
               visibility={this.isVisible(Series.PRODUCTION)}
               style={SeriesStyles[Series.PRODUCTION]}
-              onChartPointerEvent={event => {
-                this.setState({
-                  tooltipData: {
-                    snap: event.snap,
-                    match: event.match,
-                  },
-                });
-              }}
               onMount={view => {
                 const production = MOCK.productionPower;
                 const canvasPosition = (view as any)
@@ -254,7 +231,6 @@ export class AreaChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
-          onMove={this.handleMove}
         />
       </div>
     );

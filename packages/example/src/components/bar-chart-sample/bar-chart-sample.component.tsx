@@ -1,6 +1,7 @@
 import {
   AxisOrientation,
   DataContainer,
+  DataContainerTooltipExtension,
   GridLines,
   LabelPosition,
   LegendAlignment,
@@ -9,11 +10,11 @@ import {
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
-import { Kanva, View } from '@kanva/react';
+import { View } from '@kanva/core';
+import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
 import { Crosshair } from '../crosshair';
-import { fabricateCrosshairEvent } from '../crosshair/crosshair.helper';
 import { Tooltip } from '../tooltip';
 import { layout, Views } from './bar-chart-sample.layout';
 import { MOCK } from './bar-chart-sample.mock';
@@ -55,20 +56,28 @@ interface State {
 }
 
 export class BarChartSample extends React.Component<{}, State> {
-  canvasRef?: HTMLCanvasElement;
-
   state: State = {};
 
-  handleMove = ({ nativeEvent }: React.TouchEvent) => {
-    if (this.canvasRef) {
-      const fabricatedEvent = fabricateCrosshairEvent(this.canvasRef!, nativeEvent);
-      this.canvasRef.dispatchEvent(fabricatedEvent);
+  private tooltipExtension?: DataContainerTooltipExtension;
+
+  constructor(props: {}) {
+    super(props);
+    this.tooltipExtension = new DataContainerTooltipExtension();
+
+    container.addExtension(this.tooltipExtension);
+  }
+
+  handleViewRef = (view: View<any>) => {
+    if (this.tooltipExtension) {
+      this.tooltipExtension.registerView(view);
     }
   };
 
-  setCanvasRef = (instance: HTMLCanvasElement | null) => {
-    this.canvasRef = instance || undefined;
-  };
+  componentWillUnmount() {
+    if (this.tooltipExtension) {
+      container.removeExtension(this.tooltipExtension);
+    }
+  }
 
   render() {
     const { tooltipData } = this.state;
@@ -78,7 +87,6 @@ export class BarChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          canvasRef={this.setCanvasRef}
         >
           <LegendView
             id={Views.LEGEND}
@@ -102,7 +110,7 @@ export class BarChartSample extends React.Component<{}, State> {
               },
             ]}
           />
-          <View layoutParams={layout.chartWrapper}>
+          <ViewComponent layoutParams={layout.chartWrapper}>
             <ChartGridView
               layoutParams={layout.barChart}
               dataContainer={container}
@@ -122,14 +130,7 @@ export class BarChartSample extends React.Component<{}, State> {
                 position: LabelPosition.OUT,
               }}
               style={barChartStyle}
-              onChartPointerEvent={event => {
-                this.setState({
-                  tooltipData: {
-                    snap: event.snap,
-                    match: event.match,
-                  },
-                });
-              }}
+              viewRef={this.handleViewRef}
               onMount={view => {
                 const canvasPosition = (view as any)
                   .getCanvasPositionForPoint({ x: 6, y: 0 });
@@ -146,7 +147,7 @@ export class BarChartSample extends React.Component<{}, State> {
                 });
               }}
             />
-          </View>
+          </ViewComponent>
           <AxisView
             id={Views.X_AXIS}
             layoutParams={layout.xAxis}
@@ -168,7 +169,8 @@ export class BarChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
-          onMove={this.handleMove}
+          // @TODO: Implement handler
+          onMove={console.log}
         />
       </div>
     );
