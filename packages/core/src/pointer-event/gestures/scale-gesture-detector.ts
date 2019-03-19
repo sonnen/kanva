@@ -72,9 +72,9 @@ export class ScaleGestureDetector extends GestureDetector {
       pointerEvent,
       current,
       previous,
-      scaleFactor: current.span / previous.span,
-      scaleFactorX: current.spanX / previous.spanX,
-      scaleFactorY: current.spanY / previous.spanY,
+      scaleFactor: previous.span ? current.span / previous.span : 1,
+      scaleFactorX: previous.spanX ? current.spanX / previous.spanX : 1,
+      scaleFactorY: previous.spanY ? current.spanY / previous.spanY : 1,
     });
     this.previous = current;
     return result;
@@ -105,9 +105,9 @@ export class ScaleGestureDetector extends GestureDetector {
       pointerEvent,
       current,
       previous,
-      scaleFactor: current.span / previous.span,
-      scaleFactorX: current.spanX / previous.spanX,
-      scaleFactorY: current.spanY / previous.spanY,
+      scaleFactor: previous.span ? current.span / previous.span : 1,
+      scaleFactorX: previous.spanX ? current.spanX / previous.spanX : 1,
+      scaleFactorY: previous.spanY ? current.spanY / previous.spanY : 1,
     });
     this.previous = current;
     return result;
