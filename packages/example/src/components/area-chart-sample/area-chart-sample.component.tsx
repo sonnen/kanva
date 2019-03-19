@@ -1,15 +1,17 @@
 import {
   AxisOrientation,
   DataContainer,
+  DataContainerTooltipExtension,
   DataContainerTransformExtension,
   GridLines,
   SnapValuesMatch,
+  TooltipEventHandler,
   XYPoint,
   YValuesMatch,
 } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { Visibility } from '@kanva/core';
-import { Kanva, View } from '@kanva/react';
+import { getElementOffset, View, Visibility } from '@kanva/core';
+import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
 import { Tooltip } from '../tooltip';
@@ -87,6 +89,9 @@ export class AreaChartSample extends React.Component<{}, State> {
     scale: 1,
   };
 
+  private canvasRef: HTMLCanvasElement | null = null;
+  private tooltipExtension?: DataContainerTooltipExtension;
+
   constructor(props: {}) {
     super(props);
     const transformExtension = new DataContainerTransformExtension({
@@ -95,21 +100,59 @@ export class AreaChartSample extends React.Component<{}, State> {
         listener: this.handleScale,
       },
     });
+    this.tooltipExtension = new DataContainerTooltipExtension();
+    this.tooltipExtension.registerTooltipEventHandler(this.handleTooltipEvent);
+
     this.container.addExtension(transformExtension);
+    this.container.addExtension(this.tooltipExtension);
     this.percentageContainer.addExtension(transformExtension);
   }
 
+  handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
+    this.canvasRef = canvas;
+  };
+
+  handleViewRef = (view: View<any>) => {
+    if (this.tooltipExtension) {
+      this.tooltipExtension.registerView(view);
+    }
+  };
+
   handleScale = (scaleX: number) => {
     const scale = Math.floor(Math.log2(scaleX));
+    if (this.state.scale === scale) {
+      return;
+    }
+
     this.setState(() => {
-      if (this.state.scale === scale) {
-        return null;
-      }
       const axisParams = this.container.getXAxisParameters();
       axisParams.tickCount = 1 + (baseTickCount - 1) * Math.floor(scaleX);
       this.container.setXAxisParameters(axisParams);
       return { scale };
     });
+  };
+
+  handleTooltipEvent: TooltipEventHandler = (event) => {
+    if (this.state.tooltipData === event) {
+      return;
+    }
+
+   /**
+    * @TODO: Investigate how to prevent React throwing an error
+    * =====
+    * Warning: An update (setState, replaceState, or forceUpdate) was scheduled from inside an update function.
+    * Update functions should be pure, with zero side-effects. Consider using componentDidUpdate or a callback.
+    * =====
+    * Occurs when the #handleScale also fires #setState
+    */
+    setTimeout(() => this.setState({ tooltipData: event }));
+  };
+
+  handleTooltipPositionChange = (x: number) => {
+    const offset = getElementOffset(this.canvasRef!);
+    if (this.tooltipExtension) {
+      this.tooltipExtension.setPosition({ x: x - offset.left, y: 0 });
+    }
   };
 
   onFilterClick = (filter: string) => () => {
@@ -155,8 +198,9 @@ export class AreaChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
+          canvasRef={this.handleCanvasRef}
         >
-          <View layoutParams={layout.areaChartWrapper}>
+          <ViewComponent layoutParams={layout.areaChartWrapper}>
             <ChartGridView
               layoutParams={layout.areaChart}
               dataContainer={this.container}
@@ -183,23 +227,15 @@ export class AreaChartSample extends React.Component<{}, State> {
               dataSeries={Series.PRODUCTION}
               visibility={this.isVisible(Series.PRODUCTION)}
               style={SeriesStyles[Series.PRODUCTION]}
+              viewRef={this.handleViewRef}
               onMount={view => {
                 const production = MOCK.productionPower;
-                const canvasPosition = (view as any)
+                const offset = getElementOffset(this.canvasRef!);
+                const { absoluteX } = (view as any)
                   .getCanvasPositionForPoint({
                     ...production[production.length - 1],
                   });
-                const values = this.container
-                  .getYValuesMatch(production[production.length - 1].x);
-                this.setState({
-                  tooltipData: {
-                    snap: {
-                      x: canvasPosition.absoluteX,
-                      y: canvasPosition.absoluteY,
-                    },
-                    match: values,
-                  },
-                });
+                this.handleTooltipPositionChange(absoluteX + offset.left);
               }}
             />
             <AreaChartView
@@ -209,7 +245,7 @@ export class AreaChartSample extends React.Component<{}, State> {
               visibility={this.isVisible(Series.BATTERY_STATE)}
               style={SeriesStyles[Series.BATTERY_STATE]}
             />
-          </View>
+          </ViewComponent>
           <AxisView
             id={Views.X_AXIS}
             layoutParams={layout.xAxis}
@@ -231,6 +267,7 @@ export class AreaChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
+          onMove={this.handleTooltipPositionChange}
         />
       </div>
     );
