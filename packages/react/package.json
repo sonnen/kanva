@@ -1,6 +1,6 @@
 {
   "name": "@kanva/react",
-  "version": "0.4.30",
+  "version": "0.4.31",
   "description": "React bindings for Kanva",
   "keywords": [
     "canvas",
@@ -31,7 +31,7 @@
     "react": "^16.4.0"
   },
   "devDependencies": {
-    "@kanva/core": "^0.4.30",
+    "@kanva/core": "^0.4.31",
     "react": "^16.7.0",
     "react-dom": "^16.7.0"
   },

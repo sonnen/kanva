@@ -215,7 +215,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     const { xScale, yScale } = this.getScales();
     return {
       x: xScale.invert(position.x - this.offsetRect.l),
-      y: yScale.invert(position.x - this.offsetRect.t),
+      y: yScale.invert(position.y - this.offsetRect.t),
     };
   }
 

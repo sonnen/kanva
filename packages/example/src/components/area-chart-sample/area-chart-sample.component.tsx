@@ -10,7 +10,7 @@ import {
   YValuesMatch,
 } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
-import { getElementOffset, View, Visibility } from '@kanva/core';
+import { View, Visibility } from '@kanva/core';
 import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
@@ -89,7 +89,6 @@ export class AreaChartSample extends React.Component<{}, State> {
     scale: 1,
   };
 
-  private canvasRef: HTMLCanvasElement | null = null;
   private tooltipExtension?: DataContainerTooltipExtension;
 
   constructor(props: {}) {
@@ -109,7 +108,7 @@ export class AreaChartSample extends React.Component<{}, State> {
   }
 
   handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
-    this.canvasRef = canvas;
+    this.tooltipExtension!.registerCanvasOffset(canvas);
   };
 
   handleViewRef = (view: View<any>) => {
@@ -149,9 +148,8 @@ export class AreaChartSample extends React.Component<{}, State> {
   };
 
   handleTooltipPositionChange = (x: number) => {
-    const offset = getElementOffset(this.canvasRef!);
     if (this.tooltipExtension) {
-      this.tooltipExtension.setPosition({ x: x - offset.left, y: 0 });
+      this.tooltipExtension.setPosition({ x, y: 0 });
     }
   };
 
@@ -230,12 +228,10 @@ export class AreaChartSample extends React.Component<{}, State> {
               viewRef={this.handleViewRef}
               onMount={view => {
                 const production = MOCK.productionPower;
-                const offset = getElementOffset(this.canvasRef!);
+                const point = production[production.length - 1];
                 const { absoluteX } = (view as any)
-                  .getCanvasPositionForPoint({
-                    ...production[production.length - 1],
-                  });
-                this.handleTooltipPositionChange(absoluteX + offset.left);
+                  .getCanvasPositionForPoint(point);
+                this.handleTooltipPositionChange(absoluteX);
               }}
             />
             <AreaChartView

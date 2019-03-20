@@ -217,8 +217,6 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         }
 
         const { x, y } = event.primaryPointer;
-        const groupId = Math.floor(x / this.groupWidth);
-        this.dataContainer.getYValuesMatch(groupId);
         const point = {
           x: x / this.groupWidth,
           y: yScale.invert(y),
@@ -249,7 +247,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     }
 
     const { yScale } = this.getScales();
-    const x = (point.x + .5) * this.groupWidth;
+    const x = (point.x) * this.groupWidth;
     const y = yScale(point.y);
 
     return {
@@ -257,6 +255,17 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       y,
       absoluteX: this.offsetRect.l + x,
       absoluteY: this.offsetRect.t + y,
+    };
+  }
+
+  getPointForCanvasPosition(position: XYPoint): XYPoint {
+    const match = this.dataContainer!.getYValuesMatch(
+      (position.x - this.offsetRect.l) / this.groupWidth,
+    );
+
+    return {
+      x: match.snapX,
+      y: match.snapY,
     };
   }
 

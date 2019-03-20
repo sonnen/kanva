@@ -7,6 +7,7 @@ import {
   LegendAlignment,
   LegendSeriesType,
   SnapValuesMatch,
+  TooltipEventHandler,
   YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
@@ -63,13 +64,35 @@ export class BarChartSample extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props);
     this.tooltipExtension = new DataContainerTooltipExtension();
+    this.tooltipExtension.registerTooltipEventHandler(this.handleTooltipEvent);
 
     container.addExtension(this.tooltipExtension);
   }
 
+  handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
+    this.tooltipExtension!.registerCanvasOffset(canvas);
+  };
+
   handleViewRef = (view: View<any>) => {
     if (this.tooltipExtension) {
       this.tooltipExtension.registerView(view);
+    }
+  };
+
+  handleTooltipEvent: TooltipEventHandler = (event) => {
+    if (this.state.tooltipData === event) {
+      return;
+    }
+
+    /**
+     * @TODO: the same thing is going to happen here
+     */
+    setTimeout(() => this.setState({ tooltipData: event }));
+  };
+
+  handleTooltipPositionChange = (x: number) => {
+    if (this.tooltipExtension) {
+      this.tooltipExtension.setPosition({ x, y: 0 });
     }
   };
 
@@ -87,6 +110,7 @@ export class BarChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
+          canvasRef={this.handleCanvasRef}
         >
           <LegendView
             id={Views.LEGEND}
@@ -132,19 +156,9 @@ export class BarChartSample extends React.Component<{}, State> {
               style={barChartStyle}
               viewRef={this.handleViewRef}
               onMount={view => {
-                const canvasPosition = (view as any)
-                  .getCanvasPositionForPoint({ x: 6, y: 0 });
-                const values = container
-                  .getYValuesMatch(5);
-                this.setState({
-                  tooltipData: {
-                    snap: {
-                      x: canvasPosition.absoluteX,
-                      y: canvasPosition.absoluteY,
-                    },
-                    match: values,
-                  },
-                });
+                const { absoluteX } = (view as any)
+                  .getCanvasPositionForPoint({ x: 7, y: 0 });
+                this.handleTooltipPositionChange(absoluteX);
               }}
             />
           </ViewComponent>
@@ -169,8 +183,7 @@ export class BarChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
-          // @TODO: Implement handler
-          onMove={console.log}
+          onMove={this.handleTooltipPositionChange}
         />
       </div>
     );
