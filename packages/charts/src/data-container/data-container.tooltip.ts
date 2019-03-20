@@ -37,7 +37,7 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
 
   setPosition(pos: XYPoint) {
     this.position = { ...pos };
-    this.postTooltipEvent();
+    this.postTooltipEvent(true);
   }
 
   getPosition() {
@@ -45,35 +45,38 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
   }
 
   protected onAttach(dataContainer: DataContainer<any>) {
-    dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, this.postTooltipEvent);
+    dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, () => this.postTooltipEvent());
     this.dataContainer = dataContainer;
   }
 
   protected onDetach(dataContainer: DataContainer<any>) {
-    dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.postTooltipEvent);
+    dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, () => this.postTooltipEvent());
   }
 
-  private postTooltipEvent = () => {
+  private postTooltipEvent = (snap: boolean = false) => {
     const { dataContainer, view } = this;
     if (!view || !dataContainer) {
       return;
     }
 
     if (this.onTooltipEvent) {
-      this.onTooltipEvent(this.getTooltipData());
+      this.onTooltipEvent(this.getTooltipData(snap));
     }
   };
 
-  private getTooltipData(): { snap: SnapValuesMatch, match: YValuesMatch } {
-    const { dataContainer, view } = this;
-    const { position } = this;
+  private getTooltipData(snap: boolean): { snap: SnapValuesMatch, match: YValuesMatch } {
+    const { dataContainer, view, position } = this;
     const point = (view as any).getPointForCanvasPosition({
       x: position.x - this.canvasOffset!.left,
       y: position.y - this.canvasOffset!.top,
     });
     const match = dataContainer!.getYValuesMatch(point.x);
 
-    const { absoluteX, absoluteY } = (view as any).getCanvasPositionForPoint({ x: match.snapX, y: match.snapY });
+    const { absoluteX, absoluteY } = (view as any).getCanvasPositionForPoint(
+      snap
+      ? { x: match.snapX, y: match.snapY }
+      : { x: match.x, y: match.y },
+    );
 
     return {
       snap: {
