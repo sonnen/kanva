@@ -1,38 +1,53 @@
 import { SnapValuesMatch } from '@kanva/charts';
+import { Offset } from '@kanva/core';
 import * as React from 'react';
 
 interface Props {
   snap?: SnapValuesMatch;
+  offset?: Offset;
   onMove?: (x: number) => void;
 }
 
 export class Crosshair extends React.PureComponent<Props> {
   handleEvents: React.EventHandler<any> = ({ nativeEvent: event }) => {
-    const { onMove } = this.props;
-    if (!onMove) {
-      return;
-    }
-
     switch (event.constructor) {
       case MouseEvent:
-        if ((event as MouseEvent).which === 1) {
-          onMove((event as MouseEvent).pageX);
-        }
+        this.fromMouse(event);
         break;
       case TouchEvent:
-        onMove((event as TouchEvent).touches[0].pageX);
+        this.fromTouch(event);
         break;
       default:
         throw new Error(`Invalid event type: ${event.constructor.name}`);
     }
   };
 
-  render() {
+  fromMouse = (event: MouseEvent) => {
+    const { onMove, offset } = this.props;
+    if (onMove && offset && event.which === 1) {
+      onMove((event as MouseEvent).pageX - offset.left);
+    }
+  };
+
+  fromTouch = (event: TouchEvent) => {
+    const { onMove, offset } = this.props;
+    if (onMove && offset) {
+      onMove(event.touches[0].pageX - offset.left);
+    }
+  };
+
+  get crosshairPosition() {
     const { snap } = this.props;
+    return snap
+      ? snap.x
+      : 0;
+  }
+
+  render() {
     return (
       <div
         className={'c-crosshair'}
-        style={{ '--x': snap ? snap.x : 0 } as React.CSSProperties}
+        style={{ '--x': this.crosshairPosition } as React.CSSProperties}
       >
         <div className={'c-crosshair__line'} />
         <div

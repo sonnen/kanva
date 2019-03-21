@@ -4,10 +4,9 @@ import {
   DataContainerTooltipExtension,
   DataContainerTransformExtension,
   GridLines,
-  SnapValuesMatch,
+  TooltipEvent,
   TooltipEventHandler,
   XYPoint,
-  YValuesMatch,
 } from '@kanva/charts';
 import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
 import { View, Visibility } from '@kanva/core';
@@ -31,10 +30,7 @@ const nulledConsumption = MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 1
 
 interface State {
   filters: Record<string, boolean>;
-  tooltipData?: {
-    snap?: SnapValuesMatch,
-    match?: YValuesMatch,
-  };
+  tooltipData?: TooltipEvent;
   scale: number;
 }
 
@@ -263,6 +259,7 @@ export class AreaChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
+          offset={tooltipData && tooltipData.offset}
           onMove={this.handleTooltipPositionChange}
         />
       </div>

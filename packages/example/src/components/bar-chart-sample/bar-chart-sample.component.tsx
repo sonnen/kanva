@@ -6,9 +6,8 @@ import {
   LabelPosition,
   LegendAlignment,
   LegendSeriesType,
-  SnapValuesMatch,
+  TooltipEvent,
   TooltipEventHandler,
-  YValuesMatch,
 } from '@kanva/charts';
 import { AxisView, BarChartView, ChartGridView, LegendView } from '@kanva/charts-react';
 import { View } from '@kanva/core';
@@ -50,10 +49,7 @@ const container = new DataContainer<number>()
   });
 
 interface State {
-  tooltipData?: {
-    snap: SnapValuesMatch,
-    match: YValuesMatch,
-  };
+  tooltipData?: TooltipEvent;
 }
 
 export class BarChartSample extends React.Component<{}, State> {
@@ -84,10 +80,7 @@ export class BarChartSample extends React.Component<{}, State> {
       return;
     }
 
-    /**
-     * @TODO: the same thing is going to happen here
-     */
-    setTimeout(() => this.setState({ tooltipData: event }));
+    this.setState({ tooltipData: event });
   };
 
   handleTooltipPositionChange = (x: number) => {
@@ -183,6 +176,7 @@ export class BarChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipData && tooltipData.snap}
+          offset={tooltipData && tooltipData.offset}
           onMove={this.handleTooltipPositionChange}
         />
       </div>
