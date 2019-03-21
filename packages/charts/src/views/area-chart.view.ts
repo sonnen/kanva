@@ -147,7 +147,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   onPointerEvent(event: CanvasPointerEvent): boolean {
-    if (!this.onChartPointerEvent || !this.dataContainer) {
+    if (!this.dataContainer) {
       return false;
     }
 
@@ -156,6 +156,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     const scales = this.getScales();
     if (transformExtension && transformExtension.processPointerEvent(event, scales)) {
       this.require(RequiredViewChanges.DRAW);
+    }
+
+    if (!this.onChartPointerEvent) {
+      return true;
     }
 
     if (event.action !== PointerAction.UP) {
@@ -190,6 +194,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     return true;
   }
+
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
     const { dataContainer } = this;
     if (!dataContainer) {
@@ -203,6 +208,14 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       y,
       absoluteX: this.offsetRect.l + x,
       absoluteY: this.offsetRect.t + y,
+    };
+  }
+
+  getPointForCanvasPosition(position: XYPoint): XYPoint {
+    const { xScale, yScale } = this.getScales();
+    return {
+      x: xScale.invert(position.x - this.offsetRect.l),
+      y: yScale.invert(position.y - this.offsetRect.t),
     };
   }
 

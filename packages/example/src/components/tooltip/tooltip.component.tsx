@@ -13,7 +13,7 @@ export const Tooltip: React.FunctionComponent<Props> = ({
   <div className={'c-tooltip'}>
     {data ? (
       <>
-        <span>{xFormatter ? xFormatter(data.x) : String(data.x)}</span>
+        <span>{xFormatter ? xFormatter(data.snapX) : String(data.snapX)}</span>
         <ul className={'c-tooltip__values'}>
           {Object.entries(data.y).map(([key, value]) => (
             <li key={key} className={'c-tooltip__value'}>{key}: {Math.round(value)}</li>
