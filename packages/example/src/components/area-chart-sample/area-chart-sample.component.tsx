@@ -1,4 +1,5 @@
 import {
+  AreaChartView,
   AxisOrientation,
   DataContainer,
   DataContainerTooltipExtension,
@@ -8,7 +9,11 @@ import {
   TooltipEventHandler,
   XYPoint,
 } from '@kanva/charts';
-import { AreaChartView, AxisView, ChartGridView } from '@kanva/charts-react';
+import {
+  AreaChartView as AreaChartViewComponent,
+  AxisView,
+  ChartGridView,
+} from '@kanva/charts-react';
 import { View, Visibility } from '@kanva/core';
 import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
@@ -30,7 +35,7 @@ const nulledConsumption = MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 1
 
 interface State {
   filters: Record<string, boolean>;
-  tooltipData?: TooltipEvent;
+  tooltipEvent?: TooltipEvent;
   scale: number;
 }
 
@@ -96,7 +101,7 @@ export class AreaChartSample extends React.Component<{}, State> {
       },
     });
     this.tooltipExtension = new DataContainerTooltipExtension();
-    this.tooltipExtension.registerTooltipEventHandler(this.handleTooltipEvent);
+    this.tooltipExtension.setTooltipEventHandler(this.handleTooltipEvent);
 
     this.container.addExtension(transformExtension);
     this.container.addExtension(this.tooltipExtension);
@@ -104,12 +109,12 @@ export class AreaChartSample extends React.Component<{}, State> {
   }
 
   handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
-    this.tooltipExtension!.registerCanvasOffset(canvas);
+    this.tooltipExtension!.setCanvasOffset(canvas);
   };
 
   handleViewRef = (view: View<any>) => {
     if (this.tooltipExtension) {
-      this.tooltipExtension.registerView(view);
+      this.tooltipExtension.setView(view);
     }
   };
 
@@ -128,7 +133,7 @@ export class AreaChartSample extends React.Component<{}, State> {
   };
 
   handleTooltipEvent: TooltipEventHandler = (event) => {
-    if (this.state.tooltipData === event) {
+    if (this.state.tooltipEvent === event) {
       return;
     }
 
@@ -140,7 +145,7 @@ export class AreaChartSample extends React.Component<{}, State> {
     * =====
     * Occurs when the #handleScale also fires #setState
     */
-    setTimeout(() => this.setState({ tooltipData: event }));
+    setTimeout(() => this.setState({ tooltipEvent: event }));
   };
 
   handleTooltipPositionChange = (x: number) => {
@@ -175,7 +180,7 @@ export class AreaChartSample extends React.Component<{}, State> {
   }
 
   render() {
-    const { tooltipData } = this.state;
+    const { tooltipEvent } = this.state;
     return (
       <div className={'c-area-chart-sample'}>
         <div>
@@ -186,7 +191,7 @@ export class AreaChartSample extends React.Component<{}, State> {
           {this.renderFilterButton(Series.BATTERY_STATE)}
         </div>
         <Tooltip
-          data={tooltipData && tooltipData.match}
+          data={tooltipEvent && tooltipEvent.match}
           xFormatter={x => new Date(x * 1000).toString()}
         />
         <Kanva
@@ -201,21 +206,21 @@ export class AreaChartSample extends React.Component<{}, State> {
               style={chartGridStyle}
               gridLines={GridLines.HORIZONTAL}
             />
-            <AreaChartView
+            <AreaChartViewComponent
               layoutParams={layout.areaChart}
               dataContainer={this.container}
               dataSeries={Series.CONSUMPTION}
               visibility={this.isVisible(Series.CONSUMPTION)}
               style={SeriesStyles[Series.CONSUMPTION]}
             />
-            <AreaChartView
+            <AreaChartViewComponent
               layoutParams={layout.areaChart}
               dataContainer={this.container}
               dataSeries={Series.DIRECT_USAGE}
               visibility={this.isVisible(Series.DIRECT_USAGE)}
               style={SeriesStyles[Series.DIRECT_USAGE]}
             />
-            <AreaChartView
+            <AreaChartViewComponent
               layoutParams={layout.areaChart}
               dataContainer={this.container}
               dataSeries={Series.PRODUCTION}
@@ -225,12 +230,12 @@ export class AreaChartSample extends React.Component<{}, State> {
               onMount={view => {
                 const production = MOCK.productionPower;
                 const point = production[production.length - 1];
-                const { absoluteX } = (view as any)
+                const { absoluteX } = (view as AreaChartView)
                   .getCanvasPositionForPoint(point);
                 this.handleTooltipPositionChange(absoluteX);
               }}
             />
-            <AreaChartView
+            <AreaChartViewComponent
               layoutParams={layout.areaChart}
               dataContainer={this.percentageContainer}
               dataSeries={Series.BATTERY_STATE}
@@ -258,8 +263,8 @@ export class AreaChartSample extends React.Component<{}, State> {
           />
         </Kanva>
         <Crosshair
-          snap={tooltipData && tooltipData.snap}
-          offset={tooltipData && tooltipData.offset}
+          snap={tooltipEvent && tooltipEvent.snap}
+          offset={tooltipEvent && tooltipEvent.offset}
           onMove={this.handleTooltipPositionChange}
         />
       </div>

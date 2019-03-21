@@ -31,11 +31,11 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
     super(TOOLTIP_EXTENSION);
   }
 
-  registerView(view: View<any>) {
+  setView(view: View<any>) {
     this.view = view;
   }
 
-  registerCanvasOffset(canvas: HTMLCanvasElement | null) {
+  setCanvasOffset(canvas: HTMLCanvasElement | null) {
     if (canvas === null) {
       return;
     }
@@ -48,7 +48,7 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
     }
   }
 
-  registerTooltipEventHandler(tooltipEventHandler: TooltipEventHandler) {
+  setTooltipEventHandler(tooltipEventHandler: TooltipEventHandler) {
     this.onTooltipEvent = tooltipEventHandler;
   }
 
