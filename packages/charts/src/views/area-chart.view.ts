@@ -16,6 +16,8 @@ export interface AreaChartViewStyle {
   strokeStyle?: string;
   lineWidth?: number;
   fillStyle?: string;
+  lineRounding?: boolean;
+  lineDash?: number[];
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
@@ -29,7 +31,7 @@ const defaultStyle = {
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
   // Calculated data
-  private data: Int32Array[] = [];
+  private data: Float32Array[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
@@ -51,12 +53,12 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     this.data = dataSegments.map(segment => {
       if (!segment.length) {
-        return new Int32Array(0);
+        return new Float32Array(0);
       }
       switch (style.type) {
         case DataDisplayType.LINE_STAIRS: {
           const count = series.data.length;
-          const array = new Int32Array(segment.length * 4);
+          const array = new Float32Array(segment.length * 4);
           let point = segment[0];
           let offset = 2;
           const start = point.x;
@@ -65,8 +67,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           array[1] = point.y;
           for (let i = 1; i < segment.length; i++) {
             point = segment[i];
+            // stroke horizontally: x offset belongs to the current point, y is copied from the previous one
             array[offset] = start + (point.x - start) * scale;
             array[offset + 1] = array[offset - 1];
+            // stroke vertically: x & y belong to the current point
             array[offset + 2] = array[offset];
             array[offset + 3] = point.y;
             offset += 4;
@@ -76,11 +80,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           return array;
         }
         default: {
-          const array = new Int32Array(segment.length * 2);
+          const array = new Float32Array(segment.length * 2);
           for (let i = 0; i < segment.length; i++) {
             const point = segment[i];
-            array[i * 2] = point.x | 0;
-            array[i * 2 + 1] = point.y | 0;
+            array[i * 2] = point.x;
+            array[i * 2 + 1] = point.y;
           }
           return array;
         }
@@ -90,7 +94,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const { innerHeight, dataContainer, style } = this;
-    const { type, fillStyle, lineWidth = 0, strokeStyle } = style;
+    const { type, fillStyle, lineWidth = 0, lineDash, lineRounding, strokeStyle } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
     const halfLineWidth = lineWidth / 2;
@@ -103,6 +107,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
+
+    if (lineDash) {
+      ctx.setLineDash(lineDash);
+    }
 
     for (let s = 0, sl = dataSegments.length; s < sl; s++) {
       const data = dataSegments[s];
@@ -142,6 +150,13 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     if (strokeStyle && lineWidth) {
       ctx.strokeStyle = strokeStyle;
       ctx.lineWidth = lineWidth;
+      if (lineRounding) {
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+      } else {
+        ctx.lineJoin = 'miter';
+        ctx.lineCap = 'square';
+      }
       ctx.stroke();
     }
   }

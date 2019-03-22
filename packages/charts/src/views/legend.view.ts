@@ -27,6 +27,7 @@ export interface LegendDataSeries {
   lineWidth?: number;
   radius?: RadiusInput;
   lineRounding?: boolean;
+  lineDash?: number[];
 }
 
 export interface LegendViewProps {
@@ -189,6 +190,7 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
       ctx.fill();
     }
     if (series.strokeStyle && series.lineWidth) {
+      ctx.setLineDash(series.lineDash || []);
       ctx.lineWidth = series.lineWidth;
       ctx.strokeStyle = series.strokeStyle;
       ctx.stroke();

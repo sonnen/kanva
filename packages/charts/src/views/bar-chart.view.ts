@@ -151,31 +151,34 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
         if (labels) {
           // TODO Extract to a separate method
+          const padding = labels.padding || 0;
           const textHeight = labels.font.fontSize;
           let yText;
           const isAboveZero = top < zeroPoint || top === bottom;
+          const topStartPosition = zeroPoint - padding;
+          const bottomStartPosition = zeroPoint + padding + textHeight;
           switch (labels.position) {
             case LabelPosition.START:
               yText = isAboveZero
-                ? zeroPoint
-                : zeroPoint + textHeight;
+                ? topStartPosition
+                : bottomStartPosition;
               break;
             case LabelPosition.END:
               yText = isAboveZero
-                ? Math.min(zeroPoint, top + textHeight)
-                : Math.max(zeroPoint + textHeight, bottom);
+                ? Math.min(topStartPosition, top + textHeight + padding)
+                : Math.max(bottomStartPosition, bottom - padding);
               break;
             case LabelPosition.CENTER:
               const center = top + (height + textHeight) / 2;
               yText = isAboveZero
-                ? Math.min(zeroPoint, center)
-                : Math.max(zeroPoint + textHeight, center);
+                ? Math.min(topStartPosition, center)
+                : Math.max(bottomStartPosition, center);
               break;
             case LabelPosition.OUT:
             default:
               yText = isAboveZero
-                ? top
-                : bottom + textHeight;
+                ? top - padding
+                : bottom + textHeight + padding;
               break;
           }
           const textInsideBar = yText + textHeight > top && yText < bottom;
