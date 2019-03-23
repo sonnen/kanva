@@ -1,6 +1,6 @@
 import { Context } from './context';
 import { LayoutParams, PARENT_ID } from './layout-params';
-import { Id } from './layout-props';
+import { Id, LayoutProps } from './layout-props';
 import { View } from './view';
 
 export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Context) => {
@@ -94,3 +94,13 @@ export const verticalLayoutDependencies = (lp: LayoutParams) => ([
   lp.bottomId,
   lp.belowId,
 ]).filter(existingNonParentDependency);
+
+const defaultLayoutProps = new LayoutParams().asProps();
+export const removeDefaultProps = (props: LayoutProps) => {
+  for (const key in props) {
+    if (props[key] === defaultLayoutProps[key]) {
+      delete props[key];
+    }
+  }
+  return props;
+};

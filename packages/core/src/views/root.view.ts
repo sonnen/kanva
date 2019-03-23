@@ -112,7 +112,6 @@ export class RootCanvasView extends View {
 
   onSnapshot() {
     return {
-      canvas: this.canvas,
       dpr: this.dpr,
     };
   }

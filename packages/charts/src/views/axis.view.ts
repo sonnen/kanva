@@ -1,4 +1,5 @@
 import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
+import { removeUndefinedProps } from '@kanva/core';
 import { DataContainer } from '../data-container';
 import { DataContainerEventType } from '../data-container/data-container.events';
 import { AxisPoint, prepareAxisPoints } from '../utils';
@@ -247,9 +248,8 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
 
   onSnapshot() {
     return {
-      style: this.style,
-      dataContainer: this.dataContainer,
-      orientation: this.orientation,
+      style: removeUndefinedProps(this.style),
+      orientation: AxisOrientation[this.orientation],
     };
   }
 

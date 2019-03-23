@@ -1,10 +1,12 @@
 import { Rect, RectLike, ViewCanvas } from '../canvas';
 import { CanvasPointerEvent, PointerAction } from '../pointer-event';
+import { removeUndefinedProps } from '../utils';
 import { xor } from '../utils/boolean.util';
 import { Context } from './context';
 import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
 import {
   horizontalLayoutDependencies,
+  removeDefaultProps,
   resolveDimensionDependencies,
   resolveLayoutParamsIds,
   verticalLayoutDependencies,
@@ -799,17 +801,17 @@ export class View<Props extends {} = ViewProps> {
   }
 
   snapshot(): object {
-    return {
+    return removeUndefinedProps({
+      ...this.onSnapshot(),
       id: this.id,
       name: this.name,
       width: this.width,
       height: this.height,
       rect: this.rect,
-      ...this.onSnapshot(),
-      layoutParams: this.lp.asProps(),
-      visibility: this.visibility,
+      layoutParams: removeDefaultProps(this.lp.asProps()),
+      visibility: Visibility[this.visibility],
       children: this.children.map(c => c.snapshot()),
-    };
+    });
   }
 
   onSnapshot(): object {

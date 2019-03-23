@@ -1,4 +1,5 @@
 import { CanvasPointerEvent, Context, DeepReadonly, RequiredViewChanges, View } from '@kanva/core';
+import { removeUndefinedProps } from '@kanva/core';
 import { CanvasPosition, SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
 import { DataContainer } from '../data-container';
 import { DataContainerEventType } from '../data-container/data-container.events';
@@ -94,8 +95,7 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
 
   onSnapshot() {
     return {
-      style: this.style,
-      dataContainer: this.dataContainer,
+      style: removeUndefinedProps(this.style),
       dataSeries: this.dataSeries,
     };
   }

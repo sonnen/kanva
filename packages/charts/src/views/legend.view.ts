@@ -1,4 +1,14 @@
-import { Context, Font, font, normalizeRadius, RadiusInput, RequiredViewChanges, View, ViewCanvas } from '@kanva/core';
+import {
+  Context,
+  Font,
+  font,
+  normalizeRadius,
+  RadiusInput,
+  removeUndefinedProps,
+  RequiredViewChanges,
+  View,
+  ViewCanvas,
+} from '@kanva/core';
 
 export interface LegendViewStyle {
   alignment?: LegendAlignment;
@@ -138,8 +148,7 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
 
   onSnapshot() {
     return {
-      style: this.style,
-      dataSeries: this.dataSeries,
+      style: removeUndefinedProps(this.style),
     };
   }
 
