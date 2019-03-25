@@ -1,6 +1,6 @@
 import { Rect, RectLike } from '@kanva/core';
 import { ScaleContinuousNumeric } from 'd3-scale';
-import { isNil, sortedIndexBy } from 'lodash';
+import { isEmpty, isNil, sortedIndexBy } from 'lodash';
 import { clamp } from 'lodash/fp';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
 import {
@@ -233,7 +233,7 @@ export class DataContainer<DataPoint> {
   getYValuesMatch(x: number, match?: YValuesMatch): YValuesMatch | undefined {
     this.processData();
     const primarySeries = this.series[0];
-    if (isNil(primarySeries)) {
+    if (isNil(primarySeries) || isEmpty(primarySeries.data)) {
       return match;
     }
 
