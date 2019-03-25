@@ -1,6 +1,7 @@
 import { Rect, RectLike } from '@kanva/core';
 import { ScaleContinuousNumeric } from 'd3-scale';
 import { sortedIndexBy } from 'lodash';
+import { clamp } from 'lodash/fp';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
 import {
   AxisParameters,
@@ -94,12 +95,15 @@ export class DataContainer<DataPoint> {
     this.eventListeners[eventType].splice(index, 1);
   }
 
-  addExtension(extension: DataContainerExtension) {
-    if (this.extensions[extension.name]) {
-      return this;
+  addExtension(...extensions: DataContainerExtension[]) {
+    for (const extension of extensions) {
+      if (this.extensions[extension.name]) {
+        return this;
+      }
+      this.extensions[extension.name] = extension;
+      extension.attach(this);
     }
-    this.extensions[extension.name] = extension;
-    extension.attach(this);
+
     return this;
   }
 
@@ -107,12 +111,15 @@ export class DataContainer<DataPoint> {
     return this.extensions[name];
   }
 
-  removeExtension(extension: DataContainerExtension) {
-    if (!this.extensions[extension.name]) {
-      return this;
+  removeExtension(...extensions: DataContainerExtension[]) {
+    for (const extension of extensions) {
+      if (!this.extensions[extension.name]) {
+        return this;
+      }
+      extension.detach(this);
+      delete this.extensions[name];
     }
-    extension.detach(this);
-    delete this.extensions[name];
+
     return this;
   }
 
@@ -226,6 +233,7 @@ export class DataContainer<DataPoint> {
   getYValuesMatch(x: number): YValuesMatch {
     this.processData();
     const primarySeries = this.series[0].data;
+    const clampX = clamp(primarySeries[0].x, primarySeries[primarySeries.length - 1].x);
     const delta = primarySeries.length >= 2 ? Math.abs(primarySeries[0].x - primarySeries[1].x) : 0;
     const index = Math.max(
       0,
@@ -233,7 +241,7 @@ export class DataContainer<DataPoint> {
     );
     const selectedValue = primarySeries[index] || { x: 0, y: 0 };
     return {
-      x,
+      x: clampX(x),
       snapX: this.xAxisParameters.isGrouped ? selectedValue.x + 0.5 : selectedValue.x,
       snapY: selectedValue.y,
       y: this.series.reduce((result, series) => {
@@ -279,7 +287,7 @@ export class DataContainer<DataPoint> {
     if (!this.hasChanged) {
       return;
     }
-    const { rawData, pointAccessor } = this;
+    const { rawData } = this;
     this.hasChanged = false;
     if (!rawData || !rawData.length) {
       this.series = [];

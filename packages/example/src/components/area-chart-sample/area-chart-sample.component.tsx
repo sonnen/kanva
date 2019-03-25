@@ -103,9 +103,8 @@ export class AreaChartSample extends React.Component<{}, State> {
     this.tooltipExtension = new DataContainerTooltipExtension();
     this.tooltipExtension.setTooltipEventHandler(this.handleTooltipEvent);
 
-    this.container.addExtension(transformExtension);
-    this.container.addExtension(this.tooltipExtension);
-    this.percentageContainer.addExtension(transformExtension);
+    this.container.addExtension(transformExtension, this.tooltipExtension);
+    this.percentageContainer.addExtension(transformExtension, this.tooltipExtension);
   }
 
   handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
