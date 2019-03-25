@@ -10,6 +10,7 @@ import {
   Radius,
   ViewCanvas,
 } from '@kanva/core';
+import { isNil } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
 import { AxisLabelAccessor, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -226,6 +227,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         };
 
         const match = this.dataContainer.getYValuesMatch(point.x);
+
+        if (isNil(match)) {
+          return false;
+        }
+
         const snap = {
           x: match.snapX * this.groupWidth + this.offsetRect.l,
           y: yScale(match.snapY) + this.offsetRect.t,
@@ -244,11 +250,6 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   }
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    const { dataContainer } = this;
-    if (!dataContainer) {
-      return super.getCanvasPositionForPoint(point);
-    }
-
     const { yScale } = this.getScales();
     const x = (point.x) * this.groupWidth;
     const y = yScale(point.y);
@@ -261,10 +262,14 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
+  getPointForCanvasPosition(position: XYPoint): XYPoint | undefined {
     const match = this.dataContainer!.getYValuesMatch(
       (position.x - this.offsetRect.l) / this.groupWidth,
     );
+
+    if (isNil(match)) {
+      return undefined;
+    }
 
     return {
       x: match.snapX,

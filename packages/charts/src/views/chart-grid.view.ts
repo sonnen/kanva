@@ -1,4 +1,5 @@
 import { Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPosition, XYPoint } from '../chart.types';
 import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -103,5 +104,15 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
       }
     }
     ctx.stroke();
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    // @TODO: implement when needed
+    return { x: 0, y: 0, absoluteX: 0, absoluteY: 0 };
+  }
+
+  getPointForCanvasPosition(position: XYPoint): XYPoint {
+    // @TODO: implement when needed
+    return { x: 0, y: 0 };
   }
 }

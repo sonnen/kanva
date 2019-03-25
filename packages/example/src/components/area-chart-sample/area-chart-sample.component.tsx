@@ -41,20 +41,6 @@ interface State {
 
 export class AreaChartSample extends React.Component<{}, State> {
   container = new DataContainer<XYPoint<number | null>>()
-    .setData([
-      {
-        name: Series.CONSUMPTION,
-        data: nulledConsumption,
-      },
-      {
-        name: Series.DIRECT_USAGE,
-        data: MOCK.directUsagePower,
-      },
-      {
-        name: Series.PRODUCTION,
-        data: MOCK.productionPower,
-      },
-    ])
     .setXAxisParameters({
       tickCount: baseTickCount,
       labelAccessor: (value: number) => {
@@ -72,12 +58,6 @@ export class AreaChartSample extends React.Component<{}, State> {
       labelAccessor: (value: number) => (value / 1000) + ' kWh',
     });
   percentageContainer = new DataContainer<any>()
-    .setData([
-      {
-        name: Series.BATTERY_STATE,
-        data: MOCK.batteryUsoc,
-      },
-    ])
     .setYBoundsExtension([0, 100]);
 
   state: State = {
@@ -176,6 +156,30 @@ export class AreaChartSample extends React.Component<{}, State> {
         {name.toUpperCase()}
       </button>
     );
+  }
+
+  componentDidMount() {
+    this.container.setData([
+      {
+        name: Series.CONSUMPTION,
+        data: nulledConsumption,
+      },
+      {
+        name: Series.DIRECT_USAGE,
+        data: MOCK.directUsagePower,
+      },
+      {
+        name: Series.PRODUCTION,
+        data: MOCK.productionPower,
+      },
+    ]);
+
+    this.percentageContainer.setData([
+      {
+        name: Series.BATTERY_STATE,
+        data: MOCK.batteryUsoc,
+      },
+    ]);
   }
 
   render() {

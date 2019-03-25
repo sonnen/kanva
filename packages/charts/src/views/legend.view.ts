@@ -9,6 +9,7 @@ import {
   View,
   ViewCanvas,
 } from '@kanva/core';
+import { CanvasPosition, XYPoint } from '../chart.types';
 
 export interface LegendViewStyle {
   alignment?: LegendAlignment;
@@ -150,6 +151,16 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
     return {
       style: removeUndefinedProps(this.style),
     };
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    // @TODO: implement when needed
+    return { x: 0, y: 0, absoluteX: 0, absoluteY: 0 };
+  }
+
+  getPointForCanvasPosition(position: XYPoint): XYPoint {
+    // @TODO: implement when needed
+    return { x: 0, y: 0 };
   }
 
   private drawDataSeriesSymbol(canvas: ViewCanvas, series: LegendDataSeries) {
