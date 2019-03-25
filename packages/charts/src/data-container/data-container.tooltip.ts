@@ -1,5 +1,7 @@
 import { getElementOffset, Offset, View } from '@kanva/core';
+import { isNil } from 'lodash';
 import { SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
+import { ChartView } from '../views';
 import { DataContainer } from './data-container';
 import { DataContainerEventType } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
@@ -81,22 +83,29 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
       return;
     }
 
-    this.onTooltipEvent(this.getTooltipData(type));
+    const tooltipEvent = this.getTooltipEvent(type);
+    if (!isNil(tooltipEvent)) {
+      this.onTooltipEvent(tooltipEvent);
+    }
   };
 
-  private getTooltipData(type: TooltipEventType): TooltipEvent {
+  private getTooltipEvent(type: TooltipEventType): TooltipEvent | undefined {
     const { dataContainers, view, position } = this;
-    const point = (view as any).getPointForCanvasPosition({
+    const point = (view as ChartView<any>).getPointForCanvasPosition({
       x: position.x,
       y: position.y,
     });
-    const match = dataContainers.reduce((match, dataContainer, index) => {
-      if (index === 0) {
-        return dataContainer.getYValuesMatch(point.x);
-      }
-      Object.assign(match.y, dataContainer.getYValuesMatch(point.x).y);
-      return match;
-    }, {} as YValuesMatch);
+
+    if (isNil(point)) {
+      return;
+    }
+
+    const match = dataContainers.reduce((match, dataContainer) =>
+      dataContainer.getYValuesMatch(point.x, match), undefined as YValuesMatch | undefined);
+
+    if (isNil(match)) {
+      return;
+    }
 
     const { absoluteX, absoluteY } = (view as any).getCanvasPositionForPoint(
       type === TooltipEventType.SNAP
