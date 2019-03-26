@@ -107,10 +107,10 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
       return;
     }
 
-    const { absoluteX, absoluteY } = (view as any).getCanvasPositionForPoint(
+    const { absoluteX, absoluteY } = (view as ChartView<any>).getCanvasPositionForPoint(
       type === TooltipEventType.SNAP
       ? { x: match.snapX, y: match.snapY }
-      : { x: match.x, y: match.y },
+      : { x: match.x, y: match.snapY },
     );
 
     return {
