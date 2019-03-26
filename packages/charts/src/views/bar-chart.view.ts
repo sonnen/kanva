@@ -50,6 +50,8 @@ export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
   labels: BarChartLabels;
 }
 
+const X_SCALE_BAR_OFFSET = .5;
+
 const defaultStyle = {
   series: {},
   barWidth: .5,
@@ -251,7 +253,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
     const { yScale } = this.getScales();
-    const x = (point.x) * this.groupWidth;
+    const x = (point.x + X_SCALE_BAR_OFFSET) * this.groupWidth;
     const y = yScale(point.y);
 
     return {
@@ -272,7 +274,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     }
 
     return {
-      x: match.snapX,
+      x: match.snapX + X_SCALE_BAR_OFFSET,
       y: match.snapY,
     };
   }

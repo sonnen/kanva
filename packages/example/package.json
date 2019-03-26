@@ -1,6 +1,6 @@
 {
   "name": "example",
-  "version": "0.5.12",
+  "version": "0.5.13",
   "description": "Usage example for Kanva",
   "keywords": [
     "kanva",
@@ -31,10 +31,10 @@
     "dist": "dist"
   },
   "dependencies": {
-    "@kanva/charts": "^0.5.12",
-    "@kanva/charts-react": "^0.5.12",
-    "@kanva/core": "^0.5.12",
-    "@kanva/react": "^0.5.12",
+    "@kanva/charts": "^0.5.13",
+    "@kanva/charts-react": "^0.5.13",
+    "@kanva/core": "^0.5.13",
+    "@kanva/react": "^0.5.13",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.5"

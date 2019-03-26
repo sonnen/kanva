@@ -257,7 +257,7 @@ export class DataContainer<DataPoint> {
     if (isNil(match)) {
       return {
         x: clampX(x),
-        snapX: this.xAxisParameters.isGrouped ? selectedValue.x + 0.5 : selectedValue.x,
+        snapX: selectedValue.x,
         snapY: selectedValue.y,
         y: yValues,
       };
