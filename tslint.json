@@ -12,7 +12,8 @@
   },
   "rules": {
     "no-circular-imports": {
-      "severity": "warning"
+      "severity": "warning",
+      "search-depth-limit": 5
     },
     "curly": true,
     "eofline": false,

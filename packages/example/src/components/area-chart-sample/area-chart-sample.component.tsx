@@ -9,13 +9,9 @@ import {
   TooltipEventHandler,
   XYPoint,
 } from '@kanva/charts';
-import {
-  AreaChartView as AreaChartViewComponent,
-  AxisView,
-  ChartGridView,
-} from '@kanva/charts-react';
+import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView, LineChartView } from '@kanva/charts-react';
 import { View, Visibility } from '@kanva/core';
-import { Kanva, View as ViewComponent } from '@kanva/react';
+import { Kanva } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
 import { Tooltip } from '../tooltip';
@@ -53,6 +49,10 @@ export class AreaChartSample extends React.Component<{}, State> {
       {
         name: Series.PRODUCTION,
         data: MOCK.productionPower,
+      },
+      {
+        name: Series.HEATER_POWER,
+        data: MOCK.consumptionPower.map(({x, y}) => ({x, y: y > 3000 ? 1 : 0})),
       },
     ])
     .setXAxisParameters({
@@ -137,14 +137,14 @@ export class AreaChartSample extends React.Component<{}, State> {
       return;
     }
 
-   /**
-    * @TODO: Investigate how to prevent React throwing an error
-    * =====
-    * Warning: An update (setState, replaceState, or forceUpdate) was scheduled from inside an update function.
-    * Update functions should be pure, with zero side-effects. Consider using componentDidUpdate or a callback.
-    * =====
-    * Occurs when the #handleScale also fires #setState
-    */
+    /**
+     * @TODO: Investigate how to prevent React throwing an error
+     * =====
+     * Warning: An update (setState, replaceState, or forceUpdate) was scheduled from inside an update function.
+     * Update functions should be pure, with zero side-effects. Consider using componentDidUpdate or a callback.
+     * =====
+     * Occurs when the #handleScale also fires #setState
+     */
     setTimeout(() => this.setState({ tooltipEvent: event }));
   };
 
@@ -199,13 +199,12 @@ export class AreaChartSample extends React.Component<{}, State> {
           enablePointerEvents={true}
           canvasRef={this.handleCanvasRef}
         >
-          <ViewComponent layoutParams={layout.areaChartWrapper}>
-            <ChartGridView
-              layoutParams={layout.areaChart}
-              dataContainer={this.container}
-              style={chartGridStyle}
-              gridLines={GridLines.HORIZONTAL}
-            />
+          <ChartGridView
+            layoutParams={layout.areaChartWrapper}
+            dataContainer={this.container}
+            style={chartGridStyle}
+            gridLines={GridLines.HORIZONTAL}
+          >
             <AreaChartViewComponent
               layoutParams={layout.areaChart}
               dataContainer={this.container}
@@ -242,7 +241,7 @@ export class AreaChartSample extends React.Component<{}, State> {
               visibility={this.isVisible(Series.BATTERY_STATE)}
               style={SeriesStyles[Series.BATTERY_STATE]}
             />
-          </ViewComponent>
+          </ChartGridView>
           <AxisView
             id={Views.X_AXIS}
             layoutParams={layout.xAxis}
@@ -260,6 +259,13 @@ export class AreaChartSample extends React.Component<{}, State> {
             borderColor={'#FFF'}
             border={{ left: 1 }}
             style={yAxisStyle}
+          />
+          <LineChartView
+            id={Views.LINE_CHART}
+            layoutParams={layout.lineChart}
+            dataContainer={this.container}
+            dataSeries={Series.HEATER_POWER}
+            style={SeriesStyles[Series.HEATER_POWER]}
           />
         </Kanva>
         <Crosshair

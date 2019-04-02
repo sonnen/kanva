@@ -5,7 +5,7 @@ export interface Radius {
   br: number;
 }
 
-export type RadiusInput = number | Partial<Radius> | undefined;
+export type RadiusInput = number | Partial<Radius> | null | undefined;
 
 const zeroRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
 

@@ -1,7 +1,12 @@
 import { Context } from './context';
 import { LayoutParams, PARENT_ID } from './layout-params';
 import { Id, LayoutProps } from './layout-props';
-import { View } from './view';
+
+interface ViewLike {
+  id: number;
+  name: string;
+  getLayoutParams: () => LayoutParams;
+}
 
 export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Context) => {
   if (!layoutParams.dependenciesModified) {
@@ -25,7 +30,7 @@ interface Dependency {
 }
 
 export const resolveDimensionDependencies = (
-  children: View[],
+  children: ViewLike[],
   dependencySelector: (lp: LayoutParams) => (undefined | number)[],
 ): number[] => {
   const dimension: Dependency[] = children.map(child => ({

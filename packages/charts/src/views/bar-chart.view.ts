@@ -45,7 +45,6 @@ export interface BarChartViewStyle {
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
-  dataSeries?: string | string[];
   labels: BarChartLabels;
 }
 
