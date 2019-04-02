@@ -1,5 +1,15 @@
-import { Context, normalizeRadius, RadiusInput, ViewCanvas } from '@kanva/core';
-import last from 'lodash/last';
+import {
+  CanvasPointerEvent,
+  Context,
+  normalizeRadius,
+  PointerAction,
+  RadiusInput,
+  RequiredViewChanges,
+  ViewCanvas,
+} from '@kanva/core';
+import { isNil, last } from 'lodash';
+import { CanvasPosition, XYPoint } from '../chart.types';
+import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
 import { ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -122,11 +132,86 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
 
   }
 
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    if (!this.dataContainer) {
+      return false;
+    }
+
+    // Pan & zoom
+    const transformExtension = this.dataContainer.getExtension<DataContainerTransformExtension>(TRANSFORM_EXTENSION);
+    const scales = this.getScales();
+    if (transformExtension && transformExtension.processPointerEvent(event, scales)) {
+      this.require(RequiredViewChanges.DRAW);
+      return true;
+    }
+
+    if (!this.onChartPointerEvent) {
+      return false;
+    }
+
+    if (event.action !== PointerAction.UP) {
+      // TODO Re-use TooltipExtension.processPointerEvent as in Pan&Zoom
+      // Tooltip
+      const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
+      const { xScale, yScale } = this.getScales();
+
+      if (!dataSeries) {
+        return false;
+      }
+
+      const { x, y } = event.primaryPointer;
+      const point = {
+        x: xScale.invert(x),
+        y: yScale.invert(y),
+      };
+
+      const match = this.dataContainer.getYValuesMatch(point.x);
+
+      if (isNil(match)) {
+        return false;
+      }
+
+      const snap = {
+        x: xScale(match.snapX) + this.offsetRect.l,
+        y: xScale(match.snapY) + this.offsetRect.t,
+      };
+
+      this.onChartPointerEvent({
+        pointerEvent: event,
+        ...point,
+        match,
+        snap,
+      });
+    }
+
+    return true;
+  }
+
   getScales(): ScaleFunctions {
     const halfLineWidth = (this.style.lineWidth || 0) / 2;
     return this.dataContainer!.getScales(
       this.innerWidth - halfLineWidth,
-      this.innerHeight - halfLineWidth,
+      1,
     );
+  }
+
+  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+    const { xScale, yScale } = this.getScales();
+    const x = xScale(point.x);
+    const y = yScale(0);
+    return {
+      x,
+      y,
+      absoluteX: this.offsetRect.l + x,
+      absoluteY: this.offsetRect.t + y,
+    };
+  }
+
+  getPointForCanvasPosition(position: XYPoint): XYPoint {
+    const { xScale, yScale } = this.getScales();
+    return {
+      x: xScale.invert(position.x - this.offsetRect.l),
+      y: yScale.invert(0),
+    };
   }
 }
