@@ -21,7 +21,7 @@ export interface ChartPointerEvent {
 
 export type OnChartPointerEvent = (event: ChartPointerEvent) => void;
 
-export class ChartView<ChartProps extends ChartViewProps<any>,
+export abstract class ChartView<ChartProps extends ChartViewProps<any>,
   Style = NonNullable<ChartProps['style']>> extends View<ChartProps> {
   protected dataContainer?: DataContainer<any>;
   protected dataSeries: string[] = [];
@@ -46,14 +46,9 @@ export class ChartView<ChartProps extends ChartViewProps<any>,
     this.require(RequiredViewChanges.DRAW);
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    return {
-      x: 0,
-      y: 0,
-      absoluteX: this.offsetRect.l,
-      absoluteY: this.offsetRect.t,
-    };
-  }
+  abstract getCanvasPositionForPoint(point: XYPoint): CanvasPosition;
+
+  abstract getPointForCanvasPosition(position: XYPoint): XYPoint | undefined;
 
   getOnChartPointerEvent() {
     return this.onChartPointerEvent;

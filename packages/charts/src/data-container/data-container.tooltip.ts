@@ -1,7 +1,9 @@
 import { getElementOffset, Offset, View } from '@kanva/core';
+import { isNil } from 'lodash';
 import { SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
+import { ChartView } from '../views';
 import { DataContainer } from './data-container';
-import { DataContainerEventType, GetScalesEvent } from './data-container.events';
+import { DataContainerEventType } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
 
 export const TOOLTIP_EXTENSION = 'DataContainerTooltipExtension';
@@ -20,12 +22,10 @@ export interface TooltipEvent {
 export type TooltipEventHandler = (event: TooltipEvent) => void;
 
 export class DataContainerTooltipExtension extends DataContainerExtension {
-  private dataContainer?: DataContainer<any>;
   private view?: View<any>;
   private onTooltipEvent?: TooltipEventHandler;
   private canvasOffset: Offset = { left: 0, top: 0 };
   private position: XYPoint = { x: 0, y: 0 };
-  private range = { min: 0, max: 0 };
 
   constructor() {
     super(TOOLTIP_EXTENSION);
@@ -66,8 +66,6 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
       DataContainerEventType.DATA_CHANGE,
       () => this.postTooltipEvent(TooltipEventType.SMOOTH),
     );
-
-    this.dataContainer = dataContainer;
   }
 
   protected onDetach(dataContainer: DataContainer<any>) {
@@ -78,28 +76,41 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
   }
 
   private postTooltipEvent = (type: TooltipEventType) => {
-    const { dataContainer, view } = this;
-    if (!view || !dataContainer) {
+    if (!this.view
+      || !this.dataContainers.length
+      || !this.onTooltipEvent
+    ) {
       return;
     }
 
-    if (this.onTooltipEvent) {
-      this.onTooltipEvent(this.getTooltipData(type));
+    const tooltipEvent = this.getTooltipEvent(type);
+    if (!isNil(tooltipEvent)) {
+      this.onTooltipEvent(tooltipEvent);
     }
   };
 
-  private getTooltipData(type: TooltipEventType): TooltipEvent {
-    const { dataContainer, view, position } = this;
-    const point = (view as any).getPointForCanvasPosition({
+  private getTooltipEvent(type: TooltipEventType): TooltipEvent | undefined {
+    const { dataContainers, view, position } = this;
+    const point = (view as ChartView<any>).getPointForCanvasPosition({
       x: position.x,
       y: position.y,
     });
-    const match = dataContainer!.getYValuesMatch(point.x);
 
-    const { absoluteX, absoluteY } = (view as any).getCanvasPositionForPoint(
+    if (isNil(point)) {
+      return;
+    }
+
+    const match = dataContainers.reduce((match, dataContainer) =>
+      dataContainer.getYValuesMatch(point.x, match), undefined as YValuesMatch | undefined);
+
+    if (isNil(match)) {
+      return;
+    }
+
+    const { absoluteX, absoluteY } = (view as ChartView<any>).getCanvasPositionForPoint(
       type === TooltipEventType.SNAP
       ? { x: match.snapX, y: match.snapY }
-      : { x: match.x, y: match.y },
+      : { x: match.x, y: match.snapY },
     );
 
     return {

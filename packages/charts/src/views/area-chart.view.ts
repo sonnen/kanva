@@ -1,4 +1,5 @@
 import { CanvasPointerEvent, Context, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { isNil } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
 import { ScaleFunctions, segmentizePoints } from '../utils';
@@ -194,6 +195,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
       const match = this.dataContainer.getYValuesMatch(point.x);
 
+      if (isNil(match)) {
+        return false;
+      }
+
       const snap = {
         x: xScale(match.snapX) + this.offsetRect.l,
         y: xScale(match.snapY) + this.offsetRect.t,
@@ -211,10 +216,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    const { dataContainer } = this;
-    if (!dataContainer) {
-      return super.getCanvasPositionForPoint(point);
-    }
     const { xScale, yScale } = this.getScales();
     const x = xScale(point.x);
     const y = yScale(point.y);

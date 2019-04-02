@@ -37,24 +37,6 @@ interface State {
 
 export class AreaChartSample extends React.Component<{}, State> {
   container = new DataContainer<XYPoint<number | null>>()
-    .setData([
-      {
-        name: Series.CONSUMPTION,
-        data: nulledConsumption,
-      },
-      {
-        name: Series.DIRECT_USAGE,
-        data: MOCK.directUsagePower,
-      },
-      {
-        name: Series.PRODUCTION,
-        data: MOCK.productionPower,
-      },
-      {
-        name: Series.HEATER_POWER,
-        data: MOCK.consumptionPower.map(({x, y}) => ({x, y: y > 3000 ? 1 : 0})),
-      },
-    ])
     .setXAxisParameters({
       tickCount: baseTickCount,
       labelAccessor: (value: number) => {
@@ -72,12 +54,6 @@ export class AreaChartSample extends React.Component<{}, State> {
       labelAccessor: (value: number) => (value / 1000) + ' kWh',
     });
   percentageContainer = new DataContainer<any>()
-    .setData([
-      {
-        name: Series.BATTERY_STATE,
-        data: MOCK.batteryUsoc,
-      },
-    ])
     .setYBoundsExtension([0, 100]);
 
   state: State = {
@@ -90,7 +66,7 @@ export class AreaChartSample extends React.Component<{}, State> {
     scale: 1,
   };
 
-  private tooltipExtension?: DataContainerTooltipExtension;
+  private readonly tooltipExtension?: DataContainerTooltipExtension;
 
   constructor(props: {}) {
     super(props);
@@ -103,9 +79,8 @@ export class AreaChartSample extends React.Component<{}, State> {
     this.tooltipExtension = new DataContainerTooltipExtension();
     this.tooltipExtension.setTooltipEventHandler(this.handleTooltipEvent);
 
-    this.container.addExtension(transformExtension);
-    this.container.addExtension(this.tooltipExtension);
-    this.percentageContainer.addExtension(transformExtension);
+    this.container.addExtension(transformExtension, this.tooltipExtension);
+    this.percentageContainer.addExtension(transformExtension, this.tooltipExtension);
   }
 
   handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
@@ -177,6 +152,34 @@ export class AreaChartSample extends React.Component<{}, State> {
         {name.toUpperCase()}
       </button>
     );
+  }
+
+  componentDidMount() {
+    this.container.setData([
+      {
+        name: Series.CONSUMPTION,
+        data: nulledConsumption,
+      },
+      {
+        name: Series.DIRECT_USAGE,
+        data: MOCK.directUsagePower,
+      },
+      {
+        name: Series.PRODUCTION,
+        data: MOCK.productionPower,
+      },
+      {
+        name: Series.HEATER_POWER,
+        data: MOCK.consumptionPower.map(({x, y}) => ({x, y: y > 3000 ? 1 : 0})),
+      },
+    ]);
+
+    this.percentageContainer.setData([
+      {
+        name: Series.BATTERY_STATE,
+        data: MOCK.batteryUsoc,
+      },
+    ]);
   }
 
   render() {

@@ -2,7 +2,7 @@ import { DataContainer } from './data-container';
 import { DataContainerEventType } from './data-container.events';
 
 export abstract class DataContainerExtension {
-  private dataContainers: DataContainer<any>[] = [];
+  protected readonly dataContainers: DataContainer<any>[] = [];
 
   protected constructor(
     public readonly name: string,
