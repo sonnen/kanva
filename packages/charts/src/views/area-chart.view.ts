@@ -172,10 +172,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     const scales = this.getScales();
     if (transformExtension && transformExtension.processPointerEvent(event, scales)) {
       this.require(RequiredViewChanges.DRAW);
+      return true;
     }
 
     if (!this.onChartPointerEvent) {
-      return true;
+      return false;
     }
 
     if (event.action !== PointerAction.UP) {

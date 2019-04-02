@@ -6,6 +6,7 @@ import { DataContainerEventType } from '../data-container/data-container.events'
 
 export interface ChartViewProps<Style> {
   dataContainer?: DataContainer<any>;
+  dataSeries?: string | string[];
   style?: Style;
   onChartPointerEvent?: OnChartPointerEvent;
 }

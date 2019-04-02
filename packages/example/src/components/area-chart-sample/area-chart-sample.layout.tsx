@@ -3,6 +3,7 @@ import { createLayoutMap, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from '@kanva/c
 export const Views = {
   X_AXIS: 'xAxis',
   Y_AXIS: 'yAxis',
+  LINE_CHART: 'lineChart',
 };
 
 const topDistance = 40;
@@ -22,12 +23,20 @@ export const layout = createLayoutMap({
     width: MATCH_PARENT,
     height: MATCH_PARENT,
   },
+  lineChart: {
+    width: MATCH_PARENT,
+    height: WRAP_CONTENT,
+    alignEnd: PARENT_ID,
+    alignStart: PARENT_ID,
+    alignBottom: PARENT_ID,
+    padding: { vertical: 40 },
+  },
   xAxis: {
     width: MATCH_PARENT,
     height: 40,
     alignEnd: PARENT_ID,
-    alignBottom: PARENT_ID,
     alignStart: PARENT_ID,
+    above: Views.LINE_CHART,
     padding: { right: endDistance },
   },
   yAxis: {

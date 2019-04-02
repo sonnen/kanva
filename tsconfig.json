@@ -12,7 +12,8 @@
     "noImplicitReturns": true,
     "importHelpers": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "esModuleInterop": true
   },
   "include": [
     "./packages/**/*.ts",
