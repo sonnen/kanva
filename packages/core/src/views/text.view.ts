@@ -1,38 +1,26 @@
-import { font, Font, TextAlign, TextBaseline, ViewCanvas } from '../canvas';
+import { Paint, TextBaseline, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
 
 export interface TextViewProps {
-  font?: Font;
-  text?: string;
-  textAlign?: TextAlign;
-  textBaseline?: TextBaseline;
-  textColor?: string;
+  textPaint: Paint;
 }
 
 export class TextView extends View<TextViewProps> {
-  private fontString: string = '12 Arial';
-  private font?: Font;
-  private text: string = '';
-  private textAlign: TextAlign = TextAlign.START;
-  private textBaseline: TextBaseline = TextBaseline.TOP;
-  private textColor: string = '#000';
+  private textPaint: Paint = new Paint();
+  private text: string[] = [];
   private y: number = 0;
 
   constructor(context: Context) {
     super(context, 'TextView');
   }
 
-  getFont() {
-    return this.font;
+  getTextPaint() {
+    return this.textPaint.font;
   }
 
-  setFont(f: Font) {
-    if (this.font === f) {
-      return;
-    }
-    this.font = f;
-    this.fontString = font(f);
-    this.require(RequiredViewChanges.MEASURE);
+  setTextPaint(paint: Paint) {
+    this.textPaint = paint;
+    this.refresh();
   }
 
   getText() {
@@ -40,24 +28,12 @@ export class TextView extends View<TextViewProps> {
   }
 
   setText(text: string) {
-    this.text = text;
+    this.text = text.split('\n');
     this.refresh();
   }
 
-  getTextAlign() {
-    return this.textAlign;
-  }
-
-  setTextAlign(textAlign: TextAlign) {
-    this.textAlign = textAlign;
-  }
-
-  getTextBaseline() {
-    return this.textBaseline;
-  }
-
   setTextBaseline(textBaseline: TextBaseline) {
-    if (textBaseline !== this.textBaseline) {
+    if (textBaseline !== this.textPaint.textBaseline) {
       switch (textBaseline) {
         case TextBaseline.BOTTOM:
           this.y = 0;
@@ -70,57 +46,34 @@ export class TextView extends View<TextViewProps> {
           this.y = this.innerHeight;
           break;
       }
-      this.textBaseline = textBaseline;
+      this.textPaint.setTextBaseline(textBaseline);
       this.require(RequiredViewChanges.DRAW);
     }
   }
 
-  getTextColor() {
-    return this.textColor;
-  }
-
-  setTextColor(color: string) {
-    this.textColor = color;
-    this.require(RequiredViewChanges.DRAW);
-  }
-
   getInternalWrappedWidth(canvas: ViewCanvas) {
-    const { fontString, text, textAlign, textBaseline } = this;
+    const { text, textPaint } = this;
     return canvas
-      ? canvas.measureText({
-        fontString,
-        text,
-        textBaseline,
-        textAlign,
-      }).width
+      ? text.reduce((maxWidth, line) => Math.max(maxWidth, canvas.measureText(line, this.textPaint).width), 0)
       : undefined;
   }
 
   getInternalWrappedHeight() {
-    return this.font ? this.font.fontSize : 12;
+    return this.getLineHeight() * this.text.length;
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { fontString, textAlign, textBaseline, width, text, textColor, y } = this;
-    canvas.drawText({
-      x: 0,
-      y,
-      fontString,
-      text,
-      maxWidth: width,
-      textAlign,
-      textBaseline,
-      fillStyle: textColor,
-    });
+    const { width, text, textPaint, y } = this;
+    const lineHeight = this.getLineHeight();
+    for (let i = 0, l = text.length; i < l; i++) {
+      canvas.drawText(0, y + i * lineHeight, text[i], textPaint, width);
+    }
   }
 
   onSnapshot() {
     return {
       text: this.text,
-      fontString: this.fontString,
-      textColor: this.textColor,
-      textAlign: this.textAlign,
-      textBaseline: this.textBaseline,
+      textPaint: this.textPaint.snapshot(),
     };
   }
 
@@ -130,5 +83,9 @@ export class TextView extends View<TextViewProps> {
     } else {
       this.require(RequiredViewChanges.DRAW);
     }
+  }
+
+  private getLineHeight() {
+    return this.textPaint && this.textPaint.getLineHeight();
   }
 }

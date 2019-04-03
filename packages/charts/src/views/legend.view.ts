@@ -1,21 +1,19 @@
 import {
   Context,
   Font,
-  font,
   normalizeRadius,
+  Paint,
   RadiusInput,
   removeUndefinedProps,
   RequiredViewChanges,
   View,
   ViewCanvas,
 } from '@kanva/core';
-import { CanvasPosition, XYPoint } from '../chart.types';
 
 export interface LegendViewStyle {
+  labelPaint: Paint;
+  labelPadding?: number;
   alignment?: LegendAlignment;
-  padding?: number;
-  fillStyle?: string;
-  font?: Font;
 }
 
 export enum LegendAlignment {
@@ -33,12 +31,8 @@ export enum LegendSeriesType {
 export interface LegendDataSeries {
   name: string;
   type?: LegendSeriesType;
-  fillStyle?: string;
-  strokeStyle?: string;
-  lineWidth?: number;
+  paint: Paint;
   radius?: RadiusInput;
-  lineRounding?: boolean;
-  lineDash?: number[];
 }
 
 export interface LegendViewProps {
@@ -47,10 +41,9 @@ export interface LegendViewProps {
 }
 
 const defaultStyle = {
+  labelPaint: new Paint(),
+  labelPadding: 4,
   alignment: LegendAlignment.ROW,
-  padding: 4,
-  fillStyle: '#000',
-  font: { fontSize: 12, fontFamily: 'Arial' },
 };
 
 export class LegendView<DataPoint> extends View<LegendViewProps> {
@@ -109,8 +102,8 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
       dataSeries,
       style: {
         alignment = defaultStyle.alignment,
-        fillStyle = defaultStyle.fillStyle,
-        font: fontStyle = defaultStyle.font,
+        labelPaint = defaultStyle.labelPaint,
+        labelPadding = defaultStyle.labelPadding,
       } = defaultStyle,
     } = this;
 
@@ -118,18 +111,14 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
     const fontSize = this.font.fontSize;
     const padding = this.padding;
 
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = font(fontStyle);
     switch (this.style.alignment) {
       case LegendAlignment.ROW:
         for (let i = 0, l = dataSeries.length; i < l; i++) {
           const series = dataSeries[i];
-          const { width } = ctx.measureText(series.name);
+          const { width } = canvas.measureText(series.name, labelPaint);
           this.drawDataSeriesSymbol(canvas, series);
           ctx.translate(fontSize * 1.5, 0);
-          ctx.fillStyle = fillStyle;
-          ctx.fillText(series.name, 0, fontSize / 2);
+          canvas.drawText(0, fontSize, series.name, labelPaint);
           ctx.translate(padding + width, 0);
         }
         break;
@@ -139,8 +128,7 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
           const series = dataSeries[i];
           const { width } = ctx.measureText(series.name);
           this.drawDataSeriesSymbol(canvas, series);
-          ctx.fillStyle = fillStyle;
-          ctx.fillText(series.name, fontSize * 1.5, fontSize / 2);
+          canvas.drawText(fontSize * 1.5, fontSize, series.name, labelPaint);
           ctx.translate(0, fontSize + padding);
         }
         break;
@@ -149,24 +137,18 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
 
   onSnapshot() {
     return {
-      style: removeUndefinedProps(this.style),
+      style: removeUndefinedProps({
+        labelPaint: this.style.labelPaint.snapshot(),
+        labelPadding: this.style.labelPadding,
+        alignment: LegendAlignment[this.style.alignment || defaultStyle.alignment],
+      }),
     };
-  }
-
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    // @TODO: implement when needed
-    return { x: 0, y: 0, absoluteX: 0, absoluteY: 0 };
-  }
-
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
-    // @TODO: implement when needed
-    return { x: 0, y: 0 };
   }
 
   private drawDataSeriesSymbol(canvas: ViewCanvas, series: LegendDataSeries) {
     const ctx = canvas.context;
-    const lineWidth = series.lineWidth || 0;
-    const size = this.font.fontSize - lineWidth;
+    const lineWidth = series.paint.lineWidth || 0;
+    const size = this.style.labelPaint.getLineHeight() - lineWidth;
     const radius = normalizeRadius(series.radius);
 
     ctx.translate(lineWidth / 2, lineWidth / 2);
@@ -205,31 +187,20 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
         canvas.roundRect(0, 0, size, size, radius);
         break;
     }
-    if (series.fillStyle) {
-      ctx.fillStyle = series.fillStyle;
-      ctx.fill();
-    }
-    if (series.strokeStyle && series.lineWidth) {
-      ctx.setLineDash(series.lineDash || []);
-      ctx.lineWidth = series.lineWidth;
-      ctx.strokeStyle = series.strokeStyle;
-      ctx.stroke();
-    }
+
+    canvas.drawPath(series.paint);
     ctx.translate(-lineWidth / 2, -lineWidth / 2);
   }
 
   private getSeriesTextWidth(canvas: ViewCanvas, series: LegendDataSeries) {
-    return canvas.measureText({
-      text: series.name,
-      fontString: font(this.style.font || defaultStyle.font),
-    }).width;
+    return canvas.measureText(series.name, this.style.labelPaint || defaultStyle.labelPaint).width;
   }
 
   private get padding(): number {
-    return this.style.padding || defaultStyle.padding;
+    return this.style.labelPadding || defaultStyle.labelPadding;
   }
 
   private get font(): Font {
-    return this.style.font || defaultStyle.font;
+    return this.style.labelPaint.font || defaultStyle.labelPaint.font;
   }
 }

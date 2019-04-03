@@ -1,11 +1,11 @@
 import {
   CanvasPointerEvent,
   Context,
-  font,
   Font,
   isBright,
   normalizeRadius,
   parseColor,
+  parseFont,
   PointerAction,
   Radius,
   ViewCanvas,
@@ -121,7 +121,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     if (labels) {
       ctx.textBaseline = 'bottom';
       ctx.textAlign = 'center';
-      ctx.font = font(labels.font);
+      ctx.font = parseFont(labels.font);
     }
 
     for (let i = 0, l = seriesLength; i < l; i++) {

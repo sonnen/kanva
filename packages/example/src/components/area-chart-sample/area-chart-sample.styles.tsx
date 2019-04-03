@@ -5,7 +5,7 @@ import {
   DataDisplayType,
   LineChartViewStyle,
 } from '@kanva/charts';
-import { rgba, TextAlign, TextBaseline } from '@kanva/core';
+import { Paint, rgba, TextAlign, TextBaseline } from '@kanva/core';
 
 export enum Series {
   CONSUMPTION = 'consumption',
@@ -59,15 +59,17 @@ export const SeriesStyles = {
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.START,
-  textBaseline: TextBaseline.MIDDLE,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.START)
+    .setTextBaseline(TextBaseline.MIDDLE)
+    .setFillStyle(labelColor),
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.END,
-  textBaseline: TextBaseline.BOTTOM,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.END)
+    .setTextBaseline(TextBaseline.BOTTOM)
+    .setFillStyle(labelColor),
 };
 
 export const chartGridStyle: ChartGridViewStyle = {

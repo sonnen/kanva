@@ -41,7 +41,7 @@ export interface Font {
   fontFamily: string;
 }
 
-export const font = ({
+export const parseFont = ({
   fontStyle,
   fontVariant,
   fontWeight,

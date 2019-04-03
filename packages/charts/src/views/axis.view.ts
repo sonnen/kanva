@@ -1,18 +1,22 @@
-import { Context, Font, font, RequiredViewChanges, TextAlign, TextBaseline, View, ViewCanvas } from '@kanva/core';
-import { removeUndefinedProps } from '@kanva/core';
+import {
+  Context,
+  Font,
+  Paint,
+  removeUndefinedProps,
+  RequiredViewChanges,
+  TextAlign,
+  TextBaseline,
+  View,
+  ViewCanvas,
+} from '@kanva/core';
 import { DataContainer } from '../data-container';
 import { DataContainerEventType } from '../data-container/data-container.events';
 import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartViewProps } from './chart.view';
 
 export interface AxisViewStyle {
-  paddingBetweenLabels?: number;
-  lineWidth?: number;
-  strokeStyle?: string;
-  fillStyle?: string;
-  textBaseline?: TextBaseline;
-  textAlign?: TextAlign;
-  font?: Font;
+  labelPaint?: Paint;
+  labelPadding?: number;
 }
 
 export enum AxisOrientation {
@@ -25,13 +29,8 @@ export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
 }
 
 const defaultStyle = {
-  paddingBetweenLabels: 4,
-  lineWidth: 0,
-  strokeStyle: '#000',
-  fillStyle: '#000',
-  font: { fontSize: 12, fontFamily: 'Arial' },
-  textAlign: TextAlign.CENTER,
-  textBaseline: TextBaseline.MIDDLE,
+  labelPaint: new Paint().setFillStyle('#000'),
+  labelPadding: 4,
 };
 
 export class AxisView<DataPoint> extends View<AxisViewProps> {
@@ -92,12 +91,13 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return 0;
     }
 
-    const lineHeight = (this.style.font || defaultStyle.font).fontSize;
+    const labelPaint = this.style.labelPaint || defaultStyle.labelPaint;
+    const lineHeight = labelPaint.getLineHeight();
     switch (this.orientation) {
       case AxisOrientation.VERTICAL: {
         const axisData = this.dataContainer.getYAxisData();
         const position = axisData.length * lineHeight;
-        switch (this.style.textBaseline || defaultStyle.textBaseline) {
+        switch (labelPaint.textBaseline) {
           case TextBaseline.MIDDLE:
             return position + lineHeight / 2;
           case TextBaseline.TOP:
@@ -109,9 +109,6 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       }
       case AxisOrientation.HORIZONTAL:
       default: {
-        if (!this.style.font) {
-          return 0;
-        }
         return lineHeight;
       }
     }
@@ -133,7 +130,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
         const point = axisData[axisData.length - 1];
         const position = axisData.length;
         const width = this.getPointTextWidth(canvas, point);
-        switch (this.style.textAlign || defaultStyle.textAlign) {
+        switch ((this.style.labelPaint || defaultStyle.labelPaint).textAlign) {
           case TextAlign.CENTER:
             return position + width / 2;
           case TextAlign.LEFT:
@@ -159,13 +156,8 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       innerWidth, innerHeight,
       dataContainer,
       style: {
-        font: fontStyle = defaultStyle.font,
-        strokeStyle = defaultStyle.strokeStyle,
-        lineWidth = defaultStyle.lineWidth,
-        fillStyle = defaultStyle.fillStyle,
-        textBaseline = defaultStyle.textBaseline,
-        textAlign = defaultStyle.textAlign,
-        paddingBetweenLabels = defaultStyle.paddingBetweenLabels,
+        labelPaint = defaultStyle.labelPaint,
+        labelPadding = defaultStyle.labelPadding,
       } = defaultStyle,
       orientation,
     } = this;
@@ -174,12 +166,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
       return;
     }
     const ctx = canvas.context;
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = strokeStyle;
-    ctx.fillStyle = fillStyle;
-    ctx.font = font(fontStyle);
-    ctx.textBaseline = textBaseline;
-    ctx.textAlign = textAlign;
+    canvas.setPaint(labelPaint);
     if (orientation === AxisOrientation.HORIZONTAL) {
       const maxWidth = (axisData[0] && axisData[1])
         ? Math.abs(axisData[0].position - axisData[1].position)
@@ -209,7 +196,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
             : (point.position - width);
         if (lastEnd <= start) {
           ctx.fillText(point.value, point.position, y, maxWidth);
-          lastEnd = start + width + paddingBetweenLabels;
+          lastEnd = start + width + labelPadding;
         }
       }
     } else {
@@ -229,7 +216,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           x = innerWidth / 2;
           break;
       }
-      const height = fontStyle.fontSize;
+      const height = labelPaint.getLineHeight();
       let lastEnd = innerHeight + this.lp.paddingRect.b;
       for (let i = 0, l = axisData.length; i < l; i++) {
         const point = axisData[i];
@@ -240,7 +227,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
             : point.position;
         if (lastEnd >= start) {
           ctx.fillText(point.value, x, point.position, maxWidth);
-          lastEnd = start - height - paddingBetweenLabels;
+          lastEnd = start - height - labelPadding;
         }
       }
     }
@@ -254,10 +241,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   }
 
   private getPointTextWidth(canvas: ViewCanvas, point: AxisPoint) {
-    return canvas.measureText({
-      text: point.value,
-      fontString: font(this.style.font || defaultStyle.font),
-    }).width;
+    return canvas.measureText(point.value, this.style.labelPaint || defaultStyle.labelPaint).width;
   }
 
   private getPoints(): AxisPoint[] {

@@ -1,4 +1,5 @@
-import { DrawLineOptions, DrawOptions, DrawTextOptions, MeasureTextOptions } from './canvas.types';
+import { MeasureTextOptions } from './canvas.types';
+import { Paint } from './paint';
 import { Radius } from './radius';
 
 export interface Canvas {
@@ -31,56 +32,53 @@ export class ViewCanvas {
     c.arcTo(x, y, x + w, y, tl);
   }
 
-  measureText({
-    text,
-    fontString,
-    direction = 'inherit',
-    textAlign = 'left',
-    textBaseline = 'bottom',
-  }: MeasureTextOptions): TextMetrics {
+  measureText(text: string, paint: Paint): TextMetrics {
     const c = this.context;
-
-    c.font = fontString;
-    c.direction = direction;
-    c.textAlign = textAlign;
-    c.textBaseline = textBaseline;
+    c.font = paint.fontString || '';
+    c.direction = paint.textDirection;
+    c.textAlign = paint.textAlign;
+    c.textBaseline = paint.textBaseline;
 
     return c.measureText(text);
   }
 
-  drawLine(options: DrawLineOptions) {
-    const { x, y, x2, y2 } = options;
+  setPaint(paint: Paint) {
     const c = this.context;
 
-    c.beginPath();
-    c.moveTo(x, y);
-    c.lineTo(x2, y2);
+    if (paint.canDrawFill()) {
+      c.fillStyle = paint.fillStyle!;
+    }
 
-    this.draw(options);
+    if (paint.canDrawStroke()) {
+      c.lineWidth = paint.lineWidth;
+      c.strokeStyle = paint.strokeStyle!;
+      c.setLineDash(paint.lineDash);
+      if (paint.lineRounding) {
+        c.lineJoin = 'round';
+        c.lineCap = 'round';
+      } else {
+        c.lineJoin = 'miter';
+        c.lineCap = 'square';
+      }
+    }
+
+    if (paint.canDrawText()) {
+      c.font = paint.fontString!;
+      c.direction = paint.textDirection;
+      c.textAlign = paint.textAlign;
+      c.textBaseline = paint.textBaseline;
+    }
   }
 
-  drawText({
-    text,
-    fontString,
-    direction = 'inherit',
-    textAlign = 'left',
-    textBaseline = 'bottom',
-    x, y,
-    strokeStyle,
-    maxWidth,
-    fillStyle,
-    lineWidth,
-    lineDash,
-  }: DrawTextOptions) {
+  drawText(x: number, y: number, text: string, paint: Paint, maxWidth: number = 0) {
+    if (!paint.canDrawText()) {
+      return;
+    }
+
     const c = this.context;
-
-    c.font = fontString;
-    c.direction = direction;
-    c.textAlign = textAlign;
-    c.textBaseline = textBaseline;
-
+    this.setPaint(paint);
     if (maxWidth) {
-      switch (textAlign) {
+      switch (paint.textAlign) {
         case 'center':
           x = x + maxWidth / 2;
           break;
@@ -92,8 +90,7 @@ export class ViewCanvas {
       }
     }
 
-    if (fillStyle !== undefined) {
-      c.fillStyle = fillStyle;
+    if (paint.canDrawFill()) {
       if (maxWidth) {
         c.fillText(text, x, y, maxWidth);
       } else {
@@ -101,13 +98,7 @@ export class ViewCanvas {
       }
     }
 
-    if (lineWidth !== undefined && strokeStyle !== undefined) {
-      c.lineWidth = lineWidth;
-      c.strokeStyle = strokeStyle;
-      if (!lineDash) {
-        lineDash = [];
-      }
-      c.setLineDash(lineDash);
+    if (paint.canDrawStroke()) {
       if (maxWidth) {
         c.strokeText(text, x, y, maxWidth);
       } else {
@@ -116,26 +107,15 @@ export class ViewCanvas {
     }
   }
 
-  private draw({
-    fillStyle,
-    strokeStyle,
-    lineWidth,
-    lineDash,
-  }: DrawOptions) {
+  drawPath(paint: Paint) {
     const c = this.context;
+    this.setPaint(paint);
 
-    if (fillStyle !== undefined) {
-      c.fillStyle = fillStyle;
+    if (paint.canDrawFill()) {
       c.fill();
     }
 
-    if (lineWidth !== undefined && strokeStyle !== undefined) {
-      c.lineWidth = lineWidth;
-      c.strokeStyle = strokeStyle;
-      if (!lineDash) {
-        lineDash = [];
-      }
-      c.setLineDash(lineDash);
+    if (paint.canDrawStroke()) {
       c.stroke();
     }
   }
