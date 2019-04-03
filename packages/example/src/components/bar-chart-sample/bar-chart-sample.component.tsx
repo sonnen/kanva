@@ -10,7 +10,7 @@ import {
   TooltipEvent,
   TooltipEventHandler,
 } from '@kanva/charts';
-import { AxisView, BarChartView as BarChartViewComponent, ChartGridView, LegendView, } from '@kanva/charts-react';
+import { AxisView, BarChartView as BarChartViewComponent, ChartGridView, LegendView } from '@kanva/charts-react';
 import { Paint, View } from '@kanva/core';
 import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';

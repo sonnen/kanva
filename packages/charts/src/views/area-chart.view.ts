@@ -1,4 +1,4 @@
-import { CanvasPointerEvent, Context, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, Paint, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { isNil } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
@@ -14,11 +14,7 @@ export enum DataDisplayType {
 
 export interface AreaChartViewStyle {
   type: DataDisplayType;
-  strokeStyle?: string;
-  lineWidth?: number;
-  fillStyle?: string;
-  lineRounding?: boolean;
-  lineDash?: number[];
+  paint: Paint;
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
@@ -27,7 +23,7 @@ export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
 
 const defaultStyle = {
   type: DataDisplayType.LINE,
-  lineThickness: 1.5,
+  paint: new Paint().setLineWidth(1.5),
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
@@ -95,10 +91,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const { innerHeight, dataContainer, style } = this;
-    const { type, fillStyle, lineWidth = 0, lineDash, lineRounding, strokeStyle } = style;
+    const { type, paint } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
-    const halfLineWidth = lineWidth / 2;
+    const halfLineWidth = paint.lineWidth / 2;
 
     if (!dataContainer || !dataSegments.length) {
       return;
@@ -108,10 +104,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
-
-    if (lineDash) {
-      ctx.setLineDash(lineDash);
-    }
 
     for (let s = 0, sl = dataSegments.length; s < sl; s++) {
       const data = dataSegments[s];
@@ -125,15 +117,22 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           ctx.lineTo(xScale(data[0]), innerHeight);
           break;
         case DataDisplayType.POINTS:
-          const size = lineWidth || 1;
+          const size = paint.lineWidth || 1;
+          const useStroke = paint.canDrawStroke();
+          const useFill = paint.canDrawFill();
           const radius = size / 2;
-          if (fillStyle) {
-            ctx.fillStyle = fillStyle;
-            for (let i = 0, l = data.length; i < l; i += 2) {
-              ctx.fillRect(xScale(data[i]) - radius, yScale(data[i + 1]) - radius, size, size);
+          canvas.setPaint(paint);
+          for (let i = 0, l = data.length; i < l; i += 2) {
+            const x = xScale(data[i]) - radius;
+            const y = yScale(data[i + 1]) - radius;
+            if (useFill) {
+              ctx.fillRect(x, y, size, size);
+            }
+            if (useFill) {
+              ctx.strokeRect(x, y, size, size);
             }
           }
-          break;
+          return;
         default:
         case DataDisplayType.LINE_STAIRS:
         case DataDisplayType.LINE:
@@ -144,22 +143,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           break;
       }
     }
-    if (fillStyle) {
-      ctx.fillStyle = fillStyle;
-      ctx.fill();
-    }
-    if (strokeStyle && lineWidth) {
-      ctx.strokeStyle = strokeStyle;
-      ctx.lineWidth = lineWidth;
-      if (lineRounding) {
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-      } else {
-        ctx.lineJoin = 'miter';
-        ctx.lineCap = 'square';
-      }
-      ctx.stroke();
-    }
+    canvas.drawPath(paint);
   }
 
   onPointerEvent(event: CanvasPointerEvent): boolean {
@@ -237,7 +221,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   getScales(): ScaleFunctions {
-    const halfLineWidth = (this.style.lineWidth || 0) / 2;
+    const halfLineWidth = (this.style.paint.lineWidth || 0) / 2;
     return this.dataContainer!.getScales(
       this.innerWidth - halfLineWidth,
       this.innerHeight - halfLineWidth,

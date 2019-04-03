@@ -1,13 +1,13 @@
 import { removeEqualProps } from '../utils';
-import { Font, parseFont } from './font';
+import { Font, parseFont, TextAlign, TextBaseline } from './font';
 
 const defaultFont: Font = { fontFamily: 'Arial', fontSize: 12 };
 
 const defaultPaintOptions = {
   font: parseFont(defaultFont),
   textDirection: 'ltr' as CanvasDirection,
-  textAlign: 'left' as CanvasTextAlign,
-  textBaseline: 'bottom' as CanvasTextBaseline,
+  textAlign: 'left' as TextAlign,
+  textBaseline: 'bottom' as TextBaseline,
   lineWidth: 0,
   lineDash: [],
   lineRounding: false,
@@ -18,8 +18,8 @@ export class Paint {
   fontString: string = defaultPaintOptions.font;
   font: Font = defaultFont;
   textDirection: CanvasDirection = defaultPaintOptions.textDirection;
-  textAlign: CanvasTextAlign = defaultPaintOptions.textAlign;
-  textBaseline: CanvasTextBaseline = defaultPaintOptions.textBaseline;
+  textAlign: TextAlign = defaultPaintOptions.textAlign;
+  textBaseline: TextBaseline = defaultPaintOptions.textBaseline;
 
   // Fill
   fillStyle?: string;
@@ -49,12 +49,12 @@ export class Paint {
     return this;
   }
 
-  setTextAlign(textAlign: CanvasTextAlign): this {
+  setTextAlign(textAlign: TextAlign): this {
     this.textAlign = textAlign;
     return this;
   }
 
-  setTextBaseline(textBaseline: CanvasTextBaseline): this {
+  setTextBaseline(textBaseline: TextBaseline): this {
     this.textBaseline = textBaseline;
     return this;
   }

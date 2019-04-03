@@ -1,6 +1,5 @@
 import {
   Context,
-  Font,
   Paint,
   removeUndefinedProps,
   RequiredViewChanges,
