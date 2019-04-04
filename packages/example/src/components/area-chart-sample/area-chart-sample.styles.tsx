@@ -81,6 +81,7 @@ export const yAxisStyle: AxisViewStyle = {
 };
 
 export const chartGridStyle: ChartGridViewStyle = {
-  strokeStyle: rgba('#FFF', .2),
-  lineWidth: 1,
+  paint: new Paint()
+    .setStrokeStyle(rgba('#FFF', .2))
+    .setLineWidth(1),
 };

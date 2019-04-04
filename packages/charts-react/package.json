@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts-react",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "React bindings for @kanva/charts",
   "keywords": [
     "canvas",
@@ -33,7 +33,7 @@
     "@kanva/react": "^0.6.0"
   },
   "devDependencies": {
-    "@kanva/charts": "^0.6.4",
-    "@kanva/react": "^0.6.4"
+    "@kanva/charts": "^0.6.5",
+    "@kanva/react": "^0.6.5"
   }
 }

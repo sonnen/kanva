@@ -1,4 +1,4 @@
-import { Context, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { Context, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { AxisPoint, prepareAxisPoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -10,9 +10,7 @@ export enum GridLines {
 }
 
 export interface ChartGridViewStyle {
-  strokeStyle?: string;
-  lineCap?: CanvasLineCap;
-  lineWidth?: number;
+  paint: Paint;
 }
 
 export interface ChartGridViewProps extends ChartViewProps<ChartGridViewStyle> {
@@ -20,8 +18,9 @@ export interface ChartGridViewProps extends ChartViewProps<ChartGridViewStyle> {
 }
 
 const defaultStyle = {
-  strokeStyle: '#000',
-  thickness: 1,
+  paint: new Paint()
+    .setStrokeStyle('#000')
+    .setLineWidth(1),
 };
 
 export class ChartGridView extends ChartView<ChartGridViewProps> {
@@ -73,21 +72,14 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
       gridLines,
       innerWidth, innerHeight,
       dataContainer,
-      style: { strokeStyle, lineCap, lineWidth = 1 },
+      style: { paint },
       xAxis,
       yAxis,
     } = this;
-    if (!strokeStyle) {
-      return;
-    }
-
     const ctx = canvas.context;
-    ctx.strokeStyle = strokeStyle;
-    ctx.lineCap = lineCap || 'butt';
-    ctx.lineWidth = lineWidth;
-    const halfLineWidth = ctx.lineWidth / 2;
+    const halfLineWidth = paint.lineWidth / 2;
 
-    ctx.translate(lineWidth / 2, lineWidth / 2);
+    ctx.translate(paint.lineWidth / 2, paint.lineWidth / 2);
     ctx.beginPath();
     if (gridLines !== GridLines.HORIZONTAL) {
       for (let i = 0, l = xAxis.length; i < l; i++) {
@@ -103,7 +95,7 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
         ctx.lineTo(innerWidth, position);
       }
     }
-    ctx.stroke();
+    canvas.drawPath(paint);
   }
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
