@@ -1,26 +1,9 @@
-import {
-  CanvasPointerEvent,
-  Context,
-  Font,
-  isBright,
-  normalizeRadius,
-  parseColor,
-  parseFont,
-  PointerAction,
-  Radius,
-  ViewCanvas,
-} from '@kanva/core';
+import { CanvasPointerEvent, Context, normalizeRadius, Paint, PointerAction, Radius, ViewCanvas } from '@kanva/core';
+import { PaintOverrides, TextAlign, TextBaseline } from '@kanva/core';
 import { isNil } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
 import { AxisLabelAccessor, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
-
-export interface BarChartSeriesViewStyle {
-  strokeStyle?: string;
-  lineWidth?: number;
-  fillStyle?: string;
-  lineCap?: CanvasLineCap;
-}
 
 export enum LabelPosition {
   START,
@@ -30,9 +13,8 @@ export enum LabelPosition {
 }
 
 export interface BarChartLabels {
-  font: Font;
-  fillStyle: string;
-  contrastFillStyle?: string;
+  labelsPaint: Paint;
+  contrastLabelsPaint?: Paint;
   position: LabelPosition;
   labelAccessor: AxisLabelAccessor;
   padding?: number;
@@ -42,7 +24,8 @@ export interface BarChartViewStyle {
   padding?: number;
   barWidth?: number;
   barRadius?: Partial<Radius> | number;
-  series: Record<string, BarChartSeriesViewStyle>;
+  paints: Record<string, Paint>;
+  isBackgroundBright?: boolean;
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
@@ -52,11 +35,22 @@ export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
 const X_SCALE_BAR_OFFSET = .5;
 
 const defaultStyle = {
-  series: {},
+  paints: {},
   barWidth: .5,
   barRadius: 0,
   padding: 0,
+  isBackgroundBright: true,
 };
+
+const labelPaintOverrides: PaintOverrides = {
+  textBaseline: TextBaseline.BOTTOM,
+  textAlign: TextAlign.CENTER,
+};
+
+const getTextPaint = (textPaint: Paint, contrastPaint: Paint | undefined, backgroundIsBright: boolean): Paint =>
+  !contrastPaint
+    ? textPaint
+    : backgroundIsBright === textPaint.isBright() ? contrastPaint : textPaint;
 
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   private labels?: BarChartLabels;
@@ -115,22 +109,16 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     const seriesCount = this.series.length;
     const ctx = canvas.context;
     const radius = normalizeRadius(style.barRadius || 0);
+    const { isBackgroundBright = true } = style;
 
-    let left = 0;
-
-    if (labels) {
-      ctx.textBaseline = 'bottom';
-      ctx.textAlign = 'center';
-      ctx.font = parseFont(labels.font);
-    }
-
-    for (let i = 0, l = seriesLength; i < l; i++) {
+    for (let i = 0, left = 0, l = seriesLength; i < l; i++) {
       const right = left + groupWidth;
 
       let barRight = left + (groupWidth - barWidth * seriesCount) / 2;
+
       for (let j = 0; j < seriesCount; j++) {
         const series = allSeries[j];
-        const s = style.series[series.name] || defaultStyle;
+        const s = style.paints[series.name];
         const { y, barY } = series.data[i] || { y: 0, barY: zeroPoint };
         const top = Math.min(zeroPoint, barY);
         const bottom = Math.max(zeroPoint, barY);
@@ -138,23 +126,12 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
         ctx.beginPath();
         canvas.roundRect(barRight, top, barWidth, height, radius);
-        ctx.closePath();
-
-        if (s.fillStyle) {
-          ctx.fillStyle = s.fillStyle;
-          ctx.fill();
-        }
-        if (s.strokeStyle && s.lineWidth) {
-          ctx.strokeStyle = s.strokeStyle;
-          ctx.lineWidth = s.lineWidth;
-          ctx.lineCap = s.lineCap || 'butt';
-          ctx.stroke();
-        }
+        canvas.drawPath(s);
 
         if (labels) {
           // TODO Extract to a separate method
           const padding = labels.padding || 0;
-          const textHeight = labels.font.fontSize;
+          const textHeight = labels.labelsPaint.font.fontSize;
           let yText;
           const isAboveZero = top < zeroPoint || top === bottom;
           const topStartPosition = zeroPoint - padding;
@@ -183,21 +160,13 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
                 : bottom + textHeight + padding;
               break;
           }
-          const textInsideBar = yText + textHeight > top && yText < bottom;
-          if (textInsideBar && labels.contrastFillStyle && s.fillStyle) {
-            const barFillColor = parseColor(s.fillStyle);
-            const labelsFillColor = parseColor(labels.fillStyle);
-            if (barFillColor && labelsFillColor) {
-              const backgroundIsBright = isBright(barFillColor);
-              const fillIsBright = isBright(labelsFillColor);
-              ctx.fillStyle = backgroundIsBright === fillIsBright ? labels.contrastFillStyle : labels.fillStyle;
-            } else {
-              ctx.fillStyle = labels.fillStyle;
-            }
-          } else {
-            ctx.fillStyle = labels.fillStyle;
-          }
-          ctx.fillText(labels.labelAccessor(y, j), barRight + barWidth / 2, yText);
+          const textInsideBar = yText - textHeight >= top && yText <= bottom;
+          const textPaint = getTextPaint(
+            labels.labelsPaint,
+            labels.contrastLabelsPaint,
+            textInsideBar ? s.isBright() : isBackgroundBright,
+          );
+          canvas.drawText(barRight + barWidth / 2, yText, labels.labelAccessor(y, j), textPaint, labelPaintOverrides);
         }
 
         barRight += barWidth;
@@ -278,6 +247,13 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     };
   }
 
+  getScales(): ScaleFunctions {
+    return this.dataContainer!.getScales(
+      this.innerWidth,
+      this.innerHeight,
+    );
+  }
+
   private get groupWidth() {
     return this.innerWidth / this.seriesLength;
   }
@@ -290,10 +266,4 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       : Math.min(rawBarWidth, width);
   }
 
-  getScales(): ScaleFunctions {
-    return this.dataContainer!.getScales(
-      this.innerWidth,
-      this.innerHeight,
-    );
-  }
 }

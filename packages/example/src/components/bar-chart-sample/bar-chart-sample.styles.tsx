@@ -16,14 +16,13 @@ export const labelColor = '#FFF';
 export const barChartStyle: BarChartViewStyle = {
   barWidth: .8,
   barRadius: 3,
-  series: {
-    [Series.CONSUMPTION]: {
-      fillStyle: SeriesColors[Series.CONSUMPTION],
-    },
-    [Series.PRODUCTION]: {
-      fillStyle: SeriesColors[Series.PRODUCTION],
-    },
+  paints: {
+    [Series.CONSUMPTION]: new Paint()
+      .setFillStyle(SeriesColors[Series.CONSUMPTION]),
+    [Series.PRODUCTION]: new Paint()
+      .setFillStyle(SeriesColors[Series.PRODUCTION]),
   },
+  isBackgroundBright: false,
 };
 
 export const xAxisStyle: AxisViewStyle = {

@@ -1,5 +1,5 @@
-import { MeasureTextOptions } from './canvas.types';
-import { Paint } from './paint';
+import { TextAlign } from './font';
+import { Paint, PaintOverrides } from './paint';
 import { Radius } from './radius';
 
 export interface Canvas {
@@ -42,10 +42,13 @@ export class ViewCanvas {
     return c.measureText(text);
   }
 
-  setPaint(paint: Paint) {
+  setPaint(paint: Paint, paintOverrides?: PaintOverrides) {
+    // TODO Probably there is a better way to handle PaintOverrides...
     const c = this.context;
 
-    if (paint.canDrawFill()) {
+    if (paintOverrides && paintOverrides.fillStyle) {
+      c.fillStyle = paintOverrides.fillStyle;
+    } else if (paint.canDrawFill()) {
       c.fillStyle = paint.fillStyle!;
     }
 
@@ -53,7 +56,7 @@ export class ViewCanvas {
       c.lineWidth = paint.lineWidth;
       c.strokeStyle = paint.strokeStyle!;
       c.setLineDash(paint.lineDash);
-      if (paint.lineRounding) {
+      if (paintOverrides && paintOverrides.lineRounding || paint.lineRounding) {
         c.lineJoin = 'round';
         c.lineCap = 'round';
       } else {
@@ -64,25 +67,25 @@ export class ViewCanvas {
 
     if (paint.canDrawText()) {
       c.font = paint.fontString!;
-      c.direction = paint.textDirection;
-      c.textAlign = paint.textAlign;
-      c.textBaseline = paint.textBaseline;
+      c.direction = paintOverrides && paintOverrides.textDirection || paint.textDirection;
+      c.textAlign = paintOverrides && paintOverrides.textAlign || paint.textAlign;
+      c.textBaseline = paintOverrides && paintOverrides.textBaseline || paint.textBaseline;
     }
   }
 
-  drawText(x: number, y: number, text: string, paint: Paint, maxWidth: number = 0) {
+  drawText(x: number, y: number, text: string, paint: Paint, paintOverrides?: PaintOverrides, maxWidth: number = 0) {
     if (!paint.canDrawText()) {
       return;
     }
 
     const c = this.context;
-    this.setPaint(paint);
+    this.setPaint(paint, paintOverrides);
     if (maxWidth) {
       switch (paint.textAlign) {
-        case 'center':
+        case TextAlign.CENTER:
           x = x + maxWidth / 2;
           break;
-        case 'right':
+        case TextAlign.RIGHT:
           x = x + maxWidth;
           break;
         default:

@@ -141,13 +141,20 @@ export class BarChartSample extends React.Component<{}, State> {
               layoutParams={layout.barChart}
               dataContainer={container}
               labels={{
-                font: {
-                  fontFamily: 'Arial',
-                  fontSize: 12,
-                },
-                fillStyle: '#FFF',
+                labelsPaint: new Paint()
+                  .setFont({
+                    fontFamily: 'Arial',
+                    fontSize: 12,
+                  })
+                  .setFillStyle('#FFF'),
+                contrastLabelsPaint: new Paint()
+                  .setFont({
+                    fontFamily: 'Arial',
+                    fontSize: 12,
+                  })
+                  .setFillStyle('#000'),
                 labelAccessor: x => Math.floor(x / 1000).toString(),
-                position: LabelPosition.OUT,
+                position: LabelPosition.END,
               }}
               style={barChartStyle}
               viewRef={this.handleViewRef}

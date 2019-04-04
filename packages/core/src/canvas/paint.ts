@@ -1,4 +1,4 @@
-import { removeEqualProps } from '../utils';
+import { isBright, parseColor, removeEqualProps } from '../utils';
 import { Font, parseFont, TextAlign, TextBaseline } from './font';
 
 const defaultFont: Font = { fontFamily: 'Arial', fontSize: 12 };
@@ -13,7 +13,15 @@ const defaultPaintOptions = {
   lineRounding: false,
 };
 
-export class Paint {
+export interface PaintOverrides {
+  textDirection?: CanvasDirection;
+  textAlign?: TextAlign;
+  textBaseline?: TextBaseline;
+  fillStyle?: string;
+  lineRounding?: boolean;
+}
+
+export class Paint implements PaintOverrides {
   // Font options
   fontString: string = defaultPaintOptions.font;
   font: Font = defaultFont;
@@ -97,6 +105,11 @@ export class Paint {
 
   canDrawText(): boolean {
     return !!this.fontString && (this.canDrawStroke() || this.canDrawFill());
+  }
+
+  isBright(): boolean {
+    const color = parseColor(this.fillStyle) || parseColor(this.strokeStyle);
+    return !color || isBright(color);
   }
 
   snapshot(): object {
