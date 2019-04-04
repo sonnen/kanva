@@ -2,7 +2,6 @@ import { CanvasPointerEvent, DragEvent, DragGestureDetector, ScaleEvent, ScaleGe
 import { defaultsDeep } from 'lodash';
 import { XYPoint } from '../chart.types';
 import { DeepPartial, floorToNearest, ScaleFunction, ScaleFunctions } from '../utils';
-import { ChartView } from '../views';
 import { DataContainer } from './data-container';
 import { DataContainerEventType, GetScalesEvent } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
@@ -72,6 +71,47 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     );
   }
 
+  setScale(scale: XYPoint, center: XYPoint = { x: 0, y: 0 }): boolean {
+    const { limit, listener, listenerThreshold } = this.options.scale;
+    const { scale: { x: oldScaleX, y: oldScaleY } } = this;
+    const scaleX = Math.max(limit.x[0], Math.min(limit.x[1], scale.x));
+    const scaleY = Math.max(limit.y[0], Math.min(limit.y[1], scale.y));
+    const { xScale, yScale } = this.scales!;
+
+    if (oldScaleX !== scaleX) {
+      this.translate.x = this.normalizeScaleTranslate(
+        this.translate.x,
+        center.x,
+        scaleX,
+        oldScaleX,
+        xScale,
+      );
+      this.scale.x = scaleX;
+    }
+    if (oldScaleY !== scaleY) {
+      this.translate.y = this.normalizeScaleTranslate(
+        this.translate.y,
+        center.y,
+        scaleY,
+        oldScaleY,
+        yScale,
+      );
+      this.scale.y = scaleY;
+    }
+
+    if (oldScaleX !== scaleX || oldScaleY !== scaleY) {
+      if (listener && (
+        floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
+        floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
+      )) {
+        listener(scaleX, scaleY);
+      }
+      this.postEvent(DataContainerEventType.DATA_CHANGE);
+      return true;
+    }
+    return false;
+  }
+
   protected onAttach(dataContainer: DataContainer<any>) {
     dataContainer.addEventListener(DataContainerEventType.GET_SCALES, this.getScales);
   }
@@ -112,7 +152,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
 
   private normalizeScaleTranslate(
     translate: number,
-    centerPoint: number,
+    center: number,
     scale: number,
     oldScale: number,
     scaleFunction: ScaleFunction,
@@ -121,7 +161,6 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     const domainWidth = domainMax - domainMin;
     const windowWidth = domainWidth / scale;
     const oldWindowWidth = domainWidth / oldScale;
-    const center = scaleFunction.invert(centerPoint);
     const oldTranslate = translate + domainMin;
 
     const percentage = (center - oldTranslate) / oldWindowWidth;
@@ -133,43 +172,17 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   private onScale = (event: ScaleEvent) => {
     const { limit, listener, listenerThreshold } = this.options.scale;
     const { x: oldScaleX, y: oldScaleY } = this.scale;
-    const scaleX = Math.max(limit.x[0], Math.min(limit.x[1], oldScaleX * event.scaleFactorX));
-    const scaleY = Math.max(limit.y[0], Math.min(limit.y[1], oldScaleY * event.scaleFactorY));
-    const target = event.pointerEvent.target as ChartView<any, any>;
     const { xScale, yScale } = this.scales!;
 
-    if (oldScaleX !== scaleX) {
-      this.translate.x = this.normalizeScaleTranslate(
-        this.translate.x,
-        event.current.centerX,
-        scaleX,
-        oldScaleX,
-        xScale,
-      );
-      this.scale.x = scaleX;
-    }
-    if (oldScaleY !== scaleY) {
-      this.translate.y = this.normalizeScaleTranslate(
-        this.translate.y,
-        event.current.centerY,
-        scaleY,
-        oldScaleY,
-        yScale,
-      );
-      this.scale.y = scaleY;
-    }
-
-    if (oldScaleX !== scaleX || oldScaleY !== scaleY) {
-      if (listener && (
-        floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
-        floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
-      )) {
-        listener(scaleX, scaleY);
-      }
-      this.postEvent(DataContainerEventType.DATA_CHANGE);
-      return true;
-    }
-    return false;
+    return this.setScale({
+        x: oldScaleX * event.scaleFactorX,
+        y: oldScaleY * event.scaleFactorY,
+      },
+      {
+        x: xScale.invert(event.current.centerX),
+        y: yScale.invert(event.current.centerY),
+      },
+    );
   };
 
   private onDrag = (event: DragEvent) => {
