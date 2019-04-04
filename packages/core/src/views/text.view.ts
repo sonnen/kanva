@@ -66,7 +66,7 @@ export class TextView extends View<TextViewProps> {
     const { width, text, textPaint, y } = this;
     const lineHeight = this.getLineHeight();
     for (let i = 0, l = text.length; i < l; i++) {
-      canvas.drawText(0, y + i * lineHeight, text[i], textPaint, width);
+      canvas.drawText(0, y + i * lineHeight, text[i], textPaint, undefined, width);
     }
   }
 
