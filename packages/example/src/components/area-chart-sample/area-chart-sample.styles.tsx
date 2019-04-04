@@ -5,7 +5,7 @@ import {
   DataDisplayType,
   LineChartViewStyle,
 } from '@kanva/charts';
-import { rgba, TextAlign, TextBaseline } from '@kanva/core';
+import { Paint, rgba, TextAlign, TextBaseline } from '@kanva/core';
 
 export enum Series {
   CONSUMPTION = 'consumption',
@@ -29,24 +29,28 @@ export const baseTickCount = 9;
 export const SeriesStyles = {
   [Series.CONSUMPTION]: {
     type: DataDisplayType.LINE_STAIRS,
-    lineWidth: 1,
-    strokeStyle: SeriesColors[Series.CONSUMPTION],
+    paint: new Paint()
+      .setLineWidth(1)
+      .setStrokeStyle(SeriesColors[Series.CONSUMPTION]),
   } as AreaChartViewStyle,
   [Series.PRODUCTION]: {
     type: DataDisplayType.POINTS,
-    lineWidth: 2,
-    fillStyle: SeriesColors[Series.PRODUCTION],
+    paint: new Paint()
+      .setLineWidth(2)
+      .setFillStyle(SeriesColors[Series.PRODUCTION]),
   } as AreaChartViewStyle,
   [Series.DIRECT_USAGE]: {
     type: DataDisplayType.AREA,
-    lineWidth: 1,
-    strokeStyle: SeriesColors[Series.DIRECT_USAGE],
-    fillStyle: rgba(SeriesColors[Series.DIRECT_USAGE], .7),
+    paint: new Paint()
+      .setLineWidth(1)
+      .setStrokeStyle(SeriesColors[Series.DIRECT_USAGE])
+      .setFillStyle(rgba(SeriesColors[Series.DIRECT_USAGE], .7)),
   } as AreaChartViewStyle,
   [Series.BATTERY_STATE]: {
     type: DataDisplayType.LINE,
-    lineWidth: 1,
-    strokeStyle: SeriesColors[Series.BATTERY_STATE],
+    paint: new Paint()
+      .setLineWidth(1)
+      .setStrokeStyle(SeriesColors[Series.BATTERY_STATE]),
   } as AreaChartViewStyle,
   [Series.HEATER_POWER]: {
     lineWidth: 8,
@@ -59,15 +63,17 @@ export const SeriesStyles = {
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.START,
-  textBaseline: TextBaseline.MIDDLE,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.START)
+    .setTextBaseline(TextBaseline.MIDDLE)
+    .setFillStyle(labelColor),
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.END,
-  textBaseline: TextBaseline.BOTTOM,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.END)
+    .setTextBaseline(TextBaseline.BOTTOM)
+    .setFillStyle(labelColor),
 };
 
 export const chartGridStyle: ChartGridViewStyle = {

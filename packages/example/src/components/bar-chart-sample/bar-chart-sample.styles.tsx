@@ -1,5 +1,5 @@
 import { AxisViewStyle, BarChartViewStyle } from '@kanva/charts';
-import { TextAlign, TextBaseline } from '@kanva/core';
+import { Paint, TextAlign, TextBaseline } from '@kanva/core';
 
 export enum Series {
   CONSUMPTION = 'consumption',
@@ -16,24 +16,25 @@ export const labelColor = '#FFF';
 export const barChartStyle: BarChartViewStyle = {
   barWidth: .8,
   barRadius: 3,
-  series: {
-    [Series.CONSUMPTION]: {
-      fillStyle: SeriesColors[Series.CONSUMPTION],
-    },
-    [Series.PRODUCTION]: {
-      fillStyle: SeriesColors[Series.PRODUCTION],
-    },
+  paints: {
+    [Series.CONSUMPTION]: new Paint()
+      .setFillStyle(SeriesColors[Series.CONSUMPTION]),
+    [Series.PRODUCTION]: new Paint()
+      .setFillStyle(SeriesColors[Series.PRODUCTION]),
   },
+  isBackgroundBright: false,
 };
 
 export const xAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.CENTER,
-  textBaseline: TextBaseline.MIDDLE,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.START)
+    .setTextBaseline(TextBaseline.MIDDLE)
+    .setFillStyle(labelColor),
 };
 
 export const yAxisStyle: AxisViewStyle = {
-  fillStyle: labelColor,
-  textAlign: TextAlign.END,
-  textBaseline: TextBaseline.BOTTOM,
+  labelPaint: new Paint()
+    .setTextAlign(TextAlign.END)
+    .setTextBaseline(TextBaseline.BOTTOM)
+    .setFillStyle(labelColor),
 };

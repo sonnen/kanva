@@ -3,12 +3,18 @@ export interface PositionOptions {
   y: number;
 }
 
-export interface DrawOptions {
+export interface FillOptions {
   fillStyle?: string;
+}
+
+export interface StrokeOptions {
   strokeStyle?: string;
   lineWidth?: number;
   lineDash?: number[];
+  lineRounding?: boolean;
 }
+
+export interface DrawOptions extends FillOptions, StrokeOptions {}
 
 export interface TextOptions {
   fontString: string;

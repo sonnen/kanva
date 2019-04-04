@@ -1,3 +1,4 @@
+import { removeEqualProps } from '../utils';
 import { Context } from './context';
 import { LayoutParams, PARENT_ID } from './layout-params';
 import { Id, LayoutProps } from './layout-props';
@@ -101,11 +102,4 @@ export const verticalLayoutDependencies = (lp: LayoutParams) => ([
 ]).filter(existingNonParentDependency);
 
 const defaultLayoutProps = new LayoutParams().asProps();
-export const removeDefaultProps = (props: LayoutProps) => {
-  for (const key in props) {
-    if (props[key] === defaultLayoutProps[key]) {
-      delete props[key];
-    }
-  }
-  return props;
-};
+export const removeDefaultProps = (props: LayoutProps) => removeEqualProps(props, defaultLayoutProps);

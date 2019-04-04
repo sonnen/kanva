@@ -10,13 +10,8 @@ import {
   TooltipEvent,
   TooltipEventHandler,
 } from '@kanva/charts';
-import {
-  AxisView,
-  BarChartView as BarChartViewComponent,
-  ChartGridView,
-  LegendView,
-} from '@kanva/charts-react';
-import { View } from '@kanva/core';
+import { AxisView, BarChartView as BarChartViewComponent, ChartGridView, LegendView } from '@kanva/charts-react';
+import { Paint, View } from '@kanva/core';
 import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
@@ -115,20 +110,22 @@ export class BarChartSample extends React.Component<{}, State> {
             id={Views.LEGEND}
             layoutParams={layout.legend}
             style={{
-              padding: 8,
+              labelPaint: new Paint()
+                .setFillStyle('#FFF'),
+              labelPadding: 8,
               alignment: LegendAlignment.ROW,
-              fillStyle: '#FFF',
             }}
             dataSeries={[
               {
                 name: 'Consumption',
                 type: LegendSeriesType.PIE,
-                fillStyle: SeriesColors[Series.CONSUMPTION],
+                paint: new Paint().setFillStyle(SeriesColors[Series.CONSUMPTION]),
               },
               {
                 name: 'Production',
-                lineWidth: 2,
-                strokeStyle: SeriesColors[Series.PRODUCTION],
+                paint: new Paint()
+                  .setFillStyle(SeriesColors[Series.CONSUMPTION])
+                  .setLineWidth(2),
                 radius: 1,
               },
             ]}
@@ -144,13 +141,20 @@ export class BarChartSample extends React.Component<{}, State> {
               layoutParams={layout.barChart}
               dataContainer={container}
               labels={{
-                font: {
-                  fontFamily: 'Arial',
-                  fontSize: 12,
-                },
-                fillStyle: '#FFF',
+                labelsPaint: new Paint()
+                  .setFont({
+                    fontFamily: 'Arial',
+                    fontSize: 12,
+                  })
+                  .setFillStyle('#FFF'),
+                contrastLabelsPaint: new Paint()
+                  .setFont({
+                    fontFamily: 'Arial',
+                    fontSize: 12,
+                  })
+                  .setFillStyle('#000'),
                 labelAccessor: x => Math.floor(x / 1000).toString(),
-                position: LabelPosition.OUT,
+                position: LabelPosition.END,
               }}
               style={barChartStyle}
               viewRef={this.handleViewRef}
