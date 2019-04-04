@@ -2,9 +2,11 @@ import {
   CanvasPointerEvent,
   Context,
   normalizeRadius,
+  Paint,
   PointerAction,
   RadiusInput,
   RequiredViewChanges,
+  rgba,
   ViewCanvas,
 } from '@kanva/core';
 import { isNil, last } from 'lodash';
@@ -15,13 +17,15 @@ import { ChartView, ChartViewProps } from './chart.view';
 
 const VIEW_TAG = 'LineChartView';
 
-export interface LineChartViewStyle {
-  backgroundFillStyle?: string;
-  backgroundLineWidth?: number;
-  backgroundRadius?: number;
-  fillStyle?: string;
-  lineWidth?: number;
+export interface LineChartViewStylePart {
+  paint: Paint;
+  width: number;
   radius?: RadiusInput;
+}
+
+export interface LineChartViewStyle {
+  foreground?: LineChartViewStylePart;
+  background?: LineChartViewStylePart;
 }
 
 export interface LineChartViewProps extends ChartViewProps<LineChartViewStyle> {
@@ -29,10 +33,18 @@ export interface LineChartViewProps extends ChartViewProps<LineChartViewStyle> {
 }
 
 const defaultStyle = {
-  backgroundLineWidth: 1.5,
-  lineWidth: 3,
-  radius: 0,
-  backgroundRadius: 0,
+  background: {
+    paint: new Paint()
+      .setFillStyle(rgba('#FFF', .1)),
+    radius: 0,
+    width: 8,
+  },
+  foreground: {
+    paint: new Paint()
+      .setFillStyle(rgba('#FFF', .5)),
+    radius: 0,
+    width: 8,
+  },
 };
 
 interface LineEntry {
@@ -79,8 +91,8 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
 
   getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
     return Math.max(
-      this.style.lineWidth || defaultStyle.lineWidth,
-      this.style.backgroundLineWidth || defaultStyle.backgroundLineWidth,
+      (this.style.background || defaultStyle.background).width,
+      (this.style.foreground || defaultStyle.foreground).width,
     );
   }
 
@@ -91,28 +103,26 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
     }
 
     const {
-      lineWidth = defaultStyle.lineWidth, fillStyle, radius,
-      backgroundLineWidth = defaultStyle.backgroundLineWidth, backgroundFillStyle, backgroundRadius,
+      background = defaultStyle.background,
+      foreground = defaultStyle.foreground,
     } = style;
 
     const ctx = canvas.context;
     const { xScale } = this.getScales();
 
-    if (backgroundFillStyle) {
+    if (background.width > 0) {
       ctx.beginPath();
       canvas.roundRect(
         0,
-        (innerHeight - backgroundLineWidth) / 2,
+        (innerHeight - background.width) / 2,
         innerWidth,
-        backgroundLineWidth,
-        normalizeRadius(backgroundRadius),
+        background.width,
+        normalizeRadius(background.radius),
       );
-      ctx.fillStyle = backgroundFillStyle;
-      ctx.fill();
+      canvas.drawPath(background.paint);
     }
 
-    if (fillStyle && lineWidth) {
-      ctx.fillStyle = fillStyle;
+    if (foreground.width > 0) {
       ctx.beginPath();
       for (let i = 0, l = data.length; i < l; i++) {
         const lineEntry = data[i];
@@ -121,13 +131,13 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
         }
         canvas.roundRect(
           xScale(lineEntry.x[0]),
-          (innerHeight - lineWidth) / 2,
+          (innerHeight - foreground.width) / 2,
           xScale(lineEntry.x[1]) - xScale(lineEntry.x[0]),
-          lineWidth,
-          normalizeRadius(style.radius),
+          foreground.width,
+          normalizeRadius(foreground.radius),
         );
       }
-      ctx.fill();
+      canvas.drawPath(foreground.paint);
     }
 
   }
@@ -188,11 +198,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   }
 
   getScales(): ScaleFunctions {
-    const halfLineWidth = (this.style.lineWidth || 0) / 2;
-    return this.dataContainer!.getScales(
-      this.innerWidth - halfLineWidth,
-      1,
-    );
+    return this.dataContainer!.getScales(this.innerWidth, 1);
   }
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {

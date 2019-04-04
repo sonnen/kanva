@@ -53,12 +53,16 @@ export const SeriesStyles = {
       .setStrokeStyle(SeriesColors[Series.BATTERY_STATE]),
   } as AreaChartViewStyle,
   [Series.HEATER_POWER]: {
-    lineWidth: 8,
-    backgroundLineWidth: 4,
-    radius: 4,
-    backgroundRadius: 8,
-    fillStyle: SeriesColors[Series.HEATER_POWER],
-    backgroundFillStyle: '#AAA',
+    foreground: {
+      paint: new Paint().setFillStyle(SeriesColors[Series.HEATER_POWER]),
+      width: 8,
+      radius: 8,
+    },
+    background: {
+      paint: new Paint().setFillStyle('#AAA'),
+      width: 4,
+      radius: 4,
+    },
   } as LineChartViewStyle,
 };
 
