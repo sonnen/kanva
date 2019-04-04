@@ -1,5 +1,5 @@
 import { PieChartViewStyle } from '@kanva/charts';
-import { rgba } from '@kanva/core';
+import { Paint, rgba } from '@kanva/core';
 
 export enum Series {
   GRID = 'grid',
@@ -15,42 +15,39 @@ export const labelColor = '#171717';
 
 export const pieChartStyle: PieChartViewStyle = {
   innerRadius: .7,
-  series: {
-    [Series.GRID]: {
-      lineWidth: 1,
-      fillStyle: SeriesColors[Series.GRID],
-    },
-    [Series.PRODUCTION]: {
-      lineWidth: 2,
-      fillStyle: SeriesColors[Series.PRODUCTION],
-    },
+  paints: {
+    [Series.GRID]: new Paint()
+      .setLineWidth(1)
+      .setFillStyle(SeriesColors[Series.GRID]),
+    [Series.PRODUCTION]: new Paint()
+      .setLineWidth(2)
+      .setFillStyle(SeriesColors[Series.PRODUCTION]),
   },
 };
 
 export const pieChartStyle2: PieChartViewStyle = {
   padding: 0.02,
-  lineRounding: true,
-  series: {
-    [Series.GRID]: {
-      lineWidth: 10,
-      strokeStyle: SeriesColors[Series.GRID],
-    },
-    [Series.PRODUCTION]: {
-      lineWidth: 10,
-      strokeStyle: SeriesColors[Series.PRODUCTION],
-    },
+  paints: {
+    [Series.GRID]: new Paint()
+      .setLineWidth(10)
+      .setStrokeStyle(SeriesColors[Series.GRID])
+      .setLineRounding(true),
+    [Series.PRODUCTION]: new Paint()
+      .setLineWidth(10)
+      .setStrokeStyle(SeriesColors[Series.PRODUCTION])
+      .setLineRounding(true),
   },
 };
 
 export const pieChartStyle3: PieChartViewStyle = {
   padding: 0.02,
-  strokeStyle: rgba('#FFF', .2),
-  lineWidth: 5,
-  lineRounding: true,
-  series: {
-    [Series.PRODUCTION]: {
-      lineWidth: 10,
-      strokeStyle: SeriesColors[Series.PRODUCTION],
-    },
+  backgroundPaint: new Paint()
+    .setLineWidth(5)
+    .setStrokeStyle(rgba('#FFF', .2)),
+  paints: {
+    [Series.PRODUCTION]: new Paint()
+      .setLineWidth(10)
+      .setStrokeStyle(SeriesColors[Series.PRODUCTION])
+      .setLineRounding(true),
   },
 };

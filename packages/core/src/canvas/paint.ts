@@ -1,4 +1,4 @@
-import { isBright, parseColor, removeEqualProps } from '../utils';
+import { deepFreeze, DeepReadonly, isBright, parseColor, removeEqualProps } from '../utils';
 import { Font, parseFont, TextAlign, TextBaseline } from './font';
 
 const defaultFont: Font = { fontFamily: 'Arial', fontSize: 12 };
@@ -22,6 +22,8 @@ export interface PaintOverrides {
 }
 
 export class Paint implements PaintOverrides {
+  static readonly DEFAULT: DeepReadonly<Paint> = new Paint();
+
   // Font options
   fontString: string = defaultPaintOptions.font;
   font: Font = defaultFont;
@@ -127,3 +129,5 @@ export class Paint implements PaintOverrides {
   }
 
 }
+
+deepFreeze(Paint.DEFAULT);

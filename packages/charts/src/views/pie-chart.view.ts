@@ -1,28 +1,22 @@
-import { Context, ViewCanvas } from '@kanva/core';
+import { Context, Paint, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { ChartView, ChartViewProps } from './chart.view';
 
-export interface PieChartSeriesViewStyle {
-  strokeStyle?: string;
-  lineWidth?: number;
-  fillStyle?: string;
-}
-
-export interface PieChartViewStyle extends PieChartSeriesViewStyle {
+export interface PieChartViewStyle {
   innerRadius?: number;
   padding?: number;
-  lineRounding?: boolean;
-  series: Record<string, PieChartSeriesViewStyle>;
+  backgroundPaint?: Paint;
+  paints: Record<string, Paint>;
 }
 
 export interface PieChartViewProps extends ChartViewProps<PieChartViewStyle> {
 }
 
 const defaultStyle: PieChartViewStyle = {
-  series: {},
-  lineWidth: 1.5,
+  paints: {},
+  backgroundPaint: new Paint()
+    .setLineWidth(1.5),
   innerRadius: 0,
-  lineRounding: false,
   padding: 0,
 };
 
@@ -39,37 +33,28 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
     const allSeries = dataContainer.getAllDataSeries();
     const total = dataContainer.getTotal();
-    const { fillStyle, lineWidth = 0, strokeStyle } = style;
     const ctx = canvas.context;
     const centerX = innerWidth / 2;
     const centerY = innerHeight / 2;
     const radius = Math.min(centerX, centerY);
     const inner = style.innerRadius || 0;
-    const outerRadius = Math.max(0, radius - lineWidth / 2);
+    const outerRadius = Math.max(0, radius - (style.backgroundPaint ? style.backgroundPaint.lineWidth / 2 : 0));
     const innerRadius = Math.max(0, inner < 1 ? inner * outerRadius : inner);
     const pi2 = Math.PI * 2;
     const padding = style.padding || 0;
 
     let maxRingThickness = 0;
     for (let i = 0, l = allSeries.length; i < l; i++) {
-      const s = style.series[allSeries[i].name] || defaultStyle;
+      const s = style.paints[allSeries[i].name] || Paint.DEFAULT;
       const lineThickness = s.lineWidth || 0;
       if (maxRingThickness < lineThickness) {
         maxRingThickness = lineThickness;
       }
     }
 
-    if (style.lineRounding) {
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
-    } else {
-      ctx.lineJoin = 'miter';
-      ctx.lineCap = 'square';
-    }
-
     // Draw background circle
-    {
-      const ringThickness = style.lineWidth || 0;
+    if (style.backgroundPaint) {
+      const ringThickness = style.backgroundPaint.lineWidth || 0;
       const ringShift = (maxRingThickness - ringThickness) / 2;
 
       ctx.beginPath();
@@ -78,15 +63,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
         ctx.arc(centerX, centerY, innerRadius - ringShift, pi2, 0, true);
         ctx.closePath();
       }
-      if (style.fillStyle) {
-        ctx.fillStyle = style.fillStyle;
-        ctx.fill();
-      }
-      if (style.strokeStyle && style.lineWidth) {
-        ctx.lineWidth = style.lineWidth;
-        ctx.strokeStyle = style.strokeStyle;
-        ctx.stroke();
-      }
+      canvas.drawPath(style.backgroundPaint);
     }
 
     // Draw series (1 series = sum of all of it's Y values)
@@ -94,13 +71,13 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     let angle = -.25 * pi2;
     for (let i = 0, l = allSeries.length; i < l; i++) {
       const series = allSeries[i];
-      const s = style.series[series.name] || defaultStyle;
+      const paint = style.paints[series.name] || Paint.DEFAULT;
       const start = angle;
       const slice = series.sum! / total;
       const end = start + slice * pi2;
-      const halfLineThickness = (s.lineWidth || 0) / 2;
+      const halfLineThickness = (paint.lineWidth || 0) / 2;
       const outerRadius = Math.max(0, radius - halfLineThickness);
-      const ringThickness = s.lineWidth || 0;
+      const ringThickness = paint.lineWidth || 0;
       const ringShift = (maxRingThickness - ringThickness) / 2;
 
       // Assume that padding can't be bigger than half of the whole arc area
@@ -114,15 +91,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
       }
 
       angle = end;
-      if (s.fillStyle) {
-        ctx.fillStyle = s.fillStyle;
-        ctx.fill();
-      }
-      if (s.strokeStyle && s.lineWidth) {
-        ctx.lineWidth = s.lineWidth;
-        ctx.strokeStyle = s.strokeStyle;
-        ctx.stroke();
-      }
+      canvas.drawPath(paint);
     }
   }
 
