@@ -1,9 +1,8 @@
-import { Context, LayoutProps, View, ViewProps } from '@kanva/core';
+import { LayoutProps, View, ViewProps } from '@kanva/core';
 import * as React from 'react';
+import { KanvaContext } from './kanva-context';
 
 export interface InternalProps {
-  context: Context;
-  parent: View;
   position: number;
 }
 
@@ -30,15 +29,18 @@ const getAllGettersAndSetters = (obj: object) => {
 
 export const createReactView = <Props extends {}>(viewClass: (new (...args: any[]) => View<Props>)) => {
   type ReactViewProps = Partial<ViewProps & Props>;
+
   return class ReactViewComponent extends React.PureComponent<ReactViewProps> {
+    static contextType = KanvaContext;
     static displayName: string = viewClass.name;
+    context!: React.ContextType<typeof KanvaContext>;
     view?: View;
     readonly propNames: string[] = [];
     readonly propHandlers: Record<string, { set: (value: any) => void, get: () => any }> = {};
     layoutParams?: LayoutProps;
 
-    constructor(props: ReactViewProps, context?: any) {
-      super(props, context);
+    constructor(props: ReactViewProps) {
+      super(props);
     }
 
     get internalProps() {
@@ -50,7 +52,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     }
 
     createAndAttachView() {
-      const view = this.view = new viewClass(this.internalProps.context);
+      const view = this.view = new viewClass(this.context.ctx);
       const gettersAndSetters = getAllGettersAndSetters(view);
 
       for (const { name, get, set } of gettersAndSetters) {
@@ -77,13 +79,13 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     }
 
     refreshProps() {
-      const { parent, position } = this.internalProps;
+      const { parent } = this.context;
       const { propNames, propHandlers, view } = this;
       if (!view) {
         return;
       }
       if (parent && !view.hasParent()) {
-        parent.setChildAt(view, position);
+        parent.addChild(view);
       }
       for (let i = 0, l = propNames.length; i < l; i++) {
         const propName = propNames[i];
@@ -108,7 +110,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
     }
 
     componentWillUnmount() {
-      const { parent } = this.internalProps;
+      const { parent } = this.context;
       if (!this.view) {
         return;
       }
@@ -119,15 +121,14 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
       this.view = undefined;
     }
 
-    assignParentProperties = (child: React.ReactChild, position: number) => typeof child === 'object'
-      ? React.cloneElement(child, { position, parent: this.view, context: this.internalProps.context })
-      : null;
-
     render() {
       return (
-        <>
-          {React.Children.map(this.props.children || [], this.assignParentProperties)}
-        </>
+        <KanvaContext.Provider value={{
+          ctx: this.context.ctx,
+          parent: this.view!,
+        }}>
+          {this.props.children}
+        </KanvaContext.Provider>
       );
     }
   };

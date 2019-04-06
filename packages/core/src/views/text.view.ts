@@ -2,13 +2,14 @@ import { Paint, TextBaseline, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
 
 export interface TextViewProps {
+  text: string;
   textPaint: Paint;
 }
 
 export class TextView extends View<TextViewProps> {
   private textPaint: Paint = new Paint();
+  private textString: string = '';
   private text: string[] = [];
-  private y: number = 0;
 
   constructor(context: Context) {
     super(context, 'TextView');
@@ -24,30 +25,29 @@ export class TextView extends View<TextViewProps> {
   }
 
   getText() {
-    return this.text;
+    return this.textString;
   }
 
   setText(text: string) {
-    this.text = text.split('\n');
+    if (text === this.textString) {
+      return;
+    }
+    this.textString = text;
+    this.text = text ? text.split('\n') : [];
     this.refresh();
   }
 
-  setTextBaseline(textBaseline: TextBaseline) {
-    if (textBaseline !== this.textPaint.textBaseline) {
-      switch (textBaseline) {
-        case TextBaseline.BOTTOM:
-          this.y = 0;
-          break;
-        case TextBaseline.MIDDLE:
-          this.y = this.innerHeight / 2;
-          break;
-        case TextBaseline.TOP:
-        default:
-          this.y = this.innerHeight;
-          break;
-      }
-      this.textPaint.setTextBaseline(textBaseline);
-      this.require(RequiredViewChanges.DRAW);
+  getY(textBaseline: TextBaseline) {
+    const lineHeight = this.getLineHeight();
+    const textHeight = this.text.length * lineHeight;
+    switch (textBaseline) {
+      case TextBaseline.BOTTOM:
+        return this.innerHeight - textHeight + lineHeight;
+      case TextBaseline.MIDDLE:
+        return (this.innerHeight - textHeight + lineHeight) / 2;
+      case TextBaseline.TOP:
+      default:
+        return 0;
     }
   }
 
@@ -63,8 +63,9 @@ export class TextView extends View<TextViewProps> {
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { width, text, textPaint, y } = this;
+    const { width, text, textPaint } = this;
     const lineHeight = this.getLineHeight();
+    const y = this.getY(this.textPaint.textBaseline);
     for (let i = 0, l = text.length; i < l; i++) {
       canvas.drawText(0, y + i * lineHeight, text[i], textPaint, undefined, width);
     }
@@ -72,7 +73,7 @@ export class TextView extends View<TextViewProps> {
 
   onSnapshot() {
     return {
-      text: this.text,
+      text: this.textString,
       textPaint: this.textPaint.snapshot(),
     };
   }

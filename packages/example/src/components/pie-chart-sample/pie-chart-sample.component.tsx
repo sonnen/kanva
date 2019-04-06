@@ -1,6 +1,7 @@
 import { DataContainer } from '@kanva/charts';
 import { PieChartView } from '@kanva/charts-react';
-import { Kanva } from '@kanva/react';
+import { Paint, TextAlign, TextBaseline } from '@kanva/core';
+import { Kanva, TextView } from '@kanva/react';
 import * as React from 'react';
 import { layout } from './pie-chart-sample.layout';
 import { MOCK } from './pie-chart-sample.mock';
@@ -38,6 +39,20 @@ const container2 = new DataContainer<number>()
     y: point as number,
   }));
 
+const Text: React.FC<{ paint: Paint }> = ({ paint }) => (
+  <TextView
+    layoutParams={{
+      centerHorizontal: true,
+      centerVertical: true,
+      height: 100,
+      width: 100,
+    }}
+    text={'This is\na sample text'}
+    backgroundColor={'#000'}
+    textPaint={paint}
+  />
+);
+
 export class PieChartSample extends React.Component {
 
   render() {
@@ -48,17 +63,35 @@ export class PieChartSample extends React.Component {
             layoutParams={layout.pieChart}
             dataContainer={container}
             style={pieChartStyle}
-          />
+          >
+            <Text paint={new Paint()
+              .setFillStyle('#FFF')
+              .setTextAlign(TextAlign.LEFT)
+              .setTextBaseline(TextBaseline.TOP)
+            } />
+          </PieChartView>
           <PieChartView
             layoutParams={layout.pieChart2}
             dataContainer={container2}
             style={pieChartStyle2}
-          />
+          >
+            <Text paint={new Paint()
+              .setFillStyle('#FFF')
+              .setTextAlign(TextAlign.CENTER)
+              .setTextBaseline(TextBaseline.MIDDLE)
+            } />
+          </PieChartView>
           <PieChartView
             layoutParams={layout.pieChart3}
             dataContainer={container}
             style={pieChartStyle3}
-          />
+          >
+            <Text paint={new Paint()
+              .setFillStyle('#FFF')
+              .setTextAlign(TextAlign.RIGHT)
+              .setTextBaseline(TextBaseline.BOTTOM)
+            } />
+          </PieChartView>
         </Kanva>
       </div>
     );

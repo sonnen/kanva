@@ -1,12 +1,8 @@
-import {
-  Context,
-  RequiredViewChanges,
-  RootCanvasView,
-  ViewProps,
-} from '@kanva/core';
+import { Context, RequiredViewChanges, RootCanvasView, ViewProps } from '@kanva/core';
 import * as React from 'react';
 import { CSSProperties } from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
+import { KanvaContext } from './kanva-context';
 
 interface Props {
   className?: string;
@@ -23,7 +19,7 @@ interface State {
 
 export class Kanva extends React.PureComponent<Props, State> {
   readonly state: State = {};
-  private ctx: Context = new Context();
+  private ctx = new Context();
   private htmlDivElement: HTMLDivElement | null = null;
   private htmlCanvasElement: HTMLCanvasElement | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -65,16 +61,11 @@ export class Kanva extends React.PureComponent<Props, State> {
     }
   }
 
-  assignParentProperties = (child: React.ReactChild, position: number) => {
-    return typeof child === 'object'
-      ? React.cloneElement(child, { position, parent: this.state.view, context: this.ctx })
-      : null;
-  };
-
   setDivElement = (ref: HTMLDivElement) => this.htmlDivElement = ref;
 
   render() {
     const { className, children, canvasRef } = this.props;
+    const { view } = this.state;
     return (
       <div
         ref={this.setDivElement}
@@ -90,7 +81,12 @@ export class Kanva extends React.PureComponent<Props, State> {
             }
           }}
         >
-          {React.Children.map(children || [], this.assignParentProperties)}
+          <KanvaContext.Provider value={{
+            ctx: this.ctx,
+            parent: view!,
+          }}>
+            {children}
+          </KanvaContext.Provider>
         </canvas>
       </div>
     );

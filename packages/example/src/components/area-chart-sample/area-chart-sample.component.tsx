@@ -119,6 +119,9 @@ export class AreaChartSample extends React.Component<{}, State> {
      * Update functions should be pure, with zero side-effects. Consider using componentDidUpdate or a callback.
      * =====
      * Occurs when the #handleScale also fires #setState
+     *
+     *
+     * TODO: Timeout should be removed on unmount
      */
     setTimeout(() => this.setState({ tooltipEvent: event }));
   };
