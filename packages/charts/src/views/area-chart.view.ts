@@ -128,7 +128,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
             if (useFill) {
               ctx.fillRect(x, y, size, size);
             }
-            if (useFill) {
+            if (useStroke) {
               ctx.strokeRect(x, y, size, size);
             }
           }

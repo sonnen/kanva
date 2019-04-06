@@ -281,7 +281,7 @@ export class LayoutParams {
     isAbsolute = DefaultProps.IS_ABSOLUTE,
     posX = DefaultProps.X,
     posY = DefaultProps.Y,
-  }: LayoutProps) {
+  }: LayoutProps = {}) {
     const oldProps = this.props || this.asProps();
     const props = {
       below, above, toStartOf, toEndOf,
