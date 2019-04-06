@@ -74,9 +74,6 @@ export class RootCanvasView extends View {
       return;
     }
     this.isRequired = false;
-    if (isBrowser) {
-      requestAnimationFrame(this.run);
-    }
 
     this.onSizeChanged();
     this.measure(this.canvas);

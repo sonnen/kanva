@@ -11,7 +11,7 @@ import {
 } from '@kanva/charts';
 import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView, LineChartView } from '@kanva/charts-react';
 import { View, Visibility } from '@kanva/core';
-import { Kanva } from '@kanva/react';
+import { ImageView, Kanva } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
 import { Tooltip } from '../tooltip';
@@ -173,7 +173,7 @@ export class AreaChartSample extends React.Component<{}, State> {
       },
       {
         name: Series.HEATER_POWER,
-        data: MOCK.consumptionPower.map(({x, y}) => ({x, y: y > 3000 ? 1 : 0})),
+        data: MOCK.consumptionPower.map(({ x, y }) => ({ x, y: y > 3000 ? 1 : 0 })),
       },
     ]);
 
@@ -246,6 +246,10 @@ export class AreaChartSample extends React.Component<{}, State> {
               dataSeries={Series.BATTERY_STATE}
               visibility={this.isVisible(Series.BATTERY_STATE)}
               style={SeriesStyles[Series.BATTERY_STATE]}
+            />
+            <ImageView
+              source={'/favicon.ico'}
+              layoutParams={{ width: 50, height: 50 }}
             />
           </ChartGridView>
           <AxisView

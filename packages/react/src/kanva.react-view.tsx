@@ -7,6 +7,7 @@ import { KanvaContext } from './kanva-context';
 interface Props {
   className?: string;
   style?: CSSProperties;
+  imageClass?: (new () => HTMLImageElement);
   children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
   enablePointerEvents?: boolean;
   debug?: boolean;
@@ -19,10 +20,15 @@ interface State {
 
 export class Kanva extends React.PureComponent<Props, State> {
   readonly state: State = {};
-  private ctx = new Context();
+  private readonly ctx: Context;
   private htmlDivElement: HTMLDivElement | null = null;
   private htmlCanvasElement: HTMLCanvasElement | null = null;
   private resizeObserver: ResizeObserver | null = null;
+
+  constructor(props: Props) {
+    super(props);
+    this.ctx = new Context(props.imageClass);
+  }
 
   componentDidMount() {
     const { enablePointerEvents } = this.props;
@@ -33,7 +39,7 @@ export class Kanva extends React.PureComponent<Props, State> {
       if (enablePointerEvents) {
         view.setupPointerEvents();
       }
-      view.run();
+      requestAnimationFrame(view.run);
       this.resizeObserver = new ResizeObserver(() => {
         view.require(RequiredViewChanges.MEASURE);
       });

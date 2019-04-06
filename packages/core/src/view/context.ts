@@ -12,6 +12,9 @@ export class Context implements ContextLike {
   public debugEnabled = false;
   private idMap: Record<string, number> & Record<number, string> = {};
 
+  constructor(public readonly imageClass: (new () => HTMLImageElement) = Image) {
+  }
+
   registerView(id: number, idName: string) {
     this.idMap[id] = idName;
     this.idMap[idName] = id;
