@@ -171,7 +171,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
         ? Math.abs(axisData[0].position - axisData[1].position)
         : innerWidth;
       let y: number;
-      switch (ctx.textBaseline) {
+      switch (labelPaint.textBaseline) {
         case TextBaseline.TOP:
           y = 0;
           break;
@@ -201,7 +201,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     } else {
       const maxWidth = innerWidth;
       let x: number;
-      switch (ctx.textAlign) {
+      switch (labelPaint.textAlign) {
         case TextAlign.START:
         case TextAlign.LEFT:
           x = 0;

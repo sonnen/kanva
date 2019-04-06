@@ -227,4 +227,16 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       this.innerHeight - halfLineWidth,
     );
   }
+
+  snapshot(): object {
+    const snapshot = super.snapshot();
+
+    return {
+      ...snapshot,
+      style: {
+        ...(snapshot as any).style,
+        paint: this.style.paint.snapshot(),
+      },
+    };
+  }
 }
