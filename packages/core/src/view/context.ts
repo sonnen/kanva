@@ -8,11 +8,24 @@ export interface ContextLike {
   resolve(id: string | number | undefined): number | undefined;
 }
 
+export type ImageClass = HTMLImageElement & { src: any };
+
+const getDefaultImageClass = (): (new () => ImageClass) | undefined => {
+  try {
+    // Browsers default
+    return Image;
+  } catch (error) {
+    return undefined;
+  }
+};
+
+const defaultImageClass = getDefaultImageClass()!;
+
 export class Context implements ContextLike {
   public debugEnabled = false;
   private idMap: Record<string, number> & Record<number, string> = {};
 
-  constructor(public readonly imageClass: (new () => HTMLImageElement) = Image) {
+  constructor(public readonly imageClass: (new () => ImageClass) = defaultImageClass) {
   }
 
   registerView(id: number, idName: string) {
