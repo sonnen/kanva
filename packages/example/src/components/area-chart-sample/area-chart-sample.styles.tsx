@@ -84,4 +84,7 @@ export const chartGridStyle: ChartGridViewStyle = {
   paint: new Paint()
     .setStrokeStyle(rgba('#FFF', .2))
     .setLineWidth(1),
+  centerPaint: new Paint()
+    .setStrokeStyle(rgba('#FFF', .2))
+    .setLineWidth(3),
 };

@@ -1,6 +1,6 @@
 import { Context, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
-import { AxisPoint, prepareAxisPoints } from '../utils';
+import { AxisPoint } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export enum GridLines {
@@ -10,6 +10,7 @@ export enum GridLines {
 }
 
 export interface ChartGridViewStyle {
+  centerPaint?: Paint;
   paint: Paint;
 }
 
@@ -25,6 +26,7 @@ const defaultStyle = {
 
 export class ChartGridView extends ChartView<ChartGridViewProps> {
   private gridLines: GridLines = GridLines.BOTH;
+  private center: XYPoint = { x: 0, y: 0 };
   // Calculated values
   private xAxis: AxisPoint[] = [];
   private yAxis: AxisPoint[] = [];
@@ -38,15 +40,8 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
       this.xAxis = this.yAxis = [];
       return;
     }
-    const scales = this.dataContainer.getScales(this.innerWidth, this.innerHeight);
-    this.xAxis = prepareAxisPoints(
-      this.dataContainer.getXAxisData(),
-      scales.xScale,
-    );
-    this.yAxis = prepareAxisPoints(
-      this.dataContainer.getYAxisData(),
-      scales.yScale,
-    );
+    this.xAxis = this.dataContainer.getXAxisData();
+    this.yAxis = this.dataContainer.getYAxisData();
   }
 
   getGridLines() {
@@ -55,6 +50,18 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
 
   setGridLines(gridLines: GridLines) {
     this.gridLines = gridLines;
+    this.require(RequiredViewChanges.DRAW);
+  }
+
+  getCenterPoint() {
+    return this.center;
+  }
+
+  setCenterPoint(center: XYPoint) {
+    if (!center) {
+      return;
+    }
+    this.center = center;
     this.require(RequiredViewChanges.DRAW);
   }
 
@@ -72,27 +79,60 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
       gridLines,
       innerWidth, innerHeight,
       dataContainer,
-      style: { paint },
+      center,
+      style: { paint, centerPaint },
       xAxis,
       yAxis,
     } = this;
+
+    if (!dataContainer) {
+      return;
+    }
+
     const ctx = canvas.context;
     const halfLineWidth = paint.lineWidth / 2;
+
+    const { xScale, yScale } = dataContainer.getScales(this.innerWidth, this.innerHeight);
+    const { x, y } = center;
 
     ctx.translate(paint.lineWidth / 2, paint.lineWidth / 2);
     ctx.beginPath();
     if (gridLines !== GridLines.HORIZONTAL) {
       for (let i = 0, l = xAxis.length; i < l; i++) {
         const position = xAxis[i].position;
-        ctx.moveTo(position, 0);
-        ctx.lineTo(position, innerHeight);
+        const scaledPosition = xScale(position);
+
+        if (position === x) {
+          canvas.drawPath(paint);
+          ctx.beginPath();
+        }
+
+        ctx.moveTo(scaledPosition, 0);
+        ctx.lineTo(scaledPosition, innerHeight);
+
+        if (position === x) {
+          canvas.drawPath(centerPaint || paint);
+          ctx.beginPath();
+        }
       }
     }
     if (gridLines !== GridLines.VERTICAL) {
       for (let i = 0, l = yAxis.length; i < l; i++) {
         const position = yAxis[i].position;
-        ctx.moveTo(0, position);
-        ctx.lineTo(innerWidth, position);
+        const scaledPosition = yScale(position);
+
+        if (position === y) {
+          canvas.drawPath(paint);
+          ctx.beginPath();
+        }
+
+        ctx.moveTo(0, scaledPosition);
+        ctx.lineTo(innerWidth, scaledPosition);
+
+        if (position === y) {
+          canvas.drawPath(centerPaint || paint);
+          ctx.beginPath();
+        }
       }
     }
     canvas.drawPath(paint);
