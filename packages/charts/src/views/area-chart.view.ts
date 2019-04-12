@@ -19,6 +19,7 @@ export interface AreaChartViewStyle {
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
   dataSeries: string | string[];
+  centerPoint?: XYPoint;
 }
 
 const defaultStyle = {
@@ -27,11 +28,24 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
+  private center: XYPoint = { x: 0, y: 0 };
   // Calculated data
   private data: Float32Array[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
+  }
+
+  getCenterPoint() {
+    return this.center;
+  }
+
+  setCenterPoint(center: XYPoint) {
+    if (!center) {
+      return;
+    }
+    this.center = center;
+    this.require(RequiredViewChanges.DRAW);
   }
 
   onLayout(): void {
@@ -90,7 +104,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { innerHeight, dataContainer, style } = this;
+    const { dataContainer, style, center } = this;
     const { type, paint } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
@@ -109,12 +123,12 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       const data = dataSegments[s];
       switch (type) {
         case DataDisplayType.AREA:
-          ctx.moveTo(xScale(data[0]), innerHeight);
+          ctx.moveTo(xScale(data[0]), yScale(center.y));
           for (let i = 0, l = data.length; i < l; i += 2) {
             ctx.lineTo(xScale(data[i]), yScale(data[i + 1]));
           }
-          ctx.lineTo(xScale(data[data.length - 2]), innerHeight);
-          ctx.lineTo(xScale(data[0]), innerHeight);
+          ctx.lineTo(xScale(data[data.length - 2]), yScale(center.y));
+          ctx.lineTo(xScale(data[0]), yScale(center.y));
           break;
         case DataDisplayType.POINTS:
           const size = paint.lineWidth || 1;
