@@ -140,7 +140,7 @@ export class BarChartSample extends React.Component<{}, State> {
             <BarChartViewComponent
               layoutParams={layout.barChart}
               dataContainer={container}
-              labels={{
+              labelOptions={{
                 labelsPaint: new Paint()
                   .setFont({
                     fontFamily: 'Arial',

@@ -1,24 +1,18 @@
-import { CanvasPointerEvent, Context, normalizeRadius, Paint, PointerAction, Radius, ViewCanvas } from '@kanva/core';
-import { PaintOverrides, TextAlign, TextBaseline } from '@kanva/core';
+import {
+  CanvasPointerEvent,
+  Context,
+  Line,
+  normalizeRadius,
+  Paint,
+  PointerAction,
+  Radius,
+  ViewCanvas,
+} from '@kanva/core';
 import { isNil } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
-import { AxisLabelAccessor, ScaleFunctions } from '../utils';
+import { ScaleFunctions } from '../utils';
+import { drawLabel, LabelOptions } from '../utils/labels.util';
 import { ChartView, ChartViewProps } from './chart.view';
-
-export enum LabelPosition {
-  START,
-  CENTER,
-  END,
-  OUT,
-}
-
-export interface BarChartLabels {
-  labelsPaint: Paint;
-  contrastLabelsPaint?: Paint;
-  position: LabelPosition;
-  labelAccessor: AxisLabelAccessor;
-  padding?: number;
-}
 
 export interface BarChartViewStyle {
   padding?: number;
@@ -29,7 +23,7 @@ export interface BarChartViewStyle {
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
-  labels: BarChartLabels;
+  labelOptions: LabelOptions;
 }
 
 const X_SCALE_BAR_OFFSET = .5;
@@ -42,18 +36,8 @@ const defaultStyle = {
   isBackgroundBright: true,
 };
 
-const labelPaintOverrides: PaintOverrides = {
-  textBaseline: TextBaseline.BOTTOM,
-  textAlign: TextAlign.CENTER,
-};
-
-const getTextPaint = (textPaint: Paint, contrastPaint: Paint | undefined, backgroundIsBright: boolean): Paint =>
-  !contrastPaint
-    ? textPaint
-    : backgroundIsBright === textPaint.isBright() ? contrastPaint : textPaint;
-
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
-  private labels?: BarChartLabels;
+  private labelOptions?: LabelOptions;
   // Calculated series
   private series: DataSeries<{ y: number, barY: number }>[] = [];
   private seriesLength: number = 0;
@@ -63,12 +47,12 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     super(context, 'BarChartView', defaultStyle);
   }
 
-  getLabels() {
-    return this.labels;
+  getLabelOptions() {
+    return this.labelOptions;
   }
 
-  setLabels(labels: BarChartLabels) {
-    this.labels = labels;
+  setLabelOptions(labels: LabelOptions) {
+    this.labelOptions = labels;
   }
 
   onLayout(): void {
@@ -101,7 +85,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       series: allSeries,
       seriesLength,
       style,
-      labels,
+      labelOptions,
       groupWidth,
       barWidth,
     } = this;
@@ -110,6 +94,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     const ctx = canvas.context;
     const radius = normalizeRadius(style.barRadius || 0);
     const { isBackgroundBright = true } = style;
+    const barLine = new Line();
 
     for (let i = 0, left = 0, l = seriesLength; i < l; i++) {
       const right = left + groupWidth;
@@ -128,45 +113,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         canvas.roundRect(barRight, top, barWidth, height, radius);
         canvas.drawPath(s);
 
-        if (labels) {
-          // TODO Extract to a separate method
-          const padding = labels.padding || 0;
-          const textHeight = labels.labelsPaint.font.fontSize;
-          let yText;
-          const isAboveZero = top < zeroPoint || top === bottom;
-          const topStartPosition = zeroPoint - padding;
-          const bottomStartPosition = zeroPoint + padding + textHeight;
-          switch (labels.position) {
-            case LabelPosition.START:
-              yText = isAboveZero
-                ? topStartPosition
-                : bottomStartPosition;
-              break;
-            case LabelPosition.END:
-              yText = isAboveZero
-                ? Math.min(topStartPosition, top + textHeight + padding)
-                : Math.max(bottomStartPosition, bottom - padding);
-              break;
-            case LabelPosition.CENTER:
-              const center = top + (height + textHeight) / 2;
-              yText = isAboveZero
-                ? Math.min(topStartPosition, center)
-                : Math.max(bottomStartPosition, center);
-              break;
-            case LabelPosition.OUT:
-            default:
-              yText = isAboveZero
-                ? top - padding
-                : bottom + textHeight + padding;
-              break;
-          }
-          const textInsideBar = yText - textHeight >= top && yText <= bottom;
-          const textPaint = getTextPaint(
-            labels.labelsPaint,
-            labels.contrastLabelsPaint,
-            textInsideBar ? s.isBright() : isBackgroundBright,
-          );
-          canvas.drawText(barRight + barWidth / 2, yText, labels.labelAccessor(y, j), textPaint, labelPaintOverrides);
+        if (labelOptions) {
+          barLine.startX = barLine.endX = barRight + barWidth / 2;
+          barLine.startY = zeroPoint;
+          barLine.endY = top > zeroPoint ? top : bottom;
+          drawLabel(canvas, y, j, barLine, s, isBackgroundBright, labelOptions);
         }
 
         barRight += barWidth;

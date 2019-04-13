@@ -255,8 +255,8 @@ export class View<Props extends {} = ViewProps> {
       const { width, height, oldWidth, oldHeight } = child;
       const sizeChanged = width !== oldWidth || height !== oldHeight;
 
-      child.innerRect = child.rect.inset(child.lp.marginRect);
-      child.offsetRect = this.rect
+      child.innerRect = child.rect.clone().inset(child.lp.marginRect);
+      child.offsetRect = this.rect.clone()
         .offset(child.innerRect)
         .offset(child.lp.paddingRect);
 
