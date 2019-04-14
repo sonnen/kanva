@@ -13,4 +13,8 @@ export class Point {
   clone() {
     return new Point(this.x, this.y);
   }
+
+  toString() {
+    return `(${this.x}, ${this.y})`;
+  }
 }

@@ -160,4 +160,8 @@ export class Rect {
       right: this.r,
     });
   }
+
+  toString() {
+    return `(↑${this.t} →${this.r} ↓${this.b} ←${this.l})`;
+  }
 }

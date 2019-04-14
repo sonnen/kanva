@@ -128,6 +128,28 @@ export class Paint implements PaintOverrides {
     }, defaultPaintOptions);
   }
 
+  clone() {
+    const paint = new Paint();
+
+    // Font options
+    paint.fontString = this.fontString;
+    paint.font = this.font;
+    paint.textDirection = this.textDirection;
+    paint.textAlign = this.textAlign;
+    paint.textBaseline = this.textBaseline;
+
+    // Fill
+    paint.fillStyle = this.fillStyle;
+
+    // Stroke
+    paint.strokeStyle = this.strokeStyle;
+    paint.lineWidth = this.lineWidth;
+    paint.lineDash = this.lineDash;
+    paint.lineRounding = this.lineRounding;
+
+    return paint;
+  }
+
 }
 
 deepFreeze(Paint.DEFAULT);
