@@ -33,7 +33,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
   private readonly labelsHelper = new LabelsHelper();
   private center: XYPoint = { x: 0, y: 0 };
   // Calculated data
-  private data: Float32Array[] = [];
+  private data: Float64Array[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
@@ -75,12 +75,12 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     this.data = dataSegments.map(segment => {
       if (!segment.length) {
-        return new Float32Array(0);
+        return new Float64Array(0);
       }
       switch (style.type) {
         case DataDisplayType.LINE_STAIRS: {
           const count = series.data.length;
-          const array = new Float32Array(segment.length * 4);
+          const array = new Float64Array(segment.length * 4);
           let point = segment[0];
           let offset = 2;
           const start = point.x;
@@ -102,9 +102,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           return array;
         }
         default: {
-          const array = new Float32Array(segment.length * 2);
+          const array = new Float64Array(segment.length * 2);
           for (let i = 0; i < segment.length; i++) {
             const point = segment[i];
+            console.log(`point: ${point.x}, ${point.y}`);
             array[i * 2] = point.x;
             array[i * 2 + 1] = point.y;
           }
@@ -151,6 +152,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
             const x = xScale(data[i]) - radius;
             const y = yScale(data[i + 1]) - radius;
             if (useFill) {
+              // console.log(`(${data[i]}, ${data[i + 1]}) -> (${x}, ${y})`);
               ctx.fillRect(x, y, size, size);
             }
             if (useStroke) {
@@ -172,11 +174,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
     if (this.getLabelOptions()) {
       const pointLine = new Line();
-      const increment = type === DataDisplayType.LINE_STAIRS ? 4 : 2;
       let index = 0;
       for (let s = 0, sl = dataSegments.length; s < sl; s++) {
         const data = dataSegments[s];
-        for (let i = 0, l = data.length; i < l; i += increment) {
+        for (let i = 0, l = data.length; i < l; i += 2) {
           pointLine.startX = pointLine.endX = xScale(data[i]);
           pointLine.startY = pointLine.endY = yScale(data[i + 1]);
 
