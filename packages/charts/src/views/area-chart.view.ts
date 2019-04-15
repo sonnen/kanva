@@ -105,7 +105,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           const array = new Float64Array(segment.length * 2);
           for (let i = 0; i < segment.length; i++) {
             const point = segment[i];
-            console.log(`point: ${point.x}, ${point.y}`);
             array[i * 2] = point.x;
             array[i * 2 + 1] = point.y;
           }
@@ -152,7 +151,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
             const x = xScale(data[i]) - radius;
             const y = yScale(data[i + 1]) - radius;
             if (useFill) {
-              // console.log(`(${data[i]}, ${data[i + 1]}) -> (${x}, ${y})`);
               ctx.fillRect(x, y, size, size);
             }
             if (useStroke) {
