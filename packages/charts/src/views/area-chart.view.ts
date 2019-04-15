@@ -1,8 +1,8 @@
-import { CanvasPointerEvent, Context, Paint, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { CanvasPointerEvent, Context, Line, Paint, PointerAction, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { isNil } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
-import { ScaleFunctions, segmentizePoints } from '../utils';
+import { LabelOptions, LabelsHelper, ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export enum DataDisplayType {
@@ -15,9 +15,11 @@ export enum DataDisplayType {
 export interface AreaChartViewStyle {
   type: DataDisplayType;
   paint: Paint;
+  isBackgroundBright?: boolean;
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
+  labelOptions: LabelOptions;
   dataSeries: string | string[];
   centerPoint?: XYPoint;
 }
@@ -28,12 +30,21 @@ const defaultStyle = {
 };
 
 export class AreaChartView extends ChartView<AreaChartViewProps> {
+  private readonly labelsHelper = new LabelsHelper();
   private center: XYPoint = { x: 0, y: 0 };
   // Calculated data
   private data: Float32Array[] = [];
 
   constructor(context: Context) {
     super(context, 'AreaChartView', defaultStyle);
+  }
+
+  getLabelOptions() {
+    return this.labelsHelper.getOptions();
+  }
+
+  setLabelOptions(labels: LabelOptions) {
+    this.labelsHelper.setOptions(labels);
   }
 
   getCenterPoint() {
@@ -105,7 +116,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const { dataContainer, style, center } = this;
-    const { type, paint } = style;
+    const { type, paint, isBackgroundBright = true } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
     const halfLineWidth = paint.lineWidth / 2;
@@ -146,7 +157,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
               ctx.strokeRect(x, y, size, size);
             }
           }
-          return;
+          break;
         default:
         case DataDisplayType.LINE_STAIRS:
         case DataDisplayType.LINE:
@@ -158,6 +169,22 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       }
     }
     canvas.drawPath(paint);
+
+    if (this.getLabelOptions()) {
+      const pointLine = new Line();
+      const increment = type === DataDisplayType.LINE_STAIRS ? 4 : 2;
+      let index = 0;
+      for (let s = 0, sl = dataSegments.length; s < sl; s++) {
+        const data = dataSegments[s];
+        for (let i = 0, l = data.length; i < l; i += increment) {
+          pointLine.startX = pointLine.endX = xScale(data[i]);
+          pointLine.startY = pointLine.endY = yScale(data[i + 1]);
+
+          this.labelsHelper.draw(canvas, data[i + 1], index++, pointLine, paint, isBackgroundBright);
+        }
+      }
+
+    }
   }
 
   onPointerEvent(event: CanvasPointerEvent): boolean {

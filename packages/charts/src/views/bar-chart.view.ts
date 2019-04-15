@@ -10,8 +10,7 @@ import {
 } from '@kanva/core';
 import { isNil } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
-import { ScaleFunctions } from '../utils';
-import { drawLabel, LabelOptions } from '../utils/labels.util';
+import { LabelOptions, LabelsHelper, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartViewStyle {
@@ -37,7 +36,7 @@ const defaultStyle = {
 };
 
 export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
-  private labelOptions?: LabelOptions;
+  private readonly labelsHelper = new LabelsHelper();
   // Calculated series
   private series: DataSeries<{ y: number, barY: number }>[] = [];
   private seriesLength: number = 0;
@@ -48,11 +47,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   }
 
   getLabelOptions() {
-    return this.labelOptions;
+    return this.labelsHelper.getOptions();
   }
 
   setLabelOptions(labels: LabelOptions) {
-    this.labelOptions = labels;
+    this.labelsHelper.setOptions(labels);
   }
 
   onLayout(): void {
@@ -85,7 +84,6 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       series: allSeries,
       seriesLength,
       style,
-      labelOptions,
       groupWidth,
       barWidth,
     } = this;
@@ -113,11 +111,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
         canvas.roundRect(barRight, top, barWidth, height, radius);
         canvas.drawPath(s);
 
-        if (labelOptions) {
+        if (this.getLabelOptions()) {
           barLine.startX = barLine.endX = barRight + barWidth / 2;
           barLine.startY = zeroPoint;
-          barLine.endY = top > zeroPoint ? top : bottom;
-          drawLabel(canvas, y, j, barLine, s, isBackgroundBright, labelOptions);
+          barLine.endY = barY;
+          this.labelsHelper.draw(canvas, y, j, barLine, s, isBackgroundBright);
         }
 
         barRight += barWidth;

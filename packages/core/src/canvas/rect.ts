@@ -161,6 +161,18 @@ export class Rect {
     });
   }
 
+  /**
+   * Copies all of this Rect's properties to a Rect specified in an argument.
+   * Returns the line passed as argument.
+   */
+  cloneTo(rect: Rect) {
+    rect.t = this.t;
+    rect.l = this.l;
+    rect.b = this.b;
+    rect.r = this.r;
+    return rect;
+  }
+
   toString() {
     return `(↑${this.t} →${this.r} ↓${this.b} ←${this.l})`;
   }

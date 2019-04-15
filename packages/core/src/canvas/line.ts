@@ -132,6 +132,18 @@ export class Line {
     );
   }
 
+  /**
+   * Copies all of this Line's properties to a Line specified in an argument.
+   * Returns the line passed as argument.
+   */
+  cloneTo(line: Line) {
+    line.startX = this.startX;
+    line.startY = this.startY;
+    line.endX = this.endX;
+    line.endY = this.endY;
+    return line;
+  }
+
   toString() {
     return `(${this.startX},${this.startY} -> ${this.endX}, ${this.endY})`;
   }

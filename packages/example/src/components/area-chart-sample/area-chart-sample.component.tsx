@@ -5,12 +5,13 @@ import {
   DataContainerTooltipExtension,
   DataContainerTransformExtension,
   GridLines,
+  LabelPosition,
   TooltipEvent,
   TooltipEventHandler,
   XYPoint,
 } from '@kanva/charts';
 import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView, LineChartView } from '@kanva/charts-react';
-import { View, Visibility } from '@kanva/core';
+import { Paint, View, Visibility } from '@kanva/core';
 import { ImageView, Kanva } from '@kanva/react';
 import * as React from 'react';
 import { Crosshair } from '../crosshair';
@@ -238,6 +239,12 @@ export class AreaChartSample extends React.Component<{}, State> {
                 const { absoluteX } = (view as AreaChartView)
                   .getCanvasPositionForPoint(point);
                 this.handleTooltipPositionChange(absoluteX);
+              }}
+              labelOptions={{
+                labelsPaint: new Paint()
+                  .setFillStyle('#FFF'),
+                position: LabelPosition.CENTER,
+                labelAccessor: (value, index) => index % 10 === 0 ? String(value) : '',
               }}
             />
             <AreaChartViewComponent
