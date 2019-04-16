@@ -39,7 +39,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     const radius = Math.min(centerX, centerY);
     const inner = style.innerRadius || 0;
     const outerRadius = Math.max(0, radius - (style.backgroundPaint ? style.backgroundPaint.lineWidth / 2 : 0));
-    const innerRadius = Math.max(0, inner < 1 ? inner * outerRadius : inner);
+    const innerRadius = Math.max(0, inner <= 1 ? inner * outerRadius : inner);
     const pi2 = Math.PI * 2;
     const padding = style.padding || 0;
 
@@ -56,13 +56,17 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     if (style.backgroundPaint) {
       const ringThickness = style.backgroundPaint.lineWidth || 0;
       const ringShift = (maxRingThickness - ringThickness) / 2;
+      const outer = Math.max(0, outerRadius - ringShift);
+      const inner = Math.min(outer, Math.max(0, innerRadius - ringShift));
 
       ctx.beginPath();
-      ctx.arc(centerX, centerY, outerRadius - ringShift, 0, pi2, false);
-      if (innerRadius) {
-        ctx.arc(centerX, centerY, innerRadius - ringShift, pi2, 0, true);
-        ctx.closePath();
+      if (inner > 0) {
+        ctx.arc(centerX, centerY, inner, pi2, 0, true);
+      } else {
+        ctx.moveTo(centerX, centerY);
       }
+      ctx.arc(centerX, centerY, outer, 0, pi2, false);
+      ctx.closePath();
       canvas.drawPath(style.backgroundPaint);
     }
 
@@ -82,13 +86,17 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
 
       // Assume that padding can't be bigger than half of the whole arc area
       const maxPad = Math.min((end - start) / 4, pad);
-
+      const outer = Math.max(0, outerRadius - ringShift);
+      const inner = Math.min(outer, Math.max(0, innerRadius - ringShift));
       ctx.beginPath();
-      ctx.arc(centerX, centerY, outerRadius - ringShift, start + maxPad, end - maxPad, false);
-      if (innerRadius) {
-        ctx.arc(centerX, centerY, innerRadius - ringShift, end - maxPad, start + maxPad, true);
-        ctx.closePath();
+
+      if (inner > 0) {
+        ctx.arc(centerX, centerY, inner, end - maxPad, start + maxPad, true);
+      } else {
+        ctx.moveTo(centerX, centerY);
       }
+      ctx.arc(centerX, centerY, outer, start + maxPad, end - maxPad, false);
+      ctx.closePath();
 
       angle = end;
       canvas.drawPath(paint);

@@ -14,7 +14,6 @@ export const SeriesColors = {
 export const labelColor = '#171717';
 
 export const pieChartStyle: PieChartViewStyle = {
-  innerRadius: .7,
   paints: {
     [Series.GRID]: new Paint()
       .setLineWidth(1)
@@ -27,6 +26,7 @@ export const pieChartStyle: PieChartViewStyle = {
 
 export const pieChartStyle2: PieChartViewStyle = {
   padding: 0.02,
+  innerRadius: 1,
   paints: {
     [Series.GRID]: new Paint()
       .setLineWidth(10)
@@ -41,6 +41,7 @@ export const pieChartStyle2: PieChartViewStyle = {
 
 export const pieChartStyle3: PieChartViewStyle = {
   padding: 0.02,
+  innerRadius: 1,
   backgroundPaint: new Paint()
     .setLineWidth(5)
     .setStrokeStyle(rgba('#FFF', .2)),

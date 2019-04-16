@@ -1,6 +1,6 @@
 import { DataContainer } from '@kanva/charts';
 import { PieChartView } from '@kanva/charts-react';
-import { Paint, TextAlign, TextBaseline } from '@kanva/core';
+import { Paint, rgba, TextAlign, TextBaseline } from '@kanva/core';
 import { Kanva, TextView } from '@kanva/react';
 import * as React from 'react';
 import { layout } from './pie-chart-sample.layout';
@@ -48,7 +48,7 @@ const Text: React.FC<{ paint: Paint }> = ({ paint }) => (
       width: 100,
     }}
     text={'This is\na sample text'}
-    backgroundColor={'#000'}
+    backgroundColor={rgba('#000', .4)}
     textPaint={paint}
   />
 );
