@@ -11,7 +11,7 @@ import {
   TooltipEventHandler,
 } from '@kanva/charts';
 import { AxisView, BarChartView as BarChartViewComponent, ChartGridView, LegendView } from '@kanva/charts-react';
-import { Paint, View } from '@kanva/core';
+import { Paint, rgba, View } from '@kanva/core';
 import { Kanva, View as ViewComponent } from '@kanva/react';
 import * as React from 'react';
 import { chartGridStyle } from '../area-chart-sample/area-chart-sample.styles';
@@ -33,6 +33,7 @@ const container = new DataContainer<number>()
     },
   ])
   .setYBoundsExtension([0])
+  .setBoundsMargin({ vertical: 5000 })
   .setPointAccessor((point, index) => ({
     x: index,
     y: point,
@@ -55,8 +56,7 @@ interface State {
 
 export class BarChartSample extends React.Component<{}, State> {
   state: State = {};
-
-  private tooltipExtension?: DataContainerTooltipExtension;
+  private readonly tooltipExtension?: DataContainerTooltipExtension;
 
   constructor(props: {}) {
     super(props);
@@ -140,21 +140,28 @@ export class BarChartSample extends React.Component<{}, State> {
             <BarChartViewComponent
               layoutParams={layout.barChart}
               dataContainer={container}
-              labels={{
+              labelOptions={{
                 labelsPaint: new Paint()
                   .setFont({
                     fontFamily: 'Arial',
                     fontSize: 12,
                   })
                   .setFillStyle('#FFF'),
+                backgroundPaint: new Paint()
+                  .setFillStyle(rgba('#666', .2)),
                 contrastLabelsPaint: new Paint()
                   .setFont({
                     fontFamily: 'Arial',
                     fontSize: 12,
                   })
                   .setFillStyle('#000'),
+                contrastBackgroundPaint: new Paint()
+                  .setFillStyle(rgba('#CCC', .2)),
                 labelAccessor: x => Math.floor(x / 1000).toString(),
-                position: LabelPosition.END,
+                padding: 2,
+                margin: 2,
+                backgroundRadius: 3,
+                position: LabelPosition.CENTER,
               }}
               style={barChartStyle}
               viewRef={this.handleViewRef}

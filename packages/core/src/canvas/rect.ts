@@ -1,3 +1,5 @@
+import { Point } from './point';
+
 export interface RectObjectInput {
   left?: number;
   top?: number;
@@ -63,67 +65,74 @@ export class Rect {
     return Math.abs(this.b - this.t);
   }
 
-  inset(rect: Rect) {
-    return new Rect({
-      right: this.r - rect.r,
-      left: this.l + rect.l,
-      top: this.t + rect.t,
-      bottom: this.b - rect.b,
-    });
+  /**
+   * Shrinks this Rect by other Rect's dimensions (i.e. to apply padding) 
+   * or by a constant numeric value from each side.
+   * Resulting Rect is the same, mutated Rect.
+   */
+  inset(shrink: Rect | number) {
+    if (typeof shrink === 'number') {
+      this.r -= shrink;
+      this.l += shrink;
+      this.t += shrink;
+      this.b -= shrink;
+    } else {
+      this.r -= shrink.r;
+      this.l += shrink.l;
+      this.t += shrink.t;
+      this.b -= shrink.b;
+    }
+    return this;
   }
 
-  offset(rect: Rect) {
-    return new Rect({
-      right: this.r,
-      left: this.l + rect.l,
-      top: this.t + rect.t,
-      bottom: this.b,
-    });
+  /**
+   * Moves this Rect by left top position of passed rect or by XY coordinates of a Point.
+   * Resulting Rect is the same, mutated Rect.
+   */
+  offset(offset: Rect | Point): this;
+  /**
+   * Moves this Rect by passed x and y coordinates.
+   * Resulting Rect is the same, mutated Rect.
+   */
+  offset(x: number, y: number): this;
+  offset(offset: Rect | Point | number, yOffset?: number): this {
+    let x = 0;
+    let y = 0;
+    if (typeof offset === 'number') {
+      x = offset;
+      y = yOffset || 0;
+    } else if (offset instanceof Rect) {
+      x = offset.l;
+      y = offset.t;
+    } else {
+      x = offset.x;
+      y = offset.y;
+    }
+    this.l += x;
+    this.r += x;
+    this.t += y;
+    this.b += y;
+    return this;
   }
 
-  expand(rect: Rect) {
-    return new Rect({
-      right: this.r + rect.r,
-      left: this.l - rect.l,
-      top: this.t - rect.t,
-      bottom: this.b + rect.b,
-    });
-  }
-
-  setRight(right: number) {
-    return new Rect({
-      right,
-      left: this.l,
-      top: this.t,
-      bottom: this.b,
-    });
-  }
-
-  setLeft(left: number) {
-    return new Rect({
-      right: this.r,
-      left,
-      top: this.t,
-      bottom: this.b,
-    });
-  }
-
-  setTop(top: number) {
-    return new Rect({
-      right: this.r,
-      left: this.l,
-      top,
-      bottom: this.b,
-    });
-  }
-
-  setBottom(bottom: number) {
-    return new Rect({
-      right: this.r,
-      left: this.l,
-      top: this.t,
-      bottom,
-    });
+  /**
+   * Expands this Rect by other Rect's dimensions (i.e. to reduce padding)
+   * or by a constant numeric value from each side.
+   * Resulting Rect is the same, mutated Rect.
+   */
+  expand(expansion: Rect|number) {
+    if (typeof expansion === 'number') {
+      this.r += expansion;
+      this.l -= expansion;
+      this.t -= expansion;
+      this.b += expansion;
+    } else {
+      this.r += expansion.r;
+      this.l -= expansion.l;
+      this.t -= expansion.t;
+      this.b += expansion.b;
+    }
+    return this;
   }
 
   intersects(rect: Rect) {
@@ -138,5 +147,33 @@ export class Rect {
       this.l <= x && x <= this.r &&
       this.t <= y && y <= this.b
     );
+  }
+
+  /**
+   * Returns a copy of Rect that can be mutated separately.
+   */
+  clone() {
+    return new Rect({
+      top: this.t,
+      left: this.l,
+      bottom: this.b,
+      right: this.r,
+    });
+  }
+
+  /**
+   * Copies all of this Rect's properties to a Rect specified in an argument.
+   * Returns the line passed as argument.
+   */
+  cloneTo(rect: Rect) {
+    rect.t = this.t;
+    rect.l = this.l;
+    rect.b = this.b;
+    rect.r = this.r;
+    return rect;
+  }
+
+  toString() {
+    return `(↑${this.t} →${this.r} ↓${this.b} ←${this.l})`;
   }
 }
