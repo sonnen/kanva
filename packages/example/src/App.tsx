@@ -4,6 +4,7 @@ import { BarChartSample } from './components/bar-chart-sample';
 import { PieChartSample } from './components/pie-chart-sample';
 
 import './App.css';
+import { ImageSample } from './components/image-sample';
 
 interface Props {
 }
@@ -41,6 +42,7 @@ export class App extends React.Component<Props, State> {
               </div>),
           )
         }
+        <ImageSample />
       </div>
     );
   }
