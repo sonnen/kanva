@@ -1,4 +1,4 @@
-import { ViewCanvas } from '../canvas';
+import { Rect, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
 
 export enum ImageScaleType {
@@ -6,7 +6,6 @@ export enum ImageScaleType {
   FIT_CENTER,
   FIT_START,
   FIT_END,
-  CENTER_CROP,
   CENTER_INSIDE,
 }
 
@@ -15,8 +14,67 @@ export interface ImageViewProps {
   scaleType: ImageScaleType;
 }
 
+const scaleImage = (
+  scaleType: ImageScaleType,
+  imageWidth: number,
+  imageHeight: number,
+  innerWidth: number,
+  innerHeight: number,
+  rect: Rect,
+): Rect => {
+  let x: number;
+  let y: number;
+  let width: number;
+  let height: number;
+  switch (scaleType) {
+    case ImageScaleType.FIT_END:
+    case ImageScaleType.FIT_START:
+    case ImageScaleType.FIT_CENTER: {
+      const scale = Math.max(innerWidth, innerHeight) / (Math.min(imageWidth, imageHeight) || 1);
+      width = scale * imageWidth;
+      height = scale * imageHeight;
+      break;
+    }
+    case ImageScaleType.CENTER_INSIDE: {
+      const scale = Math.min(innerWidth, innerHeight) / (Math.max(imageWidth, imageHeight) || 1);
+      width = scale * imageWidth;
+      height = scale * imageHeight;
+      break;
+    }
+    case ImageScaleType.STRETCH:
+    default: {
+      width = innerWidth;
+      height = innerHeight;
+      break;
+    }
+  }
+  switch (scaleType) {
+    case ImageScaleType.FIT_CENTER:
+    case ImageScaleType.CENTER_INSIDE:
+      x = (innerWidth - width) / 2;
+      y = (innerHeight - height) / 2;
+      break;
+    case ImageScaleType.FIT_END:
+      x = innerWidth - width;
+      y = innerHeight - height;
+      break;
+    case ImageScaleType.FIT_START:
+    case ImageScaleType.STRETCH:
+    default:
+      x = 0;
+      y = 0;
+      break;
+  }
+  rect.l = x;
+  rect.r = x + width;
+  rect.t = y;
+  rect.b = y + height;
+  return rect;
+};
+
 export class ImageView extends View<ImageViewProps> {
   private readonly image: HTMLImageElement;
+  private readonly imageRect = new Rect(0);
   private scaleType: ImageScaleType = ImageScaleType.STRETCH;
   private imageWidth: number = 0;
   private imageHeight: number = 0;
@@ -61,48 +119,9 @@ export class ImageView extends View<ImageViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const ctx = canvas.context;
-    const { imageWidth, imageHeight, innerWidth, innerHeight } = this;
-
-    switch (this.scaleType) {
-      case ImageScaleType.FIT_CENTER: {
-        const scale = Math.max(innerWidth, innerHeight) / Math.min(imageWidth, imageHeight);
-        const newW = scale * imageWidth;
-        const newH = scale * imageHeight;
-
-        ctx.drawImage(this.image, (innerWidth - newW) / 2, (innerHeight - newH) / 2, newW, newH);
-        break;
-      }
-      case ImageScaleType.FIT_START: {
-        const scale = Math.max(innerWidth, innerHeight) / Math.min(imageWidth, imageHeight);
-        const newW = scale * imageWidth;
-        const newH = scale * imageHeight;
-
-        ctx.drawImage(this.image, 0, 0, newW, newH);
-        break;
-      }
-      case ImageScaleType.FIT_END: {
-        const scale = Math.max(innerWidth, innerHeight) / Math.min(imageWidth, imageHeight);
-        const newW = scale * imageWidth;
-        const newH = scale * imageHeight;
-
-        ctx.drawImage(this.image, innerWidth - newW, innerHeight - newH, newW, newH);
-        break;
-      }
-      case ImageScaleType.CENTER_INSIDE: {
-        const scale = Math.min(innerWidth, innerHeight) / Math.max(imageWidth, imageHeight);
-        const newW = scale * imageWidth;
-        const newH = scale * imageHeight;
-
-        ctx.drawImage(this.image, (innerWidth - newW) / 2, (innerHeight - newH) / 2, newW, newH);
-
-        break;
-      }
-      case ImageScaleType.STRETCH:
-      default: {
-        ctx.drawImage(this.image, 0, 0, innerWidth, innerHeight);
-        break;
-      }
-    }
+    const { rect, scaleType, imageWidth, imageHeight, innerWidth, innerHeight } = this;
+    scaleImage(scaleType, imageWidth, imageHeight, innerWidth, innerHeight, rect);
+    ctx.drawImage(this.image, rect.l, rect.t, rect.width, rect.height);
   }
 
   onSnapshot() {
