@@ -2,6 +2,7 @@ import { Rect, RectLike, ViewCanvas } from '../canvas';
 import { CanvasPointerEvent, PointerAction } from '../pointer-event';
 import { removeUndefinedProps } from '../utils';
 import { xor } from '../utils/boolean.util';
+import { RootCanvasView } from '../views';
 import { Context } from './context';
 import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
 import {
@@ -811,8 +812,44 @@ export class View<Props extends {} = ViewProps> {
     });
   }
 
+  screenshot(): string | undefined {
+    const viewOffset = this.offsetRect;
+    const rootView = this.getRootView() as RootCanvasView;
+    const rootViewScale = rootView.getScale();
+    const w = this.innerWidth * rootViewScale;
+    const h = this.innerHeight * rootViewScale;
+
+    if (!w || !h) {
+      return undefined;
+    }
+
+    const imageData = rootView.getCanvas().getContext('2d')!
+      .getImageData(viewOffset.l * rootViewScale, viewOffset.t * rootViewScale, w, h);
+
+    const canvas = this.context.canvasCreator({
+      width: w,
+      height: h,
+    });
+    const ctx = canvas.getContext('2d')!;
+    ctx.putImageData(imageData, 0, 0);
+
+    return canvas.toDataURL();
+  }
+
   onSnapshot(): object {
     return {};
+  }
+
+  getRootView() {
+    let parent: View = this;
+    while (parent.hasParent()) {
+      parent = parent.getParent()!;
+    }
+    return parent;
+  }
+
+  getParent() {
+    return this.parent;
   }
 
   hasParent() {
