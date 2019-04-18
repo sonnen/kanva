@@ -101,6 +101,7 @@ export class ImageView extends View<ImageViewProps> {
     if (source === this.source) {
       return;
     }
+    this.source = source;
     this.image.onload = () => {
       this.imageWidth = this.image.naturalWidth;
       this.imageHeight = this.image.naturalHeight;

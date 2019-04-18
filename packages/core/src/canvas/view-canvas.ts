@@ -1,10 +1,7 @@
+import { Canvas } from './canvas';
 import { TextAlign } from './font';
 import { Paint, PaintOverrides } from './paint';
 import { Radius } from './radius';
-
-export interface Canvas {
-  getContext(contextId: '2d'): CanvasRenderingContext2D | null;
-}
 
 export class ViewCanvas {
   public readonly context: CanvasRenderingContext2D;

@@ -1,3 +1,10 @@
+import { CanvasCreator, defaultCanvasCreator, defaultImageClass, ImageClass } from '../canvas/canvas';
+
+export interface ContextOptions {
+  imageClass?: ImageClass;
+  canvasCreator?: CanvasCreator;
+}
+
 export interface ContextLike {
   registerView(id: number, idName: string): void;
 
@@ -8,24 +15,15 @@ export interface ContextLike {
   resolve(id: string | number | undefined): number | undefined;
 }
 
-export type ImageClass = HTMLImageElement & { src: any };
-
-const getDefaultImageClass = (): (new () => ImageClass) | undefined => {
-  try {
-    // Browsers default
-    return Image;
-  } catch (error) {
-    return undefined;
-  }
-};
-
-const defaultImageClass = getDefaultImageClass()!;
-
 export class Context implements ContextLike {
   public debugEnabled = false;
+  public readonly imageClass: ImageClass;
+  public readonly canvasCreator: CanvasCreator;
   private idMap: Record<string, number> & Record<number, string> = {};
 
-  constructor(public readonly imageClass: (new () => ImageClass) = defaultImageClass) {
+  constructor(options: ContextOptions = {}) {
+    this.imageClass = options.imageClass || defaultImageClass!;
+    this.canvasCreator = options.canvasCreator || defaultCanvasCreator;
   }
 
   registerView(id: number, idName: string) {
