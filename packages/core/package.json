@@ -1,6 +1,6 @@
 {
   "name": "@kanva/core",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "Draw on HTML5 Canvas element using views",
   "keywords": [
     "canvas",

@@ -1,4 +1,5 @@
 import { Context, RequiredViewChanges, RootCanvasView, ViewProps } from '@kanva/core';
+import { ContextOptions } from '@kanva/core';
 import * as React from 'react';
 import { CSSProperties } from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
@@ -7,7 +8,7 @@ import { KanvaContext } from './kanva-context';
 interface Props {
   className?: string;
   style?: CSSProperties;
-  imageClass?: (new () => HTMLImageElement);
+  contextOptions?: ContextOptions;
   children?: React.ReactElement<ViewProps> | React.ReactElement<ViewProps>[];
   enablePointerEvents?: boolean;
   debug?: boolean;
@@ -27,7 +28,7 @@ export class Kanva extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.ctx = new Context(props.imageClass);
+    this.ctx = new Context(props.contextOptions);
   }
 
   componentDidMount() {

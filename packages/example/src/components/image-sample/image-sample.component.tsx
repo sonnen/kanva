@@ -8,8 +8,8 @@ const BaseImage: React.FC<Partial<ViewProps & ImageViewProps>> = (props) => (
   <ImageView
     {...props}
     layoutParams={{
-      width: 150,
-      height: 300,
+      width: .2,
+      height: .99,
       ...props.layoutParams,
       margin: 10,
     }}

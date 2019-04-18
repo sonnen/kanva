@@ -20,6 +20,14 @@ export class RootCanvasView extends View {
     this.rect.b = this.lp.h = height;
   }
 
+  getCanvas() {
+    return this.canvas.context.canvas;
+  }
+
+  getScale() {
+    return this.dpr;
+  }
+
   setupPointerEvents() {
     const canvas = this.canvas.context.canvas;
     if (!canvas || !canvas.addEventListener) {
@@ -103,7 +111,7 @@ export class RootCanvasView extends View {
     }
     this.isRequired = true;
     if (isBrowser) {
-      requestAnimationFrame(this.run);
+      setImmediate(() => requestAnimationFrame(this.run));
     }
   }
 
