@@ -232,8 +232,9 @@ export class DataContainer<DataPoint> {
 
   getYValuesMatch(x: number, match?: YValuesMatch): YValuesMatch | undefined {
     this.processData();
-    const primarySeries = this.series[0];
-    if (isNil(primarySeries) || isEmpty(primarySeries.data)) {
+
+    const primarySeries = this.series.find(series => !isNil(series) && !isEmpty(series.data));
+    if (!primarySeries) {
       return match;
     }
 
