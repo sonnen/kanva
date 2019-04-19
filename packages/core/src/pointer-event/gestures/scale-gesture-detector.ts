@@ -44,6 +44,7 @@ export class ScaleGestureDetector extends GestureDetector {
 
   private handleWheelGesture(pointerEvent: CanvasPointerEvent) {
     if (pointerEvent.action !== PointerAction.SCROLL) {
+      this.previous = undefined;
       return false;
     }
     if (!this.previous) {
@@ -56,6 +57,8 @@ export class ScaleGestureDetector extends GestureDetector {
       };
     }
     const previous = this.previous;
+    previous.centerX = pointerEvent.primaryPointer.x;
+    previous.centerY = pointerEvent.primaryPointer.y;
 
     const spanX = previous.spanX - pointerEvent.scrollY;
     const spanY = previous.spanY - pointerEvent.scrollX;
@@ -68,7 +71,7 @@ export class ScaleGestureDetector extends GestureDetector {
       spanY,
     };
 
-    const result = this.options.onScale({
+    return this.options.onScale({
       pointerEvent,
       current,
       previous,
@@ -76,8 +79,6 @@ export class ScaleGestureDetector extends GestureDetector {
       scaleFactorX: previous.spanX ? current.spanX / previous.spanX : 1,
       scaleFactorY: previous.spanY ? current.spanY / previous.spanY : 1,
     });
-    this.previous = current;
-    return result;
   }
 
   private handleMultitouchGesture(pointerEvent: CanvasPointerEvent): boolean {
