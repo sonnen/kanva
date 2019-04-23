@@ -44,28 +44,23 @@ export class ScaleGestureDetector extends GestureDetector {
 
   private handleWheelGesture(pointerEvent: CanvasPointerEvent) {
     if (pointerEvent.action !== PointerAction.SCROLL) {
-      this.previous = undefined;
       return false;
     }
-    if (!this.previous) {
-      this.previous = {
-        centerX: pointerEvent.primaryPointer.x,
-        centerY: pointerEvent.primaryPointer.y,
-        spanX: WHEEL_SCROLL_SPAN,
-        spanY: WHEEL_SCROLL_SPAN,
-        span: Math.sqrt(2 * WHEEL_SCROLL_SPAN * WHEEL_SCROLL_SPAN),
-      };
-    }
-    const previous = this.previous;
-    previous.centerX = pointerEvent.primaryPointer.x;
-    previous.centerY = pointerEvent.primaryPointer.y;
+    const { x: centerX, y: centerY } = pointerEvent.primaryPointer;
+    const previous = {
+      centerX,
+      centerY,
+      spanX: WHEEL_SCROLL_SPAN,
+      spanY: WHEEL_SCROLL_SPAN,
+      span: Math.sqrt(2 * WHEEL_SCROLL_SPAN * WHEEL_SCROLL_SPAN),
+    };
 
     const spanX = previous.spanX - pointerEvent.scrollY;
     const spanY = previous.spanY - pointerEvent.scrollX;
     const span = Math.sqrt(spanX * spanX + spanY * spanY);
     const current: ScaleGestureProps = {
-      centerX: pointerEvent.primaryPointer.x,
-      centerY: pointerEvent.primaryPointer.y,
+      centerX,
+      centerY,
       span,
       spanX,
       spanY,
