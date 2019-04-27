@@ -18,7 +18,6 @@ export interface BarChartViewStyle {
   barWidth?: number;
   barRadius?: Partial<Radius> | number;
   paints: Record<string, Paint>;
-  isBackgroundBright?: boolean;
 }
 
 export interface BarChartViewProps extends ChartViewProps<BarChartViewStyle> {
@@ -91,7 +90,6 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     const seriesCount = this.series.length;
     const ctx = canvas.context;
     const radius = normalizeRadius(style.barRadius || 0);
-    const { isBackgroundBright = true } = style;
     const barLine = new Line();
 
     for (let i = 0, left = 0, l = seriesLength; i < l; i++) {
@@ -115,7 +113,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
           barLine.startX = barLine.endX = barRight + barWidth / 2;
           barLine.startY = zeroPoint;
           barLine.endY = barY;
-          this.labelsHelper.draw(canvas, y, j, barLine, s, isBackgroundBright);
+          this.labelsHelper.draw(canvas, y, j, barLine, s);
         }
 
         barRight += barWidth;
