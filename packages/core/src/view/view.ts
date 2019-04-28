@@ -144,6 +144,7 @@ export class View<Props extends {} = ViewProps> {
 
     // Horizontal layout
     const horizontallyOrderedChildren = this.childrenOrdered.h;
+    let maxWidth = 0;
     for (let i = 0, l = horizontallyOrderedChildren.length; i < l; i++) {
       const child = horizontallyOrderedChildren[i];
       const { lp, rect } = child;
@@ -191,10 +192,23 @@ export class View<Props extends {} = ViewProps> {
         rect.r = rect.l;
         rect.l = l;
       }
+      maxWidth = Math.max(maxWidth, rect.r);
+    }
+    if (this.lp.w === WRAP_CONTENT) {
+      const { paddingRect: padding, marginRect: margin, minW: min, maxW: max } = this.lp;
+      const widthSpacing = padding.l + padding.r + margin.l + margin.r;
+      let dimension = maxWidth + widthSpacing;
+      if (dimension > max) {
+        dimension = max;
+      } else if (dimension < min) {
+        dimension = min;
+      }
+      this.width = Math.round(Math.max(this.width, dimension));
     }
 
     // Vertical layout
     const verticallyOrderedChildren = this.childrenOrdered.v;
+    let maxHeight = 0;
     for (let i = 0, l = verticallyOrderedChildren.length; i < l; i++) {
       const child = verticallyOrderedChildren[i];
       const { lp, rect } = child;
@@ -241,6 +255,18 @@ export class View<Props extends {} = ViewProps> {
         rect.b = rect.t;
         rect.t = t;
       }
+      maxHeight = Math.max(maxHeight, rect.b);
+    }
+    if (this.lp.h === WRAP_CONTENT) {
+      const { paddingRect: padding, marginRect: margin, minH: min, maxH: max } = this.lp;
+      const heightSpacing = padding.t + padding.b + margin.t + margin.b;
+      let dimension = maxHeight + heightSpacing;
+      if (dimension > max) {
+        dimension = max;
+      } else if (dimension < min) {
+        dimension = min;
+      }
+      this.height = Math.round(Math.max(this.height, dimension));
     }
 
     // Retrigger nested layout if dimensions changed
