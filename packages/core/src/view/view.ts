@@ -15,8 +15,8 @@ import {
 import { LayoutProps } from './layout-props';
 
 interface OrderedChildren {
-  h: number[];
-  v: number[];
+  h: View[];
+  v: View[];
 }
 
 export enum RequiredViewChanges {
@@ -49,8 +49,7 @@ export interface ViewProps {
 }
 
 export class View<Props extends {} = ViewProps> {
-  private static idCounter: number = 0;
-  public readonly id: number;
+  public id?: number;
   /** This are the bounds of view absolute offset. */
   public offsetRect: Rect = new Rect(0);
 
@@ -78,7 +77,7 @@ export class View<Props extends {} = ViewProps> {
   // Children
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
-  private childrenMap: Record<number, View> = {};
+  private childrenIdMap: Record<number, View> = {};
   private childrenGraphChanged = false;
 
   // Style
@@ -87,7 +86,6 @@ export class View<Props extends {} = ViewProps> {
   protected borderColor?: string;
 
   constructor(public readonly context: Context, public readonly name: string = 'View') {
-    this.id = View.idCounter++;
   }
 
   dispatchPointerEvent(event: CanvasPointerEvent): boolean {
@@ -138,16 +136,14 @@ export class View<Props extends {} = ViewProps> {
     if (!this.requireGuardAndTake(RequiredViewChanges.LAYOUT, force)) {
       return;
     }
-    const { children, childrenMap: map, context, innerHeight, innerWidth } = this;
+    const { children, childrenIdMap: map, context, innerHeight, innerWidth } = this;
 
     if (context.debugEnabled) {
       console.log(`${this.name}[${this.id}]: layout()`);
     }
 
-    const getFromChildrenMap = (id: number) => map[id];
-
     // Horizontal layout
-    const horizontallyOrderedChildren = this.childrenOrdered.h.map(getFromChildrenMap);
+    const horizontallyOrderedChildren = this.childrenOrdered.h;
     for (let i = 0, l = horizontallyOrderedChildren.length; i < l; i++) {
       const child = horizontallyOrderedChildren[i];
       const { lp, rect } = child;
@@ -198,7 +194,7 @@ export class View<Props extends {} = ViewProps> {
     }
 
     // Vertical layout
-    const verticallyOrderedChildren = this.childrenOrdered.v.map(getFromChildrenMap);
+    const verticallyOrderedChildren = this.childrenOrdered.v;
     for (let i = 0, l = verticallyOrderedChildren.length; i < l; i++) {
       const child = verticallyOrderedChildren[i];
       const { lp, rect } = child;
@@ -297,15 +293,15 @@ export class View<Props extends {} = ViewProps> {
       resolveLayoutParamsIds(children[i].lp, context);
     }
 
-    const h = resolveDimensionDependencies(children, horizontalLayoutDependencies);
-    const v = resolveDimensionDependencies(children, verticalLayoutDependencies);
+    const h = resolveDimensionDependencies(children, horizontalLayoutDependencies, context);
+    const v = resolveDimensionDependencies(children, verticalLayoutDependencies, context);
 
     this.childrenOrdered = { h, v };
     this.childrenGraphChanged = false;
     if (this.context.debugEnabled) {
       console.log({
-        h: this.childrenOrdered.h.map(c => this.childrenMap[c]),
-        v: this.childrenOrdered.v.map(c => this.childrenMap[c]),
+        h: this.childrenOrdered.h,
+        v: this.childrenOrdered.v,
       });
     }
   }
@@ -644,7 +640,7 @@ export class View<Props extends {} = ViewProps> {
     let id: number;
     if (typeof child === 'number') {
       id = child;
-      child = this.childrenMap[child];
+      child = this.childrenIdMap[id];
     } else {
       id = this.children.indexOf(child);
     }
@@ -774,8 +770,18 @@ export class View<Props extends {} = ViewProps> {
     return this.context.getId(this.id);
   }
 
-  setId(id: string) {
-    this.context.registerView(this.id, id);
+  setId(id?: string) {
+    // Detach from existing parent
+    const parent = this.parent;
+    if (this.id !== undefined && parent) {
+      delete parent.childrenIdMap[this.id];
+    }
+    // Register with the new id
+    this.id = id === undefined ? undefined : this.context.registerView(id);
+    // Attach to the same parent
+    if (this.id !== undefined && parent) {
+      parent.childrenIdMap[this.id] = this;
+    }
   }
 
   destroy() {
@@ -861,7 +867,13 @@ export class View<Props extends {} = ViewProps> {
       throw new Error('A view can have only one parent.');
     }
     this.parent = parent;
-    this.parent.childrenMap[this.id] = this;
+    if (this.id !== undefined) {
+      const childWithTheSameId = this.parent.childrenIdMap[this.id];
+      if (childWithTheSameId) {
+        throw new Error(`The parent already has a child with the same id: ${this.id}=${this.context.getId(this.id)}`);
+      }
+      this.parent.childrenIdMap[this.id] = this;
+    }
     this.parent.childrenGraphChanged = true;
   }
 
@@ -869,7 +881,9 @@ export class View<Props extends {} = ViewProps> {
     if (!this.parent) {
       return;
     }
-    delete this.parent.childrenMap[this.id];
+    if (this.id !== undefined) {
+      delete this.parent.childrenIdMap[this.id];
+    }
     this.parent.childrenGraphChanged = true;
     this.parent = null;
   }
