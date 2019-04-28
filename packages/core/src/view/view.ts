@@ -1,10 +1,10 @@
-import { Rect, RectLike, ViewCanvas } from '../canvas';
+import { calcDimension, DimensionType, MATCH_PARENT, Rect, RectLike, ViewCanvas, WRAP_CONTENT } from '../canvas';
 import { CanvasPointerEvent, PointerAction } from '../pointer-event';
 import { removeUndefinedProps } from '../utils';
 import { xor } from '../utils/boolean.util';
 import { RootCanvasView } from '../views';
 import { Context } from './context';
-import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
+import { LayoutParams, PARENT_ID } from './layout-params';
 import {
   horizontalLayoutDependencies,
   removeDefaultProps,
@@ -15,8 +15,8 @@ import {
 import { LayoutProps } from './layout-props';
 
 interface OrderedChildren {
-  h: number[];
-  v: number[];
+  h: View[];
+  v: View[];
 }
 
 export enum RequiredViewChanges {
@@ -49,8 +49,7 @@ export interface ViewProps {
 }
 
 export class View<Props extends {} = ViewProps> {
-  private static idCounter: number = 0;
-  public readonly id: number;
+  public id?: number;
   /** This are the bounds of view absolute offset. */
   public offsetRect: Rect = new Rect(0);
 
@@ -78,7 +77,7 @@ export class View<Props extends {} = ViewProps> {
   // Children
   private children: View[] = [];
   private childrenOrdered: OrderedChildren = { h: [], v: [] };
-  private childrenMap: Record<number, View> = {};
+  private childrenIdMap: Record<number, View> = {};
   private childrenGraphChanged = false;
 
   // Style
@@ -87,7 +86,6 @@ export class View<Props extends {} = ViewProps> {
   protected borderColor?: string;
 
   constructor(public readonly context: Context, public readonly name: string = 'View') {
-    this.id = View.idCounter++;
   }
 
   dispatchPointerEvent(event: CanvasPointerEvent): boolean {
@@ -138,27 +136,24 @@ export class View<Props extends {} = ViewProps> {
     if (!this.requireGuardAndTake(RequiredViewChanges.LAYOUT, force)) {
       return;
     }
-    const { children, childrenMap: map, context, innerHeight, innerWidth } = this;
+    const { children, childrenIdMap: map, context, innerHeight, innerWidth } = this;
 
     if (context.debugEnabled) {
       console.log(`${this.name}[${this.id}]: layout()`);
     }
 
-    const getFromChildrenMap = (id: number) => map[id];
-
     // Horizontal layout
-    const horizontallyOrderedChildren = this.childrenOrdered.h.map(getFromChildrenMap);
+    const horizontallyOrderedChildren = this.childrenOrdered.h;
+    let maxWidth = 0;
     for (let i = 0, l = horizontallyOrderedChildren.length; i < l; i++) {
       const child = horizontallyOrderedChildren[i];
       const { lp, rect } = child;
-      if (lp.w === MATCH_PARENT) {
-        child.width = innerWidth;
-      }
-      if (lp.w > 0 && lp.w < 1) {
-        child.width = innerWidth * lp.w;
+      const w = calcDimension(lp.wDimension, innerWidth);
+      if (w !== undefined) {
+        child.width = w;
       }
       if (lp.isAbsolute) {
-        rect.l = lp.x;
+        rect.l = calcDimension(lp.xDimension, innerWidth)!;
         rect.r = rect.l + child.width;
         continue;
       }
@@ -195,21 +190,32 @@ export class View<Props extends {} = ViewProps> {
         rect.r = rect.l;
         rect.l = l;
       }
+      maxWidth = Math.max(maxWidth, rect.r);
+    }
+    if (this.lp.w === WRAP_CONTENT) {
+      const { paddingRect: padding, marginRect: margin, minW: min, maxW: max } = this.lp;
+      const widthSpacing = padding.l + padding.r + margin.l + margin.r;
+      let dimension = maxWidth + widthSpacing;
+      if (dimension > max) {
+        dimension = max;
+      } else if (dimension < min) {
+        dimension = min;
+      }
+      this.width = Math.round(Math.max(this.width, dimension));
     }
 
     // Vertical layout
-    const verticallyOrderedChildren = this.childrenOrdered.v.map(getFromChildrenMap);
+    const verticallyOrderedChildren = this.childrenOrdered.v;
+    let maxHeight = 0;
     for (let i = 0, l = verticallyOrderedChildren.length; i < l; i++) {
       const child = verticallyOrderedChildren[i];
       const { lp, rect } = child;
-      if (lp.h === MATCH_PARENT) {
-        child.height = innerHeight;
-      }
-      if (lp.h > 0 && lp.h < 1) {
-        child.height = innerHeight * lp.h;
+      const h = calcDimension(lp.hDimension, innerHeight);
+      if (h !== undefined) {
+        child.height = h;
       }
       if (lp.isAbsolute) {
-        rect.t = lp.y;
+        rect.t = calcDimension(lp.yDimension, innerHeight)!;
         rect.b = rect.t + child.height;
         continue;
       }
@@ -245,6 +251,18 @@ export class View<Props extends {} = ViewProps> {
         rect.b = rect.t;
         rect.t = t;
       }
+      maxHeight = Math.max(maxHeight, rect.b);
+    }
+    if (this.lp.h === WRAP_CONTENT) {
+      const { paddingRect: padding, marginRect: margin, minH: min, maxH: max } = this.lp;
+      const heightSpacing = padding.t + padding.b + margin.t + margin.b;
+      let dimension = maxHeight + heightSpacing;
+      if (dimension > max) {
+        dimension = max;
+      } else if (dimension < min) {
+        dimension = min;
+      }
+      this.height = Math.round(Math.max(this.height, dimension));
     }
 
     // Retrigger nested layout if dimensions changed
@@ -297,15 +315,15 @@ export class View<Props extends {} = ViewProps> {
       resolveLayoutParamsIds(children[i].lp, context);
     }
 
-    const h = resolveDimensionDependencies(children, horizontalLayoutDependencies);
-    const v = resolveDimensionDependencies(children, verticalLayoutDependencies);
+    const h = resolveDimensionDependencies(children, horizontalLayoutDependencies, context);
+    const v = resolveDimensionDependencies(children, verticalLayoutDependencies, context);
 
     this.childrenOrdered = { h, v };
     this.childrenGraphChanged = false;
     if (this.context.debugEnabled) {
       console.log({
-        h: this.childrenOrdered.h.map(c => this.childrenMap[c]),
-        v: this.childrenOrdered.v.map(c => this.childrenMap[c]),
+        h: this.childrenOrdered.h,
+        v: this.childrenOrdered.v,
       });
     }
   }
@@ -368,7 +386,7 @@ export class View<Props extends {} = ViewProps> {
         width = foundWidth + widthSpacing;
       }
     } else {
-      width = this.lp.w;
+      width = calcDimension(this.lp.wDimension, this.getMatchParentWidth())!;
     }
 
     // Resolve height
@@ -398,7 +416,7 @@ export class View<Props extends {} = ViewProps> {
         height = foundHeight + heightSpacing;
       }
     } else {
-      height = this.lp.h;
+      height = calcDimension(this.lp.hDimension, this.getMatchParentHeight())!;
     }
 
     // Wrap to min/max
@@ -644,7 +662,7 @@ export class View<Props extends {} = ViewProps> {
     let id: number;
     if (typeof child === 'number') {
       id = child;
-      child = this.childrenMap[child];
+      child = this.childrenIdMap[id];
     } else {
       id = this.children.indexOf(child);
     }
@@ -774,8 +792,18 @@ export class View<Props extends {} = ViewProps> {
     return this.context.getId(this.id);
   }
 
-  setId(id: string) {
-    this.context.registerView(this.id, id);
+  setId(id?: string) {
+    // Detach from existing parent
+    const parent = this.parent;
+    if (this.id !== undefined && parent) {
+      delete parent.childrenIdMap[this.id];
+    }
+    // Register with the new id
+    this.id = id === undefined ? undefined : this.context.registerView(id);
+    // Attach to the same parent
+    if (this.id !== undefined && parent) {
+      parent.childrenIdMap[this.id] = this;
+    }
   }
 
   destroy() {
@@ -861,7 +889,13 @@ export class View<Props extends {} = ViewProps> {
       throw new Error('A view can have only one parent.');
     }
     this.parent = parent;
-    this.parent.childrenMap[this.id] = this;
+    if (this.id !== undefined) {
+      const childWithTheSameId = this.parent.childrenIdMap[this.id];
+      if (childWithTheSameId) {
+        throw new Error(`The parent already has a child with the same id: ${this.id}=${this.context.getId(this.id)}`);
+      }
+      this.parent.childrenIdMap[this.id] = this;
+    }
     this.parent.childrenGraphChanged = true;
   }
 
@@ -869,7 +903,9 @@ export class View<Props extends {} = ViewProps> {
     if (!this.parent) {
       return;
     }
-    delete this.parent.childrenMap[this.id];
+    if (this.id !== undefined) {
+      delete this.parent.childrenIdMap[this.id];
+    }
     this.parent.childrenGraphChanged = true;
     this.parent = null;
   }

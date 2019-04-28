@@ -1,5 +1,5 @@
-import { Rect, ViewCanvas } from '../canvas';
-import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
+import { Rect, ViewCanvas, WRAP_CONTENT } from '../canvas';
+import { Context, RequiredViewChanges, View } from '../view';
 
 export enum ImageScaleType {
   STRETCH,

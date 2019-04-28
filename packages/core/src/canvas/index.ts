@@ -1,6 +1,7 @@
 export * from './view-canvas';
 export * from './rect';
 export * from './point';
+export * from './dimension';
 export * from './line';
 export * from './font';
 export * from './radius';

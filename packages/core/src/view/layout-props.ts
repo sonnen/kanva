@@ -1,4 +1,5 @@
 import { RectLike } from '../canvas';
+import { DimensionInput } from '../canvas/dimension';
 
 export type Id = number | string;
 
@@ -17,15 +18,15 @@ export interface LayoutRelativePositionProps {
 
 export interface LayoutAbsolutePositionProps {
   isAbsolute?: boolean;
-  posX?: number;
-  posY?: number;
+  posX?: DimensionInput;
+  posY?: DimensionInput;
 }
 
 export interface LayoutSizeProps {
-  width?: number;
+  width?: DimensionInput;
   minWidth?: number;
   maxWidth?: number;
-  height?: number;
+  height?: DimensionInput;
   minHeight?: number;
   maxHeight?: number;
 }

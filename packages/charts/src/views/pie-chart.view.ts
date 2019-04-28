@@ -79,7 +79,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     const radius = Math.min(centerX, centerY);
     const inner = this.style.innerRadius || 0;
     const outerRadius = Math.max(0, radius - (style.backgroundPaint ? style.backgroundPaint.lineWidth / 2 : 0));
-    const innerRadius = Math.max(0, inner <= 1 ? inner * outerRadius : inner);
+    const innerRadius = Math.max(0, inner <= 1 ? inner * outerRadius : inner); // TODO Use Dimension
     const pi2 = Math.PI * 2;
     const padding = this.style.padding || 0;
 

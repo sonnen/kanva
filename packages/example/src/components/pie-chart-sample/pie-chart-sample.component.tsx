@@ -41,6 +41,7 @@ const container2 = new DataContainer<number>()
 
 const Text: React.FC<{ paint: Paint }> = ({ paint }) => (
   <TextView
+    id={'textView'}
     layoutParams={{
       centerHorizontal: true,
       centerVertical: true,

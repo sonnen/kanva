@@ -6,16 +6,15 @@ export interface ContextOptions {
 }
 
 export interface ContextLike {
-  registerView(id: number, idName: string): void;
+  registerView(idName: string): number;
 
-  deregisterView(id: number): void;
-
-  getId(id: string | number): string | number;
+  getId(id: string | number | undefined): string | number | undefined;
 
   resolve(id: string | number | undefined): number | undefined;
 }
 
 export class Context implements ContextLike {
+  private static idCounter: number = 0;
   public debugEnabled = false;
   public readonly imageClass: ImageClass;
   public readonly canvasCreator: CanvasCreator;
@@ -26,9 +25,15 @@ export class Context implements ContextLike {
     this.canvasCreator = options.canvasCreator || defaultCanvasCreator;
   }
 
-  registerView(id: number, idName: string) {
+  registerView(idName: string): number {
+    const existingId = this.idMap[idName];
+    if (existingId !== undefined) {
+      return existingId;
+    }
+    const id = Context.idCounter++;
     this.idMap[id] = idName;
     this.idMap[idName] = id;
+    return id;
   }
 
   deregisterView(id: number) {
@@ -37,12 +42,12 @@ export class Context implements ContextLike {
     delete this.idMap[id];
   }
 
-  getId(id: string | number) {
-    return this.idMap[id];
+  getId(id: string | number | undefined) {
+    return id === undefined ? undefined : this.idMap[id];
   }
 
   resolve(id: string | number | undefined): number | undefined {
-    return id !== undefined ? typeof id === 'string' ? this.idMap[id] : id : undefined;
+    return id !== undefined ? typeof id === 'string' ? this.registerView(id) : id : undefined;
   }
 }
 
@@ -59,7 +64,7 @@ export class NoContext implements ContextLike {
     throw noContextError();
   }
 
-  registerView(id: number, idName: string): void {
+  registerView(idName: string): number {
     throw noContextError();
   }
 

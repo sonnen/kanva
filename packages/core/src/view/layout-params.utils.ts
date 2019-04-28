@@ -4,7 +4,7 @@ import { LayoutParams, PARENT_ID } from './layout-params';
 import { Id, LayoutProps } from './layout-props';
 
 interface ViewLike {
-  id: number;
+  id?: number;
   name: string;
   getLayoutParams: () => LayoutParams;
 }
@@ -26,28 +26,36 @@ export const resolveLayoutParamsIds = (layoutParams: LayoutParams, context: Cont
 };
 
 interface Dependency {
-  id: number;
+  view: ViewLike;
+  id?: number;
   dependencies: number[];
 }
 
-export const resolveDimensionDependencies = (
-  children: ViewLike[],
-  dependencySelector: (lp: LayoutParams) => (undefined | number)[],
-): number[] => {
+export const resolveDimensionDependencies = <T extends ViewLike>(
+  children: T[],
+  dependencySelector: (lp: LayoutParams) => number[],
+  context: Context,
+): T[] => {
   const dimension: Dependency[] = children.map(child => ({
+    view: child,
     id: child.id,
-    dependencies: Array.from(new Set(
-      dependencySelector(child.getLayoutParams())
-        .filter((id): id is number => id !== undefined && id !== PARENT_ID),
-    )),
+    dependencies: dependencySelector(child.getLayoutParams()),
   }));
-  const orderedDimension: number[] = [];
+  const orderedDimension: T[] = [];
 
-  const maxLoops = dimension.length * 10;
-  let loops = 0;
-  const unresolvedDependencies = (depId: number) => !orderedDimension.includes(depId);
+  const unresolvedDependencies = (depId: number) => !orderedDimension.find(v => v.id === depId);
   while (dimension.length) {
-    if (loops++ > maxLoops) {
+    let dependenciesResolvedInCycle = 0;
+    for (let i = dimension.length - 1; i >= 0; i--) {
+      const child = dimension[i];
+      child.dependencies = child.dependencies.filter(unresolvedDependencies);
+      if (!child.dependencies.length) {
+        dependenciesResolvedInCycle++;
+        orderedDimension.push(child.view as T);
+        dimension.splice(i, 1);
+      }
+    }
+    if (dependenciesResolvedInCycle === 0) {
       const getChildById = (dependency: Dependency) => ({
         view: children.find(child => child.id === dependency.id)!,
         dependencies: dependency.dependencies,
@@ -59,26 +67,17 @@ export const resolveDimensionDependencies = (
         dimension
           .map(getChildById)
           .map(child => (
-            `${child.view.name}[${child.view.id}] that has unresolved references to "` +
+            `${child.view.name}[${child.view.id || '-'}] that has unresolved references to "` +
             child.dependencies
               .map(id => {
                 const child = children.find(child => child.id === id);
-                return `${id}: ${child ? child.name : 'a view that is not a sibling'}`;
+                return `${context.getId(id)}: ${child ? child.name : 'a view that is not a sibling'}`;
               })
               .join('", "') +
             `"`
           ))
           .join('\n'),
       );
-    }
-
-    for (let i = dimension.length - 1; i >= 0; i--) {
-      const child = dimension[i];
-      child.dependencies = child.dependencies.filter(unresolvedDependencies);
-      if (!child.dependencies.length) {
-        orderedDimension.push(child.id);
-        dimension.splice(i, 1);
-      }
     }
   }
 

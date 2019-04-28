@@ -16,8 +16,9 @@ export class RootCanvasView extends View {
     this.canvas = new ViewCanvas(canvas);
 
     const { width, height } = this.canvas.context.canvas;
-    this.rect.r = this.lp.w = width;
-    this.rect.b = this.lp.h = height;
+    this.rect.r = width;
+    this.rect.b = height;
+    this.lp.width(width).height(height);
   }
 
   getCanvas() {
@@ -65,8 +66,9 @@ export class RootCanvasView extends View {
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
-    this.rect.r = this.lp.w = width;
-    this.rect.b = this.lp.h = height;
+    this.rect.r = width;
+    this.rect.b = height;
+    this.lp.width(width).height(height);
     this.require(RequiredViewChanges.MEASURE);
   }
 

@@ -208,7 +208,7 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   private get barWidth() {
     const rawBarWidth = this.style.barWidth || 1;
     const width = this.groupWidth / this.series.length;
-    return rawBarWidth <= 1
+    return rawBarWidth <= 1  // TODO Use Dimension
       ? rawBarWidth * width
       : Math.min(rawBarWidth, width);
   }

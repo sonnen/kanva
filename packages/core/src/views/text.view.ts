@@ -1,5 +1,5 @@
-import { Paint, TextBaseline, ViewCanvas } from '../canvas';
-import { Context, RequiredViewChanges, View, WRAP_CONTENT } from '../view';
+import { Paint, TextBaseline, ViewCanvas, WRAP_CONTENT } from '../canvas';
+import { Context, RequiredViewChanges, View } from '../view';
 
 export interface TextViewProps {
   text: string;
