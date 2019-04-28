@@ -1,4 +1,4 @@
-import { DimensionType, parseDimension } from '../dimension';
+import { DimensionType, MATCH_PARENT, parseDimension, WRAP_CONTENT } from '../dimension';
 
 describe('Dimension', () => {
   describe('#parseDimension()', () => {
@@ -6,6 +6,16 @@ describe('Dimension', () => {
       expect(parseDimension(33.2)).toEqual({
         value: 33,
         type: DimensionType.PX,
+      });
+    });
+    it('parses raw negative numbers as RELATIVE dimensions', () => {
+      expect(parseDimension(MATCH_PARENT)).toEqual({
+        value: MATCH_PARENT,
+        type: DimensionType.RELATIVE,
+      });
+      expect(parseDimension(WRAP_CONTENT)).toEqual({
+        value: WRAP_CONTENT,
+        type: DimensionType.RELATIVE,
       });
     });
     it('treats null and undefined as 0px', () => {

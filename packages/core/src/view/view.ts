@@ -1,10 +1,10 @@
-import { Rect, RectLike, ViewCanvas } from '../canvas';
+import { calcDimension, DimensionType, MATCH_PARENT, Rect, RectLike, ViewCanvas, WRAP_CONTENT } from '../canvas';
 import { CanvasPointerEvent, PointerAction } from '../pointer-event';
 import { removeUndefinedProps } from '../utils';
 import { xor } from '../utils/boolean.util';
 import { RootCanvasView } from '../views';
 import { Context } from './context';
-import { LayoutParams, MATCH_PARENT, PARENT_ID, WRAP_CONTENT } from './layout-params';
+import { LayoutParams, PARENT_ID } from './layout-params';
 import {
   horizontalLayoutDependencies,
   removeDefaultProps,
@@ -148,14 +148,12 @@ export class View<Props extends {} = ViewProps> {
     for (let i = 0, l = horizontallyOrderedChildren.length; i < l; i++) {
       const child = horizontallyOrderedChildren[i];
       const { lp, rect } = child;
-      if (lp.w === MATCH_PARENT) {
-        child.width = innerWidth;
-      }
-      if (lp.w > 0 && lp.w < 1) {
-        child.width = innerWidth * lp.w;
+      const w = calcDimension(lp.wDimension, innerWidth);
+      if (w !== undefined) {
+        child.width = w;
       }
       if (lp.isAbsolute) {
-        rect.l = lp.x;
+        rect.l = calcDimension(lp.xDimension, innerWidth)!;
         rect.r = rect.l + child.width;
         continue;
       }
@@ -212,14 +210,12 @@ export class View<Props extends {} = ViewProps> {
     for (let i = 0, l = verticallyOrderedChildren.length; i < l; i++) {
       const child = verticallyOrderedChildren[i];
       const { lp, rect } = child;
-      if (lp.h === MATCH_PARENT) {
-        child.height = innerHeight;
-      }
-      if (lp.h > 0 && lp.h < 1) {
-        child.height = innerHeight * lp.h;
+      const h = calcDimension(lp.hDimension, innerHeight);
+      if (h !== undefined) {
+        child.height = h;
       }
       if (lp.isAbsolute) {
-        rect.t = lp.y;
+        rect.t = calcDimension(lp.yDimension, innerHeight)!;
         rect.b = rect.t + child.height;
         continue;
       }
@@ -390,7 +386,7 @@ export class View<Props extends {} = ViewProps> {
         width = foundWidth + widthSpacing;
       }
     } else {
-      width = this.lp.w;
+      width = calcDimension(this.lp.wDimension, this.getMatchParentWidth())!;
     }
 
     // Resolve height
@@ -420,7 +416,7 @@ export class View<Props extends {} = ViewProps> {
         height = foundHeight + heightSpacing;
       }
     } else {
-      height = this.lp.h;
+      height = calcDimension(this.lp.hDimension, this.getMatchParentHeight())!;
     }
 
     // Wrap to min/max

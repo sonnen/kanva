@@ -1,11 +1,8 @@
 import { Rect, RectLike } from '../canvas';
+import { DimensionInput, parseDimension, WRAP_CONTENT } from '../canvas/dimension';
 import { Id, LayoutProps } from './layout-props';
 
-export const MATCH_PARENT = -1;
-export const WRAP_CONTENT = -2;
 export const PARENT_ID = -1;
-
-export const isRelativeDimension = (dimension: number) => dimension < 0;
 
 const DefaultProps = {
   BELOW: undefined,
@@ -43,10 +40,14 @@ export class LayoutParams {
   endId?: Id = DefaultProps.ALIGN_END;
   centerV = DefaultProps.CENTER_VERTICAL;
   centerH = DefaultProps.CENTER_HORIZONTAL;
-  x = DefaultProps.X;
-  y = DefaultProps.Y;
-  w = DefaultProps.WIDTH;
-  h = DefaultProps.HEIGHT;
+  x: DimensionInput = DefaultProps.X;
+  y: DimensionInput = DefaultProps.Y;
+  w: DimensionInput = DefaultProps.WIDTH;
+  h: DimensionInput = DefaultProps.HEIGHT;
+  xDimension = parseDimension(DefaultProps.X);
+  yDimension = parseDimension(DefaultProps.Y);
+  wDimension = parseDimension(DefaultProps.WIDTH);
+  hDimension = parseDimension(DefaultProps.HEIGHT);
   minW = DefaultProps.MIN_WIDTH;
   minH = DefaultProps.MIN_HEIGHT;
   maxW = DefaultProps.MAX_WIDTH;
@@ -171,8 +172,11 @@ export class LayoutParams {
     return this;
   }
 
-  width(width: number) {
-    this.w = width;
+  width(width: DimensionInput) {
+    if (this.w !== width) {
+      this.w = width;
+      this.wDimension = parseDimension(width);
+    }
     return this;
   }
 
@@ -186,8 +190,11 @@ export class LayoutParams {
     return this;
   }
 
-  height(height: number) {
-    this.h = height;
+  height(height: DimensionInput) {
+    if (this.h !== height) {
+      this.h = height;
+      this.hDimension = parseDimension(height);
+    }
     return this;
   }
 
@@ -221,13 +228,19 @@ export class LayoutParams {
     return this;
   }
 
-  posX(x: number) {
-    this.x = x;
+  posX(x: DimensionInput) {
+    if (this.x !== x) {
+      this.x = x;
+      this.xDimension = parseDimension(x);
+    }
     return this;
   }
 
-  posY(y: number) {
-    this.y = y;
+  posY(y: DimensionInput) {
+    if (this.x !== y) {
+      this.y = y;
+      this.yDimension = parseDimension(y);
+    }
     return this;
   }
 
