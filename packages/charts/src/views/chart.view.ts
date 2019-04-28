@@ -28,7 +28,7 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
   protected onChartPointerEvent?: OnChartPointerEvent;
   protected style: Style;
 
-  constructor(context: Context, name: string, private readonly defaultStyle: Style) {
+  protected constructor(context: Context, name: string, private readonly defaultStyle: Style) {
     super(context, name);
     this.style = defaultStyle;
   }

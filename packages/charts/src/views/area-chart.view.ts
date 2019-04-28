@@ -15,7 +15,6 @@ export enum DataDisplayType {
 export interface AreaChartViewStyle {
   type: DataDisplayType;
   paint: Paint;
-  isBackgroundBright?: boolean;
 }
 
 export interface AreaChartViewProps extends ChartViewProps<AreaChartViewStyle> {
@@ -116,7 +115,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const { dataContainer, style, center } = this;
-    const { type, paint, isBackgroundBright = true } = style;
+    const { type, paint } = style;
     const ctx = canvas.context;
     const dataSegments = this.data;
     const halfLineWidth = paint.lineWidth / 2;
@@ -178,11 +177,11 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
         for (let i = 0, l = data.length; i < l; i += 2) {
           pointLine.startX = pointLine.endX = xScale(data[i]);
           pointLine.startY = pointLine.endY = yScale(data[i + 1]);
+          pointLine.endY += 1;
 
-          this.labelsHelper.draw(canvas, data[i + 1], index++, pointLine, paint, isBackgroundBright);
+          this.labelsHelper.draw(canvas, data[i + 1], index++, pointLine, paint);
         }
       }
-
     }
   }
 

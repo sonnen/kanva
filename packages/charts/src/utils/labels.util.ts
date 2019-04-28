@@ -28,6 +28,7 @@ export interface LabelOptions {
   padding?: number;
   margin?: number;
   backgroundRadius?: RadiusInput;
+  isBackgroundBright?: boolean;
 }
 
 const labelPaintOverrides: PaintOverrides = {
@@ -66,7 +67,6 @@ export class LabelsHelper {
     index: number,
     line: Line,
     lineBackground: Paint,
-    isBackgroundBright: boolean,
   ) {
     if (!this.options) {
       throw new Error('LabelsHelper requires "options" to be present in order to draw labels.');
@@ -81,6 +81,7 @@ export class LabelsHelper {
       contrastBackgroundPaint,
       position,
       labelAccessor,
+      isBackgroundBright = true,
     } = this.options;
     const { temporaryPoint, temporaryLine, fillRadius } = this;
     const textHeight = labelsPaint.font.fontSize;

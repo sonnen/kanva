@@ -1,4 +1,4 @@
-import { DataContainer } from '@kanva/charts';
+import { DataContainer, LabelPosition } from '@kanva/charts';
 import { PieChartView } from '@kanva/charts-react';
 import { Paint, rgba, TextAlign, TextBaseline } from '@kanva/core';
 import { Kanva, TextView } from '@kanva/react';
@@ -63,6 +63,14 @@ export class PieChartSample extends React.Component {
             layoutParams={layout.pieChart}
             dataContainer={container}
             style={pieChartStyle}
+            labelOptions={{
+              labelsPaint: new Paint().setFillStyle('#FFF'),
+              contrastLabelsPaint: new Paint().setFillStyle('#000'),
+              labelAccessor: value => (Math.round(value * 1000) / 10) + '%',
+              padding: 10,
+              position: LabelPosition.OUT,
+              isBackgroundBright: false,
+            }}
           >
             <Text paint={new Paint()
               .setFillStyle('#FFF')

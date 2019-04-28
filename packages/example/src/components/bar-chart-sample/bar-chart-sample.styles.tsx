@@ -22,7 +22,6 @@ export const barChartStyle: BarChartViewStyle = {
     [Series.PRODUCTION]: new Paint()
       .setFillStyle(SeriesColors[Series.PRODUCTION]),
   },
-  isBackgroundBright: false,
 };
 
 export const xAxisStyle: AxisViewStyle = {

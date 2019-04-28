@@ -162,6 +162,7 @@ export class BarChartSample extends React.Component<{}, State> {
                 margin: 2,
                 backgroundRadius: 3,
                 position: LabelPosition.CENTER,
+                isBackgroundBright: false,
               }}
               style={barChartStyle}
               viewRef={this.handleViewRef}
