@@ -1,9 +1,9 @@
-import { SnapValuesMatch } from '@kanva/charts';
+import { XYPoint } from '@kanva/charts';
 import { Offset } from '@kanva/core';
 import * as React from 'react';
 
 interface Props {
-  snap?: SnapValuesMatch;
+  snap?: XYPoint;
   offset?: Offset;
   onMove?: (x: number) => void;
 }

@@ -31,3 +31,32 @@ export const segmentizePoints = <In, Filter, Out = In extends Filter ? never : I
 
   return dataSegments;
 };
+
+export const findBestMatchInSortedArray = <T>(
+  array: T[],
+  matcher: (element: T, index: number) => number,
+): T | undefined => {
+  if (!array || !array.length) {
+    return undefined;
+  }
+  let nearestMatchDistance: number = Infinity;
+  let nearestMatch: T | undefined;
+  for (let l = 0, r = array.length - 1; l <= r;) {
+    const i = Math.floor((l + r) / 2);
+    const distance = matcher(array[i], i);
+
+    if (Math.abs(distance) < Math.abs(nearestMatchDistance)) {
+      nearestMatchDistance = distance;
+      nearestMatch = array[i];
+    }
+
+    if (distance === 0 || l >= r) {
+      break;
+    } else if (distance > 0) {
+      r = i - 1;
+    } else {
+      l = i + 1;
+    }
+  }
+  return nearestMatch;
+};

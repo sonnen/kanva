@@ -1,17 +1,6 @@
-import {
-  CanvasPointerEvent,
-  Context,
-  normalizeRadius,
-  Paint,
-  PointerAction,
-  RadiusInput,
-  RequiredViewChanges,
-  rgba,
-  ViewCanvas,
-} from '@kanva/core';
-import { isNil, last } from 'lodash';
+import { Context, normalizeRadius, Paint, RadiusInput, rgba, ViewCanvas } from '@kanva/core';
+import { last } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
-import { DataContainerTransformExtension, TRANSFORM_EXTENSION } from '../data-container';
 import { ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
@@ -140,61 +129,6 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
       canvas.drawPath(foreground.paint);
     }
 
-  }
-
-  onPointerEvent(event: CanvasPointerEvent): boolean {
-    if (!this.dataContainer) {
-      return false;
-    }
-
-    // Pan & zoom
-    const transformExtension = this.dataContainer.getExtension<DataContainerTransformExtension>(TRANSFORM_EXTENSION);
-    const scales = this.getScales();
-    if (transformExtension && transformExtension.processPointerEvent(event, scales)) {
-      this.require(RequiredViewChanges.DRAW);
-      return true;
-    }
-
-    if (!this.onChartPointerEvent) {
-      return false;
-    }
-
-    if (event.action !== PointerAction.UP) {
-      // TODO Re-use TooltipExtension.processPointerEvent as in Pan&Zoom
-      // Tooltip
-      const dataSeries = this.dataContainer.getDataSeries(this.dataSeries[0]);
-      const { xScale, yScale } = this.getScales();
-
-      if (!dataSeries) {
-        return false;
-      }
-
-      const { x, y } = event.primaryPointer;
-      const point = {
-        x: xScale.invert(x),
-        y: yScale.invert(y),
-      };
-
-      const match = this.dataContainer.getYValuesMatch(point.x);
-
-      if (isNil(match)) {
-        return false;
-      }
-
-      const snap = {
-        x: xScale(match.snapX) + this.offsetRect.l,
-        y: xScale(match.snapY) + this.offsetRect.t,
-      };
-
-      this.onChartPointerEvent({
-        pointerEvent: event,
-        ...point,
-        match,
-        snap,
-      });
-    }
-
-    return true;
   }
 
   getScales(): ScaleFunctions {

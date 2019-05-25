@@ -1,3 +1,4 @@
+import { CanvasPointerEvent } from '@kanva/core';
 import { DataContainer } from './data-container';
 import { DataContainerEventType } from './data-container.events';
 
@@ -26,6 +27,10 @@ export abstract class DataContainerExtension {
     this.onDetach(dataContainer);
   }
 
+  onChartPointerEvent(event: CanvasPointerEvent): boolean {
+    return false;
+  }
+
   protected onAttach(dataContainer: DataContainer<any>) {
     // Extension can implement this method to override the default behaviour of DataContainer
   }
@@ -40,4 +45,5 @@ export abstract class DataContainerExtension {
     }
     return payload!;
   }
+
 }

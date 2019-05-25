@@ -14,7 +14,7 @@ export const SeriesColors = {
 export const labelColor = '#FFF';
 
 export const barChartStyle: BarChartViewStyle = {
-  barWidth: .8,
+  barWidth: '80%',
   barRadius: 3,
   paints: {
     [Series.CONSUMPTION]: new Paint()

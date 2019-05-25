@@ -1,7 +1,8 @@
 import { CanvasPointerEvent, DragEvent, DragGestureDetector, ScaleEvent, ScaleGestureDetector } from '@kanva/core';
-import { defaultsDeep } from 'lodash';
+import defaultsDeep from 'lodash/defaultsDeep';
 import { XYPoint } from '../chart.types';
 import { DeepPartial, floorToNearest, ScaleFunction, ScaleFunctions } from '../utils';
+import { ChartView } from '../views';
 import { DataContainer } from './data-container';
 import { DataContainerEventType, GetScalesEvent } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
@@ -63,8 +64,8 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     });
   }
 
-  processPointerEvent(event: CanvasPointerEvent, scales: ScaleFunctions) {
-    this.scales = scales;
+  onChartPointerEvent(event: CanvasPointerEvent) {
+    this.scales = (event.target as ChartView<any, any>).getScales();
     return (
       this.scaleGestureDetector.onPointerEvent(event) ||
       this.dragGestureDetector.onPointerEvent(event)
