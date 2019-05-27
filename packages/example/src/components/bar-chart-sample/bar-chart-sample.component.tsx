@@ -56,37 +56,27 @@ interface State {
 
 export class BarChartSample extends React.Component<{}, State> {
   state: State = {};
+  private barChartView?: BarChartView;
   private readonly tooltipExtension?: DataContainerTooltipExtension;
 
   constructor(props: {}) {
     super(props);
-    this.tooltipExtension = new DataContainerTooltipExtension();
-    this.tooltipExtension.setTooltipEventHandler(this.handleTooltipEvent);
+    this.tooltipExtension = new DataContainerTooltipExtension({
+      onTooltipEvent: this.handleTooltipEvent,
+    });
 
     container.addExtension(this.tooltipExtension);
   }
 
-  handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
-    this.tooltipExtension!.setCanvasOffset(canvas);
-  };
-
-  handleViewRef = (view: View<any>) => {
-    if (this.tooltipExtension) {
-      this.tooltipExtension.setView(view);
-    }
-  };
+  handleViewRef = (view: View<any>) => this.barChartView = view as BarChartView;
 
   handleTooltipEvent: TooltipEventHandler = (event) => {
-    if (this.state.tooltipEvent === event) {
-      return;
-    }
-
-    this.setState({ tooltipEvent: event });
+    this.setState(this.state.tooltipEvent === event ? null : { tooltipEvent: event });
   };
 
   handleTooltipPositionChange = (x: number) => {
-    if (this.tooltipExtension) {
-      this.tooltipExtension.setPosition({ x, y: 0 });
+    if (this.tooltipExtension && this.barChartView) {
+      this.tooltipExtension.simulateAbsoluteCanvasPosition(this.barChartView, { x, y: 0 });
     }
   };
 
@@ -104,7 +94,6 @@ export class BarChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          canvasRef={this.handleCanvasRef}
         >
           <LegendView
             id={Views.LEGEND}
@@ -167,7 +156,7 @@ export class BarChartSample extends React.Component<{}, State> {
               style={barChartStyle}
               viewRef={this.handleViewRef}
               onMount={view => {
-                const { absoluteX } = (view as BarChartView<number>)
+                const { absoluteX } = (view as BarChartView)
                   .getCanvasPositionForPoint({ x: 7, y: 0 });
                 this.handleTooltipPositionChange(absoluteX);
               }}
@@ -194,7 +183,7 @@ export class BarChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipEvent && tooltipEvent.snap}
-          offset={tooltipEvent && tooltipEvent.offset}
+          offset={tooltipEvent && tooltipEvent.pointerEvent.offset}
           onMove={this.handleTooltipPositionChange}
         />
       </div>

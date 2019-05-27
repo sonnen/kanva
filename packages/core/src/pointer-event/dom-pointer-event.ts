@@ -5,8 +5,9 @@ export interface Offset {
   top: number;
 }
 
-export const getElementOffset = (element: HTMLElement): Offset => {
-  const offset = { left: element.offsetLeft, top: element.offsetTop };
+export const getElementOffset = (element: HTMLElement, offset: Offset): Offset => {
+  offset.left = element.offsetLeft;
+  offset.top = element.offsetTop;
   let reference: HTMLElement | undefined | null = element.offsetParent as any;
   while (reference) {
     offset.left += reference.offsetLeft;

@@ -1,8 +1,9 @@
 import { CanvasPointerEvent, Context, DeepReadonly, RequiredViewChanges, View } from '@kanva/core';
 import { removeUndefinedProps } from '@kanva/core';
-import { CanvasPosition, SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
+import { CanvasPosition, XYPoint, YValuesMatch } from '../chart.types';
 import { DataContainer } from '../data-container';
 import { DataContainerEventType } from '../data-container/data-container.events';
+import { ScaleFunctions } from '../utils';
 
 export interface ChartViewProps<Style> {
   dataContainer?: DataContainer<any>;
@@ -16,7 +17,7 @@ export interface ChartPointerEvent {
   x: number;
   y: number;
   match: YValuesMatch;
-  snap: SnapValuesMatch;
+  snap: XYPoint;
 }
 
 export type OnChartPointerEvent = (event: ChartPointerEvent) => void;
@@ -25,7 +26,6 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
   Style = NonNullable<ChartProps['style']>> extends View<ChartProps> {
   protected dataContainer?: DataContainer<any>;
   protected dataSeries: string[] = [];
-  protected onChartPointerEvent?: OnChartPointerEvent;
   protected style: Style;
 
   protected constructor(context: Context, name: string, private readonly defaultStyle: Style) {
@@ -50,12 +50,15 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
 
   abstract getPointForCanvasPosition(position: XYPoint): XYPoint | undefined;
 
-  getOnChartPointerEvent() {
-    return this.onChartPointerEvent;
+  onPointerEvent(event: CanvasPointerEvent): boolean {
+    return !!this.dataContainer && this.dataContainer.onChartPointerEvent(event);
   }
 
-  setOnChartPointerEvent(onChartPointerEvent: OnChartPointerEvent) {
-    this.onChartPointerEvent = onChartPointerEvent;
+  getScales(): ScaleFunctions {
+    return this.dataContainer!.getScales(
+      this.innerWidth,
+      this.innerHeight,
+    );
   }
 
   getDataSeries() {

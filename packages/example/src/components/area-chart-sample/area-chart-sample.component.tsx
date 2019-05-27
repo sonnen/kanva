@@ -67,6 +67,7 @@ export class AreaChartSample extends React.Component<{}, State> {
     scale: 1,
   };
 
+  private areaChartView?: AreaChartView;
   private readonly tooltipExtension?: DataContainerTooltipExtension;
 
   constructor(props: {}) {
@@ -77,22 +78,15 @@ export class AreaChartSample extends React.Component<{}, State> {
         listener: this.handleScale,
       },
     });
-    this.tooltipExtension = new DataContainerTooltipExtension();
-    this.tooltipExtension.setTooltipEventHandler(this.handleTooltipEvent);
+    this.tooltipExtension = new DataContainerTooltipExtension({
+      onTooltipEvent: this.handleTooltipEvent,
+    });
 
     this.container.addExtension(transformExtension, this.tooltipExtension);
     this.percentageContainer.addExtension(transformExtension, this.tooltipExtension);
   }
 
-  handleCanvasRef = (canvas: HTMLCanvasElement | null) => {
-    this.tooltipExtension!.setCanvasOffset(canvas);
-  };
-
-  handleViewRef = (view: View<any>) => {
-    if (this.tooltipExtension) {
-      this.tooltipExtension.setView(view);
-    }
-  };
+  handleViewRef = (view: View<any>) => this.areaChartView = view as AreaChartView;
 
   handleScale = (scaleX: number) => {
     const scale = Math.floor(Math.log2(scaleX));
@@ -128,8 +122,8 @@ export class AreaChartSample extends React.Component<{}, State> {
   };
 
   handleTooltipPositionChange = (x: number) => {
-    if (this.tooltipExtension) {
-      this.tooltipExtension.setPosition({ x, y: 0 });
+    if (this.tooltipExtension && this.areaChartView) {
+      this.tooltipExtension.simulateAbsoluteCanvasPosition(this.areaChartView, { x, y: 0 });
     }
   };
 
@@ -204,7 +198,6 @@ export class AreaChartSample extends React.Component<{}, State> {
         <Kanva
           className={'c-sample-canvas'}
           enablePointerEvents={true}
-          canvasRef={this.handleCanvasRef}
         >
           <ChartGridView
             layoutParams={layout.areaChartWrapper}
@@ -287,7 +280,7 @@ export class AreaChartSample extends React.Component<{}, State> {
         </Kanva>
         <Crosshair
           snap={tooltipEvent && tooltipEvent.snap}
-          offset={tooltipEvent && tooltipEvent.offset}
+          offset={tooltipEvent && tooltipEvent.pointerEvent.offset}
           onMove={this.handleTooltipPositionChange}
         />
       </div>

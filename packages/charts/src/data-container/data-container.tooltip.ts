@@ -1,6 +1,7 @@
-import { getElementOffset, Offset, View } from '@kanva/core';
-import { isNil } from 'lodash';
-import { SnapValuesMatch, XYPoint, YValuesMatch } from '../chart.types';
+import { CanvasPointerEvent, PointerAction } from '@kanva/core';
+import defaultsDeep from 'lodash/defaultsDeep';
+import { XYPoint, YValuesMatch } from '../chart.types';
+import { DeepPartial } from '../utils';
 import { ChartView } from '../views';
 import { DataContainer } from './data-container';
 import { DataContainerEventType } from './data-container.events';
@@ -14,112 +15,93 @@ enum TooltipEventType {
 }
 
 export interface TooltipEvent {
-  snap: SnapValuesMatch;
+  pointerEvent: CanvasPointerEvent;
+  snap: XYPoint;
   match: YValuesMatch;
-  offset: Offset;
+}
+
+export interface DataContainerTooltipExtensionOptions {
+  enableOnHover: boolean;
+  onTooltipEvent?: (tooltipEvent: TooltipEvent) => void;
 }
 
 export type TooltipEventHandler = (event: TooltipEvent) => void;
 
 export class DataContainerTooltipExtension extends DataContainerExtension {
-  private view?: View<any>;
+  private readonly options: DataContainerTooltipExtensionOptions;
   private onTooltipEvent?: TooltipEventHandler;
-  private canvasOffset: Offset = { left: 0, top: 0 };
+  private lastPointerEvent = new CanvasPointerEvent();
   private position: XYPoint = { x: 0, y: 0 };
 
-  constructor() {
+  constructor(options: DeepPartial<DataContainerTooltipExtensionOptions>) {
     super(TOOLTIP_EXTENSION);
+    this.options = defaultsDeep(options, {
+      enableOnHover: true,
+    });
   }
 
-  setView(view: View<any>) {
-    this.view = view;
-  }
+  onChartPointerEvent(event: CanvasPointerEvent): boolean {
+    const isSupportedPressure = this.options.enableOnHover &&
+      event.primaryPointer.pressure === 0 || event.primaryPointer.pressure > 0;
+    const isSupportedEventType = event.action === PointerAction.MOVE || event.action === PointerAction.OVER;
+    const isTargetPresent = !!event.target;
+    if (!isSupportedPressure || !isSupportedEventType || !isTargetPresent) {
+      return false;
+    }
+    event.cloneTo(this.lastPointerEvent);
 
-  setCanvasOffset(canvas: HTMLCanvasElement | null) {
-    if (canvas === null) {
-      return;
+    const chartView = event.target as ChartView<any, any>;
+    const dataContainer = chartView.getDataContainer()!;
+    const { xScale, yScale } = chartView.getScales();
+
+    const point = chartView.getPointForCanvasPosition(event.primaryPointer);
+    if (!point) {
+      return false;
     }
 
-    const offset = getElementOffset(canvas);
-    if (this.canvasOffset.left !== offset.left
-      || this.canvasOffset.top !== offset.top) {
-      this.canvasOffset = offset;
-      this.postTooltipEvent(TooltipEventType.SNAP);
+    const match = this.dataContainers.reduce((match, dataContainer) =>
+      dataContainer.getYValuesMatch(point.x, match), undefined as YValuesMatch | undefined);
+
+    if (!match) {
+      return false;
     }
+
+    const position = chartView.getCanvasPositionForPoint(match.primary);
+    const snap = {
+      x: position.absoluteX,
+      y: position.absoluteY,
+    };
+
+    if (this.options.onTooltipEvent) {
+      this.options.onTooltipEvent({
+        pointerEvent: event,
+        ...point,
+        match,
+        snap,
+      });
+    }
+    return true;
   }
 
-  setTooltipEventHandler(tooltipEventHandler: TooltipEventHandler) {
-    this.onTooltipEvent = tooltipEventHandler;
-  }
-
-  setPosition(pos: XYPoint) {
-    this.position = { ...pos };
-    this.postTooltipEvent(TooltipEventType.SNAP);
-  }
-
-  getPosition() {
-    return this.position;
+  simulateAbsoluteCanvasPosition(view: ChartView<any, any>, absolutePosition: XYPoint) {
+    const event = this.lastPointerEvent || new CanvasPointerEvent();
+    event.target = view;
+    event.pointerCount = 1;
+    event.primaryPointer.pressure = .5;
+    event.primaryPointer.x = absolutePosition.x - view.offsetRect.l;
+    event.primaryPointer.y = absolutePosition.y - view.offsetRect.t;
+    event.action = PointerAction.MOVE;
+    this.onChartPointerEvent(event);
   }
 
   protected onAttach(dataContainer: DataContainer<any>) {
-    dataContainer.addEventListener(
-      DataContainerEventType.DATA_CHANGE,
-      () => this.postTooltipEvent(TooltipEventType.SMOOTH),
-    );
+    dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
   }
 
   protected onDetach(dataContainer: DataContainer<any>) {
-    dataContainer.removeEventListener(
-      DataContainerEventType.DATA_CHANGE,
-      () => this.postTooltipEvent(TooltipEventType.SMOOTH),
-    );
+    dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
   }
 
-  private postTooltipEvent = (type: TooltipEventType) => {
-    if (!this.view
-      || !this.dataContainers.length
-      || !this.onTooltipEvent
-    ) {
-      return;
-    }
+  private onDataChange = () => this.onChartPointerEvent(this.lastPointerEvent);
 
-    const tooltipEvent = this.getTooltipEvent(type);
-    if (!isNil(tooltipEvent)) {
-      this.onTooltipEvent(tooltipEvent);
-    }
-  };
-
-  private getTooltipEvent(type: TooltipEventType): TooltipEvent | undefined {
-    const { dataContainers, view, position } = this;
-    const point = (view as ChartView<any>).getPointForCanvasPosition({
-      x: position.x,
-      y: position.y,
-    });
-
-    if (isNil(point)) {
-      return;
-    }
-
-    const match = dataContainers.reduce((match, dataContainer) =>
-      dataContainer.getYValuesMatch(point.x, match), undefined as YValuesMatch | undefined);
-
-    if (isNil(match)) {
-      return;
-    }
-
-    const { absoluteX, absoluteY } = (view as ChartView<any>).getCanvasPositionForPoint(
-      type === TooltipEventType.SNAP
-      ? { x: match.snapX, y: match.snapY }
-      : { x: match.x, y: match.snapY },
-    );
-
-    return {
-      snap: {
-        x: absoluteX,
-        y: absoluteY,
-      },
-      match,
-      offset: this.canvasOffset,
-    };
-  }
 }

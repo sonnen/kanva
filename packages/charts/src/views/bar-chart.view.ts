@@ -1,21 +1,21 @@
 import {
-  CanvasPointerEvent,
+  calcDimension,
   Context,
+  Dimension,
+  DimensionInput,
   Line,
   normalizeRadius,
   Paint,
-  PointerAction,
+  parseDimension,
   Radius,
   ViewCanvas,
 } from '@kanva/core';
-import { isNil } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
 import { LabelOptions, LabelsHelper, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 export interface BarChartViewStyle {
-  padding?: number;
-  barWidth?: number;
+  barWidth?: DimensionInput;
   barRadius?: Partial<Radius> | number;
   paints: Record<string, Paint>;
 }
@@ -30,12 +30,12 @@ const defaultStyle = {
   paints: {},
   barWidth: .5,
   barRadius: 0,
-  padding: 0,
   isBackgroundBright: true,
 };
 
-export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
+export class BarChartView extends ChartView<BarChartViewProps> {
   private readonly labelsHelper = new LabelsHelper();
+  private barWidth: Dimension = parseDimension(undefined);
   // Calculated series
   private series: DataSeries<{ y: number, barY: number }>[] = [];
   private seriesLength: number = 0;
@@ -51,6 +51,11 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
   setLabelOptions(labels: LabelOptions) {
     this.labelsHelper.setOptions(labels);
+  }
+
+  setStyle(style: BarChartViewStyle | undefined) {
+    super.setStyle(style);
+    this.barWidth = parseDimension(this.style.barWidth);
   }
 
   onLayout(): void {
@@ -84,13 +89,14 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
       seriesLength,
       style,
       groupWidth,
-      barWidth,
     } = this;
 
     const seriesCount = this.series.length;
     const ctx = canvas.context;
     const radius = normalizeRadius(style.barRadius || 0);
     const barLine = new Line();
+    const maxBarWidth = groupWidth / this.series.length;
+    const barWidth = calcDimension(this.barWidth, maxBarWidth) || maxBarWidth;
 
     for (let i = 0, left = 0, l = seriesLength; i < l; i++) {
       const right = left + groupWidth;
@@ -123,51 +129,8 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
     }
   }
 
-  onPointerEvent(event: CanvasPointerEvent): boolean {
-    if (!this.onChartPointerEvent || !this.dataContainer) {
-      return false;
-    }
-    switch (event.action) {
-      case PointerAction.OVER:
-      case PointerAction.DOWN:
-      case PointerAction.MOVE:
-        const dataSeries = this.dataContainer.getAllDataSeries();
-        const { yScale } = this.dataContainer.getScales(innerWidth, innerHeight);
-        if (!dataSeries) {
-          return false;
-        }
-
-        const { x, y } = event.primaryPointer;
-        const point = {
-          x: x / this.groupWidth,
-          y: yScale.invert(y),
-        };
-
-        const match = this.dataContainer.getYValuesMatch(point.x);
-
-        if (isNil(match)) {
-          return false;
-        }
-
-        const snap = {
-          x: match.snapX * this.groupWidth + this.offsetRect.l,
-          y: yScale(match.snapY) + this.offsetRect.t,
-        };
-
-        this.onChartPointerEvent({
-          pointerEvent: event,
-          ...point,
-          match,
-          snap,
-        });
-        return true;
-      default:
-        return false;
-    }
-  }
-
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    const { yScale } = this.getScales();
+    const { xScale, yScale } = this.getScales();
     const x = (point.x + X_SCALE_BAR_OFFSET) * this.groupWidth;
     const y = yScale(point.y);
 
@@ -180,17 +143,14 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
   }
 
   getPointForCanvasPosition(position: XYPoint): XYPoint | undefined {
-    const match = this.dataContainer!.getYValuesMatch(
-      (position.x - this.offsetRect.l) / this.groupWidth,
-    );
-
-    if (isNil(match)) {
+    if (!this.dataContainer) {
       return undefined;
     }
+    const { xScale, yScale } = this.getScales();
 
     return {
-      x: match.snapX + X_SCALE_BAR_OFFSET,
-      y: match.snapY,
+      x: Math.round(position.x / this.groupWidth - X_SCALE_BAR_OFFSET),
+      y: yScale.invert(position.y),
     };
   }
 
@@ -203,14 +163,6 @@ export class BarChartView<DataPoint> extends ChartView<BarChartViewProps> {
 
   private get groupWidth() {
     return this.innerWidth / this.seriesLength;
-  }
-
-  private get barWidth() {
-    const rawBarWidth = this.style.barWidth || 1;
-    const width = this.groupWidth / this.series.length;
-    return rawBarWidth <= 1  // TODO Use Dimension
-      ? rawBarWidth * width
-      : Math.min(rawBarWidth, width);
   }
 
 }

@@ -52,7 +52,7 @@ const mouseToPointer = (event: MouseEvent, offset: Offset, canvasPointer: Canvas
 
 export const fillPointerEventData = (pointerEvent: CanvasPointerEvent, view: View, event: Event) => {
   const element = event.target as HTMLElement;
-  const offset = getElementOffset(element);
+  const offset = getElementOffset(element, pointerEvent.offset);
   const action = domEventToPointerAction(event);
   if (action === undefined) {
     return;

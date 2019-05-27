@@ -1,3 +1,6 @@
+import { CanvasPointerEvent } from '@kanva/core';
+import { ChartView } from './views';
+
 export interface XYPoint<T = number> {
   x: number;
   y: T;
@@ -22,14 +25,8 @@ export interface DataSeries<DataPoint> {
 
 export interface YValuesMatch {
   x: number;
-  snapX: number;
-  snapY: number;
-  y: Record<string, number>;
-}
-
-export interface SnapValuesMatch {
-  x: number;
-  y: number;
+  primary: XYPoint;
+  values: Record<string, XYPoint>;
 }
 
 export interface CanvasPosition {

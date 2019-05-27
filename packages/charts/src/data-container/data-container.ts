@@ -1,11 +1,11 @@
-import { Rect, RectLike } from '@kanva/core';
+import { CanvasPointerEvent, Rect, RectLike } from '@kanva/core';
 import { ScaleContinuousNumeric } from 'd3-scale';
-import { isEmpty, isNil, sortedIndexBy } from 'lodash';
-import { clamp } from 'lodash/fp';
+import { isEmpty, isNil } from 'lodash';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
 import {
   AxisParameters,
   AxisPoint,
+  findBestMatchInSortedArray,
   getContinuousNumericScale,
   isXYArray,
   prepareAxisValues,
@@ -97,10 +97,10 @@ export class DataContainer<DataPoint> {
 
   addExtension(...extensions: DataContainerExtension[]) {
     for (const extension of extensions) {
-      if (this.extensions[extension.name]) {
-        return this;
+      if (this.extensions.indexOf(extension) >= 0) {
+        continue;
       }
-      this.extensions[extension.name] = extension;
+      this.extensions.push(extension);
       extension.attach(this);
     }
 
@@ -108,16 +108,17 @@ export class DataContainer<DataPoint> {
   }
 
   getExtension<Extension extends DataContainerExtension>(name: string): Extension | undefined {
-    return this.extensions[name];
+    return this.extensions.find(extension => extension.name === name) as Extension | undefined;
   }
 
   removeExtension(...extensions: DataContainerExtension[]) {
     for (const extension of extensions) {
-      if (!this.extensions[extension.name]) {
-        return this;
+      const index = this.extensions.indexOf(extension);
+      if (index < 0) {
+        continue;
       }
       extension.detach(this);
-      delete this.extensions[name];
+      delete this.extensions[index];
     }
 
     return this;
@@ -232,39 +233,34 @@ export class DataContainer<DataPoint> {
 
   getYValuesMatch(x: number, match?: YValuesMatch): YValuesMatch | undefined {
     this.processData();
+    const matcher = (element: XYPoint) => element.x - x;
+    let primary: XYPoint | undefined = match && match.primary;
 
-    const primarySeries = this.series.find(series => !isNil(series) && !isEmpty(series.data));
-    if (!primarySeries) {
-      return match;
-    }
-
-    const { data } = primarySeries;
-    const clampX = clamp(data[0].x, data[data.length - 1].x);
-    const delta = data.length >= 2 ? Math.abs(data[0].x - data[1].x) : 0;
-    const index = Math.max(
-      0,
-      sortedIndexBy(data, { x, y: 0 }, point => point.x - delta / 2) - 1,
-    );
-    const selectedValue = data[index] || { x: 0, y: 0 };
-
-    const yValues = this.series.reduce((result, series) => {
-      result[series.name] = series.data[index]
-        ? series.data[index].y
-        : undefined;
-
-      return result;
+    const values = this.series.reduce((yValues, series) => {
+      if (isNil(series) || isEmpty(series.data)) {
+        return yValues;
+      }
+      const match = findBestMatchInSortedArray(series.data.filter(Boolean), matcher);
+      yValues[series.name] = match;
+      if (!primary) {
+        primary = match;
+      }
+      return yValues;
     }, {});
+
+    if (!primary) {
+      return undefined;
+    }
 
     if (isNil(match)) {
       return {
-        x: clampX(x),
-        snapX: selectedValue.x,
-        snapY: selectedValue.y,
-        y: yValues,
+        x,
+        primary,
+        values,
       };
     }
 
-    Object.assign(match.y, yValues);
+    Object.assign(match.values, values);
     return match;
   }
 
@@ -295,6 +291,16 @@ export class DataContainer<DataPoint> {
       event.payload = listeners[i](event);
     }
     return event.payload!;
+  }
+
+  onChartPointerEvent(event: CanvasPointerEvent): boolean {
+    const extensions = this.extensions;
+    for (let i = 0, l = extensions.length; i < l; i++) {
+      if (extensions[i].onChartPointerEvent(event)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private processData() {
