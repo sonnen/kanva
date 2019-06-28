@@ -1,9 +1,11 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: [
+    'react',
     '@typescript-eslint',
   ],
   extends: [
+    'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/errors',
     'plugin:import/typescript',
@@ -11,6 +13,11 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
   },
   rules: {
     '@typescript-eslint/indent': 0,
@@ -28,6 +35,7 @@ module.exports = {
     'import/order': ['error', {
       'groups': ['external', 'internal'],
     }],
-
+    'comma-dangle': ['error', 'always-multiline'],
+    'react/prop-types': 0,
   },
 };
