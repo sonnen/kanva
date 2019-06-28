@@ -27,15 +27,15 @@ export abstract class DataContainerExtension {
     this.onDetach(dataContainer);
   }
 
-  onChartPointerEvent(event: CanvasPointerEvent): boolean {
+  onChartPointerEvent(_event: CanvasPointerEvent): boolean {
     return false;
   }
 
-  protected onAttach(dataContainer: DataContainer<any>) {
+  protected onAttach(_dataContainer: DataContainer<any>) {
     // Extension can implement this method to override the default behaviour of DataContainer
   }
 
-  protected onDetach(dataContainer: DataContainer<any>) {
+  protected onDetach(_dataContainer: DataContainer<any>) {
     // Extension can implement this method to clean the overrides of the default behaviour of DataContainer
   }
 

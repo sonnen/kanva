@@ -20,7 +20,7 @@ export class DragGestureDetector extends GestureDetector {
     super();
   }
 
-  onGestureEvent(event: CanvasPointerEvent, previousEvent: CanvasPointerEvent): boolean {
+  onGestureEvent(event: CanvasPointerEvent): boolean {
     const { pointers = 1 } = this.options;
     // TODO support multiple fingers drag
     if (event.action === PointerAction.MOVE && event.pointerCount === pointers && event.primaryPointer.pressure > 0) {

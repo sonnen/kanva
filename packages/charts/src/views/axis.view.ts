@@ -85,7 +85,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     this.require(RequiredViewChanges.DRAW);
   }
 
-  getInternalWrappedHeight(canvas: ViewCanvas) {
+  getInternalWrappedHeight() {
     if (!this.dataContainer) {
       return 0;
     }
@@ -153,7 +153,6 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
   onDraw(canvas: ViewCanvas) {
     const {
       innerWidth, innerHeight,
-      dataContainer,
       style: {
         labelPaint = defaultStyle.labelPaint,
         labelPadding = defaultStyle.labelPadding,

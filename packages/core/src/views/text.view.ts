@@ -54,7 +54,7 @@ export class TextView extends View<TextViewProps> {
   getInternalWrappedWidth(canvas: ViewCanvas) {
     const { text, textPaint } = this;
     return canvas
-      ? text.reduce((maxWidth, line) => Math.max(maxWidth, canvas.measureText(line, this.textPaint).width), 0)
+      ? text.reduce((maxWidth, line) => Math.max(maxWidth, canvas.measureText(line, textPaint).width), 0)
       : undefined;
   }
 

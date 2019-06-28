@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts",
-  "version": "0.7.19",
+  "version": "0.7.20",
   "description": "Chart views for Kanva",
   "keywords": [
     "canvas",
@@ -17,11 +17,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "start": "tsc -w --preserveWatchOutput",
-    "build": "tsc",
-    "clean": "rimraf dist",
-    "lint": "tslint --config ../../tslint.json --project ./",
-    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage",
-    "test:watch": "jest --config='./jest.config.js' --watch"
+    "build": "tsc"
   },
   "files": [
     "dist/"
@@ -33,10 +29,9 @@
     "@kanva/core": "^0.7.0"
   },
   "dependencies": {
-    "d3-scale": "^2.1.2"
+    "d3-scale": "^3.0.0"
   },
   "devDependencies": {
-    "@kanva/core": "^0.7.19",
-    "react": "^16.7.0"
+    "@kanva/core": "^0.7.20"
   }
 }

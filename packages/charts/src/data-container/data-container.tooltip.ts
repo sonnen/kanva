@@ -9,11 +9,6 @@ import { DataContainerExtension } from './data-container.extension';
 
 export const TOOLTIP_EXTENSION = 'DataContainerTooltipExtension';
 
-enum TooltipEventType {
-  SNAP,
-  SMOOTH,
-}
-
 export interface TooltipEvent {
   pointerEvent: CanvasPointerEvent;
   snap: XYPoint;
@@ -51,8 +46,6 @@ export class DataContainerTooltipExtension extends DataContainerExtension {
     event.cloneTo(this.lastPointerEvent);
 
     const chartView = event.target as ChartView<any, any>;
-    const dataContainer = chartView.getDataContainer()!;
-    const { xScale, yScale } = chartView.getScales();
 
     const point = chartView.getPointForCanvasPosition(event.primaryPointer);
     if (!point) {

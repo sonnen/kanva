@@ -56,19 +56,19 @@ const noContextError = () => new Error(
 );
 
 export class NoContext implements ContextLike {
-  deregisterView(id: number): void {
+  deregisterView(_id: number): void {
     throw noContextError();
   }
 
-  getId(id: string | number): string | number {
+  getId(_id: string | number): string | number {
     throw noContextError();
   }
 
-  registerView(idName: string): number {
+  registerView(_idName: string): number {
     throw noContextError();
   }
 
-  resolve(id: string | number | undefined): number | undefined {
+  resolve(_id: string | number | undefined): number | undefined {
     throw noContextError();
   }
 }

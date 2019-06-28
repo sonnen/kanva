@@ -92,7 +92,6 @@ describe('Line', () => {
     });
     it('adds a raw coordinates to the end of this line', () => {
       const line = new Line(1, 1, 2, 2);
-      const point = new Point();
       line.add(1, -2);
       expect(line.startX).toEqual(1);
       expect(line.startY).toEqual(1);

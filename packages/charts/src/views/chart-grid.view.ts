@@ -95,7 +95,7 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
     const { xScale, yScale } = dataContainer.getScales(this.innerWidth, this.innerHeight);
     const { x, y } = center;
 
-    ctx.translate(paint.lineWidth / 2, paint.lineWidth / 2);
+    ctx.translate(halfLineWidth, halfLineWidth);
     ctx.beginPath();
     if (gridLines !== GridLines.HORIZONTAL) {
       for (let i = 0, l = xAxis.length; i < l; i++) {
@@ -138,12 +138,12 @@ export class ChartGridView extends ChartView<ChartGridViewProps> {
     canvas.drawPath(paint);
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+  getCanvasPositionForPoint(_point: XYPoint): CanvasPosition {
     // @TODO: implement when needed
     return { x: 0, y: 0, absoluteX: 0, absoluteY: 0 };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
+  getPointForCanvasPosition(_position: XYPoint): XYPoint {
     // @TODO: implement when needed
     return { x: 0, y: 0 };
   }

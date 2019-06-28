@@ -1,6 +1,6 @@
 {
   "name": "@kanva/core",
-  "version": "0.7.19",
+  "version": "0.7.20",
   "description": "Draw on HTML5 Canvas element using views",
   "keywords": [
     "canvas",
@@ -16,12 +16,6 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsc -w --preserveWatchOutput",
-    "build": "tsc",
-    "clean": "rimraf dist",
-    "lint": "tslint --config ../../tslint.json --project ./",
-    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage",
-    "test:watch": "jest --config='./jest.config.js' --watch",
     "prepack": "cp ../../README.md ./"
   },
   "files": [

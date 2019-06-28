@@ -39,7 +39,7 @@ export const findBestMatchInSortedArray = <T>(
   if (!array || !array.length) {
     return undefined;
   }
-  let nearestMatchDistance: number = Infinity;
+  let nearestMatchDistance = Infinity;
   let nearestMatch: T | undefined;
   for (let l = 0, r = array.length - 1; l <= r;) {
     const i = Math.floor((l + r) / 2);

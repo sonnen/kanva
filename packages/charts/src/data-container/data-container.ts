@@ -14,12 +14,6 @@ import {
 import { DataContainerEventListener, DataContainerEventType } from './data-container.events';
 import { DataContainerExtension } from './data-container.extension';
 
-const DefaultAxisParameters = {
-  TICK_COUNT: 10,
-  ROUND_TO: 1,
-  LABEL_ACCESSOR: (value: number) => String(value),
-};
-
 /**
  * This is a common base for storing raw point values and converting them to format that can be consumed by ChartViews.
  * In case of one-dimensional data (as for PieChart), a sum of Y values passed to series will be used.

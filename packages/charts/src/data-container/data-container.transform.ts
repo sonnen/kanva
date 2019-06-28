@@ -32,7 +32,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   public translate: XYPoint = { x: 0, y: 0 };
 
   private readonly options: DataContainerTransformExtensionOptions;
-  private scales?: { xScale: ScaleFunction, yScale: ScaleFunction };
+  private scales?: ScaleFunctions;
   private scaleGestureDetector: ScaleGestureDetector;
   private dragGestureDetector: DragGestureDetector;
 
@@ -171,7 +171,6 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   }
 
   private onScale = (event: ScaleEvent) => {
-    const { limit, listener, listenerThreshold } = this.options.scale;
     const { x: oldScaleX, y: oldScaleY } = this.scale;
     const { xScale, yScale } = this.scales!;
 

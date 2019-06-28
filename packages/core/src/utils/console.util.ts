@@ -35,7 +35,6 @@ export const logScreenshot = (view: View, scale = 1) => {
     console.warn(`${view.name}: Could not log a screenshot of a view at this time.`);
     return;
   }
-  const viewOffset = view.offsetRect;
   const rootView = view.getRootView() as RootCanvasView;
   const rootViewScale = rootView.getScale();
   const w = view.innerWidth * rootViewScale;

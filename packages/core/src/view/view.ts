@@ -1,4 +1,4 @@
-import { calcDimension, DimensionType, MATCH_PARENT, Rect, RectLike, ViewCanvas, WRAP_CONTENT } from '../canvas';
+import { calcDimension, MATCH_PARENT, Rect, RectLike, ViewCanvas, WRAP_CONTENT } from '../canvas';
 import { CanvasPointerEvent, PointerAction } from '../pointer-event';
 import { removeUndefinedProps } from '../utils';
 import { xor } from '../utils/boolean.util';
@@ -89,7 +89,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   dispatchPointerEvent(event: CanvasPointerEvent): boolean {
-    const { target, action, primaryPointer } = event;
+    const { action, primaryPointer } = event;
     // Dive to children if possible
     for (let i = this.children.length - 1; i >= 0; i--) {
       const child = this.children[i];
@@ -125,7 +125,7 @@ export class View<Props extends {} = ViewProps> {
     return this.onPointerEvent(event);
   }
 
-  onPointerEvent(event: CanvasPointerEvent): boolean {
+  onPointerEvent(_event: CanvasPointerEvent): boolean {
     return false;
   }
 
@@ -452,7 +452,7 @@ export class View<Props extends {} = ViewProps> {
     return { width, height };
   }
 
-  onSizeChanged(width: number, height: number, oldWidth: number, oldHeight: number) {
+  onSizeChanged(_width: number, _height: number, _oldWidth: number, _oldHeight: number) {
     // Views may implement this method
   }
 
@@ -478,11 +478,11 @@ export class View<Props extends {} = ViewProps> {
     return 0;
   }
 
-  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
+  getInternalWrappedHeight(_canvas: ViewCanvas): number | undefined {
     return undefined;
   }
 
-  getInternalWrappedWidth(canvas: ViewCanvas): number | undefined {
+  getInternalWrappedWidth(_canvas: ViewCanvas): number | undefined {
     return undefined;
   }
 
@@ -611,7 +611,7 @@ export class View<Props extends {} = ViewProps> {
     this.mount();
   }
 
-  onDraw(canvas: ViewCanvas): void {
+  onDraw(_canvas: ViewCanvas): void {
     // Views should implement this method
   }
 

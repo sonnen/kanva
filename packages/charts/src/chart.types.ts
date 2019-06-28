@@ -1,6 +1,3 @@
-import { CanvasPointerEvent } from '@kanva/core';
-import { ChartView } from './views';
-
 export interface XYPoint<T = number> {
   x: number;
   y: T;

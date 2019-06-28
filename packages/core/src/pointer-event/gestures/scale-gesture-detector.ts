@@ -35,7 +35,7 @@ export class ScaleGestureDetector extends GestureDetector {
     super();
   }
 
-  onGestureEvent(event: CanvasPointerEvent, previousEvent: CanvasPointerEvent): boolean {
+  onGestureEvent(event: CanvasPointerEvent): boolean {
     return (
       (!!this.options.scroll && this.handleWheelGesture(event)) ||
       (!!this.options.multitouch && this.handleMultitouchGesture(event))

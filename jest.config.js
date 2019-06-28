@@ -1,15 +1,13 @@
 module.exports = {
   collectCoverageFrom: [
-    '<rootDir>/src/**/*.ts',
-    '!<rootDir>/node_modules/',
-    '!<rootDir>/src/**/index.ts',
-    '!<rootDir>/src/**/*.d.ts',
+    '<rootDir>/packages/*/src/**/*.{ts,tsx}',
+    '!<rootDir>/packages/*/src/**/index.{ts,tsx}',
   ],
   testMatch: [
-    '<rootDir>/src/**/*.(spec|test).ts',
+    '<rootDir>/packages/*/src/**/*.(spec|test).ts',
   ],
   transform: {
-    '^.+\\.(js|jsx|json)$': '<rootDir>/../../node_modules/babel-jest',
+    '^.+\\.(js|jsx|json)$': '<rootDir>/node_modules/babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
   },
   moduleFileExtensions: [

@@ -1,4 +1,4 @@
-import { CanvasPointerEvent, Context, Line, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { Context, Line, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { LabelOptions, LabelsHelper, ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -76,7 +76,6 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
       }
       switch (style.type) {
         case DataDisplayType.LINE_STAIRS: {
-          const count = series.data.length;
           const array = new Float64Array(segment.length * 4);
           let point = segment[0];
           let offset = 2;

@@ -66,7 +66,7 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
   }
 
   onLayout(): void {
-    const { innerWidth, innerHeight, dataSeries, dataContainer, style } = this;
+    const { innerWidth, innerHeight, dataContainer, style } = this;
     if (!dataContainer) {
       return;
     }
@@ -181,12 +181,12 @@ export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
     }
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+  getCanvasPositionForPoint(): CanvasPosition {
     // @TODO: implement when needed
     return { x: 0, y: 0, absoluteX: 0, absoluteY: 0 };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
+  getPointForCanvasPosition(): XYPoint {
     // @TODO: implement when needed
     return { x: 0, y: 0 };
   }

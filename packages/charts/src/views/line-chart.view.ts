@@ -50,7 +50,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   }
 
   onLayout(): void {
-    const { dataContainer, dataSeries, style } = this;
+    const { dataContainer, dataSeries } = this;
     if (!dataContainer || !dataSeries) {
       this.data = [];
       return;
@@ -78,7 +78,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
     }, [] as LineEntry[]);
   }
 
-  getInternalWrappedHeight(canvas: ViewCanvas): number | undefined {
+  getInternalWrappedHeight(): number | undefined {
     return Math.max(
       (this.style.background || defaultStyle.background).width,
       (this.style.foreground || defaultStyle.foreground).width,
@@ -86,7 +86,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   }
 
   onDraw(canvas: ViewCanvas) {
-    const { innerWidth, innerHeight, dataSeries, data, dataContainer, style } = this;
+    const { innerWidth, innerHeight, data, dataContainer, style } = this;
     if (!dataContainer) {
       return;
     }

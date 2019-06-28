@@ -1,6 +1,6 @@
 {
   "name": "@kanva/charts-react",
-  "version": "0.7.19",
+  "version": "0.7.20",
   "description": "React bindings for @kanva/charts",
   "keywords": [
     "canvas",
@@ -14,14 +14,6 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "scripts": {
-    "start": "tsc -w --preserveWatchOutput",
-    "build": "tsc",
-    "clean": "rimraf dist",
-    "lint": "tslint --config ../../tslint.json --project ./",
-    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage --passWithNoTests",
-    "test:watch": "jest --config='./jest.config.js' --watch"
-  },
   "files": [
     "dist/"
   ],
@@ -33,7 +25,7 @@
     "@kanva/react": "^0.7.0"
   },
   "devDependencies": {
-    "@kanva/charts": "^0.7.19",
-    "@kanva/react": "^0.7.19"
+    "@kanva/charts": "^0.7.20",
+    "@kanva/react": "^0.7.20"
   }
 }

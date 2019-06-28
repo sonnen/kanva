@@ -72,7 +72,7 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
     this.require(RequiredViewChanges.LAYOUT);
   }
 
-  getInternalWrappedHeight(canvas: ViewCanvas) {
+  getInternalWrappedHeight() {
     switch (this.style.alignment) {
       case LegendAlignment.ROW:
         return this.font.fontSize;
@@ -98,12 +98,9 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const {
-      innerWidth, innerHeight,
       dataSeries,
       style: {
-        alignment = defaultStyle.alignment,
         labelPaint = defaultStyle.labelPaint,
-        labelPadding = defaultStyle.labelPadding,
       } = defaultStyle,
     } = this;
 
@@ -126,7 +123,6 @@ export class LegendView<DataPoint> extends View<LegendViewProps> {
       default:
         for (let i = 0, l = dataSeries.length; i < l; i++) {
           const series = dataSeries[i];
-          const { width } = ctx.measureText(series.name);
           this.drawDataSeriesSymbol(canvas, series);
           canvas.drawText(fontSize * 1.5, fontSize, series.name, labelPaint);
           ctx.translate(0, fontSize + padding);

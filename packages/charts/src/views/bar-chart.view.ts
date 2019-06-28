@@ -37,7 +37,10 @@ export class BarChartView extends ChartView<BarChartViewProps> {
   private readonly labelsHelper = new LabelsHelper();
   private barWidth: Dimension = parseDimension(undefined);
   // Calculated series
-  private series: DataSeries<{ y: number, barY: number }>[] = [];
+  private series: DataSeries<{
+    y: number;
+    barY: number;
+  }>[] = [];
   private seriesLength: number = 0;
   private zeroPoint: number = 0;
 
@@ -68,7 +71,7 @@ export class BarChartView extends ChartView<BarChartViewProps> {
     }
     const allSeries = dataContainer.getAllDataSeries();
 
-    const { xScale, yScale } = dataContainer.getScales(innerWidth, innerHeight);
+    const { yScale } = dataContainer.getScales(innerWidth, innerHeight);
 
     this.zeroPoint = yScale(0);
     this.seriesLength = dataContainer.getSeriesLength();
@@ -82,8 +85,6 @@ export class BarChartView extends ChartView<BarChartViewProps> {
 
   onDraw(canvas: ViewCanvas) {
     const {
-      innerWidth,
-      innerHeight,
       zeroPoint,
       series: allSeries,
       seriesLength,
@@ -130,7 +131,7 @@ export class BarChartView extends ChartView<BarChartViewProps> {
   }
 
   getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
-    const { xScale, yScale } = this.getScales();
+    const { yScale } = this.getScales();
     const x = (point.x + X_SCALE_BAR_OFFSET) * this.groupWidth;
     const y = yScale(point.y);
 
@@ -146,7 +147,7 @@ export class BarChartView extends ChartView<BarChartViewProps> {
     if (!this.dataContainer) {
       return undefined;
     }
-    const { xScale, yScale } = this.getScales();
+    const { yScale } = this.getScales();
 
     return {
       x: Math.round(position.x / this.groupWidth - X_SCALE_BAR_OFFSET),
