@@ -1,6 +1,8 @@
 const path = require('path');
 const SRC_PATH = path.join(__dirname, '../src');
 module.exports = ({ config }) => {
+  const eslintIndex = config.module.rules.findIndex(({ use = []}) => use.find(({ loader = '' }) => loader.includes('eslint-loader')));
+  config.module.rules.splice(eslintIndex, 1);
   config.module.rules.push({
     test: /\.tsx?$/,
     include: [SRC_PATH],

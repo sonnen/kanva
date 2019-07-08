@@ -26,6 +26,6 @@ deploy:
   image: python:latest
   cache: {}
   script:
-  - chmod 755 ./scripts/deploy.sh && ./scripts/deploy.sh
+  - ./scripts/deploy.sh
   only:
   - master

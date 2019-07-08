@@ -150,7 +150,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   getPointForCanvasPosition(position: XYPoint): XYPoint {
     const { xScale, yScale } = this.getScales();
     return {
-      x: xScale.invert(position.x - this.offsetRect.l),
+      x: xScale.invert(position.x),
       y: yScale.invert(0),
     };
   }

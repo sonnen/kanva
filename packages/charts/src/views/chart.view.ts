@@ -9,7 +9,6 @@ export interface ChartViewProps<Style> {
   dataContainer?: DataContainer<any>;
   dataSeries?: string | string[];
   style?: Style;
-  onChartPointerEvent?: OnChartPointerEvent;
 }
 
 export interface ChartPointerEvent {
@@ -19,8 +18,6 @@ export interface ChartPointerEvent {
   match: YValuesMatch;
   snap: XYPoint;
 }
-
-export type OnChartPointerEvent = (event: ChartPointerEvent) => void;
 
 export abstract class ChartView<ChartProps extends ChartViewProps<any>,
   Style = NonNullable<ChartProps['style']>> extends View<ChartProps> {

@@ -1,6 +1,6 @@
 {
   "name": "example",
-  "version": "0.7.21",
+  "version": "0.7.27",
   "description": "Usage example for Kanva",
   "keywords": [
     "kanva",
@@ -23,32 +23,30 @@
   },
   "scripts": {
     "start": "SKIP_PREFLIGHT_CHECK=true start-storybook -p 9001 -c .storybook",
-    "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build"
+    "build": "SKIP_PREFLIGHT_CHECK=true react-app-rewired build"
   },
   "directories": {
     "dist": "dist"
   },
   "dependencies": {
-    "@kanva/charts": "^0.7.21",
-    "@kanva/charts-react": "^0.7.21",
-    "@kanva/core": "^0.7.21",
-    "@kanva/react": "^0.7.21"
+    "@kanva/charts": "^0.7.27",
+    "@kanva/charts-react": "^0.7.27",
+    "@kanva/core": "^0.7.27",
+    "@kanva/react": "^0.7.27"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^5.1.8",
-    "@storybook/addon-knobs": "^5.1.8",
-    "@storybook/addon-storysource": "^5.1.8",
-    "@storybook/react": "^5.1.8",
-    "@storybook/theming": "^5.1.8",
+    "@storybook/addon-actions": "^5.1.9",
+    "@storybook/addon-knobs": "^5.1.9",
+    "@storybook/addon-notes": "^5.1.9",
+    "@storybook/addon-storysource": "^5.1.9",
+    "@storybook/react": "^5.1.9",
+    "@storybook/theming": "^5.1.9",
     "@types/storybook__addon-knobs": "^5.0.1",
     "@types/storybook__react": "^4.0.2",
     "awesome-typescript-loader": "^5.2.1",
     "react-docgen-typescript-loader": "^3.1.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-scripts": "^3.0.1"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": [
     ">0.2%",
