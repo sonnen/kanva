@@ -11,7 +11,7 @@ const dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
   .addSeries('Series 2', 40, Distribution.EVEN)
   .generate();
 
-export const dataContainer = new DataContainer<XYPoint<number | null>>()
+export const createDataContainer = () => new DataContainer<XYPoint<number | null>>()
   .setData(dataSeries)
   .setXAxisParameters({
     useApproximateValues: true,
