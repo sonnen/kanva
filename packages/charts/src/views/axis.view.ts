@@ -16,6 +16,7 @@ import { ChartViewProps } from './chart.view';
 export interface AxisViewStyle {
   labelPaint?: Paint;
   labelPadding?: number;
+  wrapLabelsOnEdge?: boolean;
 }
 
 export enum AxisOrientation {
@@ -30,6 +31,7 @@ export interface AxisViewProps extends ChartViewProps<AxisViewStyle> {
 const defaultStyle = {
   labelPaint: new Paint().setFillStyle('#000'),
   labelPadding: 4,
+  wrapLabelsOnEdge: true,
 };
 
 export class AxisView<DataPoint> extends View<AxisViewProps> {
@@ -154,6 +156,7 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
     const {
       innerWidth, innerHeight,
       style: {
+        wrapLabelsOnEdge = false,
         labelPaint = defaultStyle.labelPaint,
         labelPadding = defaultStyle.labelPadding,
       } = defaultStyle,
@@ -183,19 +186,29 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           break;
       }
       let lastEnd = -this.lp.paddingRect.l;
-      for (let i = 0, l = axisData.length; i < l; i++) {
+        for (let i = 0, l = axisData.length; i < l; i++) {
         const point = axisData[i];
         const width = ctx.measureText(point.value).width;
         // TODO RTL support
-        const start = (ctx.textAlign === 'start' || ctx.textAlign === 'left')
-          ? point.position
+        const positionShift = (ctx.textAlign === 'start' || ctx.textAlign === 'left')
+          ? 0
           : (ctx.textAlign === 'center')
-            ? (point.position - width / 2)
-            : (point.position - width);
-        if (lastEnd <= start) {
-          ctx.fillText(point.value, point.position, y, maxWidth);
-          lastEnd = start + width + labelPadding;
+            ? -width / 2
+            : -width;
+
+        const start = point.position + positionShift;
+
+        const wrappedStart = wrapLabelsOnEdge ? (
+          (start < 0) ? 0
+            : (start > innerWidth - width) ? innerWidth - width
+            : start
+        ) : start;
+
+        if (lastEnd > wrappedStart) {
+          continue;
         }
+        ctx.fillText(point.value, wrappedStart - positionShift, y, maxWidth);
+        lastEnd = wrappedStart + width + labelPadding;
       }
     } else {
       const maxWidth = innerWidth;
@@ -215,18 +228,28 @@ export class AxisView<DataPoint> extends View<AxisViewProps> {
           break;
       }
       const height = labelPaint.getLineHeight();
+      const positionShift = (ctx.textBaseline === 'bottom')
+        ? -height
+        : (ctx.textBaseline === 'middle')
+          ? -height / 2
+          : 0;
       let lastEnd = innerHeight + this.lp.paddingRect.b;
       for (let i = 0, l = axisData.length; i < l; i++) {
         const point = axisData[i];
-        const start = (ctx.textBaseline === 'bottom')
-          ? (point.position - height)
-          : (ctx.textBaseline === 'middle')
-            ? (point.position - height / 2)
-            : point.position;
-        if (lastEnd >= start) {
-          ctx.fillText(point.value, x, point.position, maxWidth);
-          lastEnd = start - height - labelPadding;
+        const start = point.position + positionShift;
+
+        const wrappedStart = wrapLabelsOnEdge ? (
+          (start < 0) ? 0
+            : (start > innerHeight - height) ? innerHeight - height
+            : start
+        ) : start;
+
+        if (lastEnd < wrappedStart) {
+          continue;
         }
+
+        ctx.fillText(point.value, x, point.position, maxWidth);
+        lastEnd = start - height - labelPadding;
       }
     }
   }

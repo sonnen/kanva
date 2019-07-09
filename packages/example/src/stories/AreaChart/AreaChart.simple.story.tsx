@@ -2,6 +2,7 @@ import { AxisOrientation, GridLines } from '@kanva/charts';
 import * as React from 'react';
 import { Kanva } from '@kanva/react';
 import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView } from '@kanva/charts-react';
+import { boolean } from '@storybook/addon-knobs';
 import simpleAreaChartNotes from './AreaChart.simple.notes.md';
 import { layout, Views } from './AreaChart.layouts';
 import { createDataContainer } from './AreaChart.dataContainer';
@@ -11,9 +12,14 @@ export { simpleAreaChartNotes };
 
 export const simpleAreaChartStory = () => {
   const dataContainer = createDataContainer();
+  const debug = boolean('Debug', false);
 
   return (
-    <Kanva enablePointerEvents={true} className={'kanva-container'}>
+    <Kanva
+      enablePointerEvents={true}
+      className={'kanva-container'}
+      debug={debug}
+    >
       <ChartGridView
         layoutParams={layout.areaChartWrapper}
         dataContainer={dataContainer}

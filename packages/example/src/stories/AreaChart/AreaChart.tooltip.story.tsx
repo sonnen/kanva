@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Kanva } from '@kanva/react';
 import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView } from '@kanva/charts-react';
 import { action } from '@storybook/addon-actions';
+import { boolean } from '@storybook/addon-knobs';
 import tooltipAreaChartNotes from './AreaChart.tooltip.notes.md';
 import { layout, Views } from './AreaChart.layouts';
 import { createDataContainer } from './AreaChart.dataContainer';
@@ -16,8 +17,14 @@ export const tooltipAreaChartStory = () => {
     onTooltipEvent: action('ChartPointerEvent'),
   }));
 
+  const debug = boolean('Debug', false);
+
   return (
-    <Kanva enablePointerEvents={true} className={'kanva-container'}>
+    <Kanva
+      enablePointerEvents={true}
+      className={'kanva-container'}
+      debug={debug}
+    >
       <ChartGridView
         layoutParams={layout.areaChartWrapper}
         dataContainer={dataContainer}

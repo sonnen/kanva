@@ -19,7 +19,7 @@ interface Options {
 
 const randomNumber = ([from, to]: [number, number]) => from + Math.random() * (to - from);
 const rangedNumber = ([from, to]: [number, number], index: number, total: number) =>
-  from + (index / total) * (to - from);
+  from + (index / (total - 1)) * (to - from);
 
 export class DataSeriesGenerator {
 
