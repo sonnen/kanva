@@ -32,6 +32,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/explicit-member-accessibility': 0,
     'quotes': ['error', 'single', { allowTemplateLiterals: true }],
+    'no-multi-spaces': 2,
     'import/order': ['error', {
       'groups': ['external', 'internal'],
     }],

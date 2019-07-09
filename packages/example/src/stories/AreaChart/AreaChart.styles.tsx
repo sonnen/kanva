@@ -8,12 +8,14 @@ const xAxis: AxisViewStyle = {
     .setFillStyle(labelColor)
     .setTextAlign(TextAlign.RIGHT)
     .setTextBaseline(TextBaseline.MIDDLE),
+  wrapLabelsOnEdge: true,
 };
 const yAxis: AxisViewStyle = {
   labelPaint: new Paint()
     .setFillStyle(labelColor)
     .setTextAlign(TextAlign.CENTER)
     .setTextBaseline(TextBaseline.TOP),
+  wrapLabelsOnEdge: true,
 };
 
 const chartGrid: ChartGridViewStyle = {

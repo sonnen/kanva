@@ -20,6 +20,7 @@ export const layout = createLayoutMap({
     width: MATCH_PARENT,
     alignBottom: PARENT_ID,
     height: WRAP_CONTENT,
+    alignEnd: PARENT_ID,
     toEndOf: Views.Y_AXIS,
     padding: { top: 4 },
   },

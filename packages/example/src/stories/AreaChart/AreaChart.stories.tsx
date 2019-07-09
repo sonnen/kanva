@@ -1,7 +1,7 @@
 import { storiesOf } from '@storybook/react';
 import { withKnobs } from '@storybook/addon-knobs';
 import { simpleAreaChartNotes, simpleAreaChartStory } from './AreaChart.simple.story';
-import { tooltipAreaChartNotes, tooltipAreaChartStory } from './AreaChart.tooltip.stories';
+import { tooltipAreaChartNotes, tooltipAreaChartStory } from './AreaChart.tooltip.story';
 
 const stories = storiesOf('AreaChart', module);
 stories.addDecorator(withKnobs);
