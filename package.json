@@ -1,6 +1,6 @@
 {
   "name": "kanva",
-  "version": "0.7.28",
+  "version": "0.7.32",
   "description": "Draw on canvas using views",
   "homepage": "https://github.com/headline-1/kanva",
   "bugs": "https://github.com/headline-1/kanva/issues",
@@ -36,7 +36,7 @@
     "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.134",
     "@types/node": "^12.0.8",
-    "@types/react": "^16.8.20",
+    "@types/react": "16.8.7",
     "@types/react-dom": "^16.8.4",
     "@typescript-eslint/eslint-plugin": "^1.10.2",
     "@typescript-eslint/parser": "^1.10.2",
@@ -58,5 +58,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "resolutions": {
+    "@types/react": "16.8.7"
+  }
 }
