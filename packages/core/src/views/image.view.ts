@@ -1,4 +1,4 @@
-import { Rect, ViewCanvas, WRAP_CONTENT } from '../canvas';
+import { Rect, ViewCanvas } from '../canvas';
 import { Context, RequiredViewChanges, View } from '../view';
 
 export enum ImageScaleType {
@@ -105,7 +105,7 @@ export class ImageView extends View<ImageViewProps> {
     this.image.onload = () => {
       this.imageWidth = this.image.naturalWidth;
       this.imageHeight = this.image.naturalHeight;
-      this.refresh();
+      this.require(RequiredViewChanges.MEASURE);
     };
     this.image.src = source;
   }
@@ -129,13 +129,5 @@ export class ImageView extends View<ImageViewProps> {
     return {
       source: this.source,
     };
-  }
-
-  private refresh() {
-    if (this.lp.w === WRAP_CONTENT || this.lp.h === WRAP_CONTENT) {
-      this.require(RequiredViewChanges.MEASURE);
-    } else {
-      this.require(RequiredViewChanges.DRAW);
-    }
   }
 }
