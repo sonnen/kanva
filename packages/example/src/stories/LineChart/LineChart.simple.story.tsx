@@ -4,7 +4,7 @@ import { LineChartView as LineChartViewComponent, AxisView } from '@kanva/charts
 import { boolean } from '@storybook/addon-knobs';
 import simpleLineChartNotes from './LineChart.simple.notes.md';
 import { layout, Views } from './LineChart.layouts';
-import { createDataContainer, MOCK } from './LineChart.dataContainer';
+import { MOCK } from './LineChart.mock'
 import { LineChartViewStyle, DataContainer, AxisOrientation } from '@kanva/charts';
 import { Paint } from '@kanva/core';
 import { styles } from './LineChart.styles';
