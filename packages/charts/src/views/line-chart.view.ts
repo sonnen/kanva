@@ -1,7 +1,7 @@
 import { Context, normalizeRadius, Paint, RadiusInput, rgba, ViewCanvas } from '@kanva/core';
 import { last } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
-import { ScaleFunctions } from '../utils';
+import { ScaleFunctions, ScaleFunction } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
 
 const VIEW_TAG = 'LineChartView';
@@ -15,6 +15,7 @@ export interface LineChartViewStylePart {
 export interface LineChartViewStyle {
   foreground?: LineChartViewStylePart;
   background?: LineChartViewStylePart;
+  minChunkLength?: MinLineChartChunkLength;
 }
 
 export interface LineChartViewProps extends ChartViewProps<LineChartViewStyle> {
@@ -34,12 +35,24 @@ const defaultStyle = {
     radius: 0,
     width: 8,
   },
+  minChunkLength: { domain: 0, px: 1 },
 };
 
 interface LineEntry {
   x: [number, number];
   y: number;
 }
+
+interface MinLineChartChunkLength {
+  domain: number | undefined;
+  px?: number;
+}
+
+
+const calculateMinLineLength = (start: number, end: number, scale: ScaleFunction, customMinLength?: MinLineChartChunkLength) =>
+  (customMinLength && customMinLength.domain)
+    ? Math.max(scale(end + customMinLength.domain) - scale(start), customMinLength.px || 0)
+    : 0;
 
 export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   // Calculated data
@@ -94,6 +107,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
     const {
       background = defaultStyle.background,
       foreground = defaultStyle.foreground,
+      minChunkLength = defaultStyle.minChunkLength,
     } = style;
 
     const ctx = canvas.context;
@@ -115,13 +129,20 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
       ctx.beginPath();
       for (let i = 0, l = data.length; i < l; i++) {
         const lineEntry = data[i];
-        if (lineEntry.y === 0) {
-          continue;
-        }
+
+        if (lineEntry.y === 0) continue;
+
+        const minLineLength = calculateMinLineLength(
+          lineEntry.x[0],
+          lineEntry.x[1],
+          xScale,
+          minChunkLength,
+        );
+
         canvas.roundRect(
           xScale(lineEntry.x[0]),
           (innerHeight - foreground.width) / 2,
-          xScale(lineEntry.x[1]) - xScale(lineEntry.x[0]),
+          xScale(lineEntry.x[1]) - xScale(lineEntry.x[0]) || minLineLength,
           foreground.width,
           normalizeRadius(foreground.radius),
         );
