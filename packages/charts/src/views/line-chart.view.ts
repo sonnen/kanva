@@ -35,7 +35,7 @@ const defaultStyle = {
     radius: 0,
     width: 8,
   },
-  minChunkLength: { domain: 0, px: 1 },
+  minChunkLength: { domain: 0 },
 };
 
 interface LineEntry {
@@ -44,7 +44,7 @@ interface LineEntry {
 }
 
 interface MinLineChartChunkLength {
-  domain: number | undefined;
+  domain: number;
   px?: number;
 }
 
