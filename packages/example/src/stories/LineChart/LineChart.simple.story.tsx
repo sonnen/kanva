@@ -5,7 +5,12 @@ import { boolean } from '@storybook/addon-knobs';
 import simpleLineChartNotes from './LineChart.simple.notes.md';
 import { layout, Views } from './LineChart.layouts';
 import { MOCK } from './LineChart.mock'
-import { LineChartViewStyle, DataContainer, AxisOrientation } from '@kanva/charts';
+import {
+  LineChartViewStyle,
+  DataContainer,
+  AxisOrientation,
+  DataContainerTransformExtension
+} from '@kanva/charts';
 import { Paint } from '@kanva/core';
 import { styles } from './LineChart.styles';
 
@@ -38,6 +43,23 @@ const lineChartStyle: LineChartViewStyle = {
 
 const baseTickCount = 9;
 
+const handleScale = (scaleX: number) => {
+  const newScale = Math.floor(Math.log2(scaleX));
+
+  const axisParams = dataContainer.getXAxisParameters();
+  axisParams.tickCount = 1 + (baseTickCount - 1) * Math.pow(2, newScale);
+  dataContainer.setXAxisParameters(axisParams);
+}
+
+const transformExtension = new DataContainerTransformExtension({
+  scale: {
+    limit: {
+      x: [1, 100],
+    },
+    listener: handleScale,
+  },
+});
+
 const dataContainer = new DataContainer()
 .setData([{
   name: Series.HEATER_POWER,
@@ -53,7 +75,8 @@ const dataContainer = new DataContainer()
       `0${date.getUTCMinutes()}`.slice(-2)
     );
   },
-});
+})
+.addExtension(transformExtension);;
 
 export const simpleLineChartStory = () => {
   const debug = boolean('Debug', false);
