@@ -12,7 +12,6 @@ const dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
   .generate();
 
 export const createDataContainer = () => new DataContainer<XYPoint<number | null>>()
-  .setData(dataSeries)
   .setXAxisParameters({
     tickCount: baseTickCount,
     labelAccessor: String,

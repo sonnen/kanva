@@ -76,7 +76,7 @@ const dataContainer = new DataContainer()
     );
   },
 })
-.addExtension(transformExtension);;
+.addExtension(transformExtension);
 
 export const simpleLineChartStory = () => {
   const debug = boolean('Debug', false);
