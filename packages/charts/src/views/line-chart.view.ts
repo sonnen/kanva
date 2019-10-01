@@ -18,8 +18,26 @@ export interface LineChartViewStyle {
   minChunkLength?: MinLineChartChunkLength;
 }
 
+interface NormalizedXYPoint {
+  x: number;
+  y: 0 | 1;
+}
+
+type DataNormalizer = (point: XYPoint) => NormalizedXYPoint;
+
 export interface LineChartViewProps extends ChartViewProps<LineChartViewStyle> {
   dataSeries: string;
+  normalizeData?: DataNormalizer;
+}
+
+interface LineEntry {
+  x: [number, number];
+  y: number;
+}
+
+interface MinLineChartChunkLength {
+  domain: number;
+  px?: number;
 }
 
 const defaultStyle = {
@@ -38,16 +56,10 @@ const defaultStyle = {
   minChunkLength: { domain: 0 },
 };
 
-interface LineEntry {
-  x: [number, number];
-  y: number;
-}
-
-interface MinLineChartChunkLength {
-  domain: number;
-  px?: number;
-}
-
+const defaultNormalizeData: DataNormalizer = ({x, y}) =>
+  y > 0
+    ? { x, y: 1 }
+    : { x, y: 0 };
 
 const calculateMinLineLength = (start: number, end: number, scale: ScaleFunction, customMinLength?: MinLineChartChunkLength) =>
   (customMinLength && customMinLength.domain)
@@ -57,9 +69,11 @@ const calculateMinLineLength = (start: number, end: number, scale: ScaleFunction
 export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
   // Calculated data
   private data: LineEntry[] = [];
+  private normalizeData: DataNormalizer = defaultNormalizeData;
 
-  constructor(context: Context) {
+  constructor(context: Context, normalizeData?: DataNormalizer) {
     super(context, VIEW_TAG, defaultStyle);
+    if (normalizeData) this.normalizeData = normalizeData;
   }
 
   onLayout(): void {
@@ -79,13 +93,14 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
 
     this.data = series.data.reduce((entries, point) => {
       const lastEntry = last(entries);
-      if (!lastEntry || lastEntry.y !== point.y) {
+      const normalizedPoint = this.normalizeData(point);
+      if (!lastEntry || lastEntry.y !== normalizedPoint.y) {
         entries.push({
-          x: [point.x, point.x],
-          y: point.y,
+          x: [normalizedPoint.x, normalizedPoint.x],
+          y: normalizedPoint.y,
         });
       } else {
-        lastEntry.x[1] = point.x;
+        lastEntry.x[1] = normalizedPoint.x;
       }
       return entries;
     }, [] as LineEntry[]);
