@@ -77,6 +77,9 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     const { scale: { x: oldScaleX, y: oldScaleY } } = this;
     const scaleX = Math.max(limit.x[0], Math.min(limit.x[1], scale.x));
     const scaleY = Math.max(limit.y[0], Math.min(limit.y[1], scale.y));
+
+    if (!this.scales) { return false; }
+
     const { xScale, yScale } = this.scales!;
 
     if (oldScaleX !== scaleX) {
