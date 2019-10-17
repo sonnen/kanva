@@ -6,3 +6,4 @@ export * from './line-chart.view';
 export * from './pie-chart.view';
 export * from './bar-chart.view';
 export * from './legend.view';
+export * from './chart-zoom.view';

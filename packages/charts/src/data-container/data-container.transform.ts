@@ -1,4 +1,14 @@
-import { CanvasPointerEvent, DragEvent, DragGestureDetector, ScaleEvent, ScaleGestureDetector } from '@kanva/core';
+import { 
+  CanvasPointerEvent,
+  DragEvent,
+  DragGestureDetector,
+  ScaleEvent,
+  ScaleGestureDetector,
+  Point,
+  AreaSelectGestureDetector,
+  AreaSelectEvent,
+  SelectedArea,
+} from '@kanva/core';
 import defaultsDeep from 'lodash/defaultsDeep';
 import { XYPoint } from '../chart.types';
 import { DeepPartial, floorToNearest, ScaleFunction, ScaleFunctions } from '../utils';
@@ -8,6 +18,7 @@ import { DataContainerEventType, GetScalesEvent } from './data-container.events'
 import { DataContainerExtension } from './data-container.extension';
 
 export const TRANSFORM_EXTENSION = 'DataContainerTransformExtension';
+const MIN_SELECTED_AREA_THRESHOLD = 50;
 
 export type SimpleOnScaleListener = (scaleX: number, scaleY: number) => void;
 
@@ -21,6 +32,9 @@ export interface DataContainerTransformExtensionOptions {
     scroll: boolean;
     listener?: SimpleOnScaleListener;
     listenerThreshold: number;
+    selectArea: boolean;
+    minSelectedAreaThreshold: number;
+    drag: boolean;
   };
   pan: {
     pointers: number;
@@ -35,6 +49,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   private scales?: ScaleFunctions;
   private scaleGestureDetector: ScaleGestureDetector;
   private dragGestureDetector: DragGestureDetector;
+  private areaSelectGestureDetector: AreaSelectGestureDetector;
 
   constructor(options: DeepPartial<DataContainerTransformExtensionOptions>) {
     super(TRANSFORM_EXTENSION);
@@ -46,7 +61,10 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         },
         multitouch: true,
         scroll: true,
+        selectArea: false,
+        drag: true,
         listenerThreshold: 1,
+        minSelectedAreaThreshold: MIN_SELECTED_AREA_THRESHOLD,
       },
       pan: {
         pointers: 1,
@@ -61,28 +79,79 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     });
     this.dragGestureDetector = new DragGestureDetector({
       onDrag: this.onDrag,
+      drag: scale.drag && !scale.selectArea,
     });
+
+    this.areaSelectGestureDetector = new AreaSelectGestureDetector({
+      onAreaSelect: this.onAreaSelect,
+      selectArea: scale.selectArea,
+    })
   }
 
   onChartPointerEvent(event: CanvasPointerEvent) {
     this.scales = (event.target as ChartView<any, any>).getScales();
+
     return (
       this.scaleGestureDetector.onPointerEvent(event) ||
-      this.dragGestureDetector.onPointerEvent(event)
+      this.dragGestureDetector.onPointerEvent(event) ||
+      this.areaSelectGestureDetector.onPointerEvent(event)
     );
+  }
+
+  // TODO: think about better name
+  private zoomToSelectedArea(start: Point, end: Point): boolean {
+    const { limit, listener, listenerThreshold } = this.options.scale;
+    
+    if (!this.scales) { return false; }
+    const { xScale, yScale } = this.scales;
+
+    start.x = xScale.invert(start.x);
+    start.y = xScale.invert(start.y);
+    end.x = xScale.invert(end.x);
+    end.y = xScale.invert(end.y);
+
+    const scale = new Point(
+      this.calculateScale(start.x, end.x, xScale),
+      this.calculateScale(start.y, end.y, yScale),
+    )
+    const scaleX = Math.max(limit.x[0], Math.min(limit.x[1], scale.x));
+    const scaleY = Math.max(limit.y[0], Math.min(limit.y[1], scale.y));
+    const { x: oldScaleX, y: oldScaleY } = this.scale;
+
+    if (oldScaleX !== scaleX) {
+      this.scale.x = scaleX;
+      this.translate.x = start.x;
+    }
+
+    if (oldScaleY !== scaleY) {
+      this.scale.y = scaleY;
+      this.translate.y = start.y;
+    }
+
+    if (oldScaleX !== scaleX || oldScaleY !== scaleY) {
+      if (listener && (
+        floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
+        floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
+      )) {
+        listener(scaleX, scaleY);
+      }
+      return true;
+    }
+    return false;
   }
 
   setScale(scale: XYPoint, center: XYPoint = { x: 0, y: 0 }): boolean {
     const { limit, listener, listenerThreshold } = this.options.scale;
-    const { scale: { x: oldScaleX, y: oldScaleY } } = this;
+    const { x: oldScaleX, y: oldScaleY } = this.scale;
     const scaleX = Math.max(limit.x[0], Math.min(limit.x[1], scale.x));
     const scaleY = Math.max(limit.y[0], Math.min(limit.y[1], scale.y));
 
     if (!this.scales) { return false; }
 
-    const { xScale, yScale } = this.scales!;
+    const { xScale, yScale } = this.scales;
 
     if (oldScaleX !== scaleX) {
+      // Note: how this translate is connected with drawing the chart? Ask Krzysiek...
       this.translate.x = this.normalizeScaleTranslate(
         this.translate.x,
         center.x,
@@ -154,6 +223,17 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     ]);
   }
 
+  private calculateScale(
+    start: number,
+    end: number,
+    scaleFunction: ScaleFunction,
+  ) {
+    const [domainMin, domainMax] = scaleFunction.domain();
+    const domainWidth = domainMax - domainMin;
+    const windowWidth = end - start;
+    return domainWidth/windowWidth;
+  }
+
   private normalizeScaleTranslate(
     translate: number,
     center: number,
@@ -169,7 +249,6 @@ export class DataContainerTransformExtension extends DataContainerExtension {
 
     const percentage = (center - oldTranslate) / oldWindowWidth;
     const newTranslate = center - percentage * windowWidth;
-
     return Math.max(0, Math.min(domainWidth - windowWidth, newTranslate - domainMin));
   }
 
@@ -195,7 +274,6 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     const windowWidth = domainWidth / this.scale.x;
 
     const newTranslateX = this.translate.x - (xScale.invert(event.deltaX) - xScale.invert(0));
-
     if (this.translate.x !== newTranslateX) {
       this.translate.x = Math.max(0, Math.min(domainWidth - windowWidth, newTranslateX));
       this.postEvent(DataContainerEventType.DATA_CHANGE);
@@ -203,4 +281,22 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     }
     return false;
   };
+
+  private isMinimumSelectedArea = (selectedArea: SelectedArea) => 
+    selectedArea.end.x - selectedArea.start.x >= this.options.scale.minSelectedAreaThreshold
+    || selectedArea.end.y - selectedArea.start.y >= this.options.scale.minSelectedAreaThreshold;
+
+  private onAreaSelect = (event: AreaSelectEvent): boolean => {
+    const { isSelecting, selectedArea } = event;
+
+    if (isSelecting) {
+      this.postEvent(DataContainerEventType.AREA_SELECT, selectedArea);
+      return true;
+    } else {
+      this.postEvent(DataContainerEventType.AREA_SELECT, undefined);
+      return selectedArea && this.isMinimumSelectedArea(selectedArea) 
+        ? this.zoomToSelectedArea(selectedArea.start, selectedArea.end)
+        : true;
+    }
+  }
 }
