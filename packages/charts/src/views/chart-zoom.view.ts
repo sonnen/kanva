@@ -2,8 +2,9 @@ import {
   Context,
   ViewCanvas,
   Paint,
-  SelectedArea,
   RequiredViewChanges,
+  rgba,
+  Rect,
 } from '@kanva/core';
 import { ChartView, ChartViewProps } from './chart.view';
 import { XYPoint, CanvasPosition } from '../chart.types';
@@ -12,31 +13,34 @@ import { DataContainerEventType, AreaSelectEvent } from '../data-container/data-
 
 export interface ChartZoomViewStyle {
   paint: Paint;
+  borders?: Rect;
 }
 
 const defaultStyle: ChartZoomViewStyle = {
-  paint: new Paint().setFillStyle('rgba(0,0,0,.5)'),
+  paint: new Paint().setFillStyle(rgba('#FFF', 0.5)).setStrokeStyle('#FFF'),
+  borders: new Rect({left: 1, right: 1, top: 1, bottom: 1 }),
 };
 
 export interface ChartZoomViewProps extends ChartViewProps<ChartZoomViewStyle> {
 }
 
 export class ChartZoomView extends ChartView<ChartZoomViewProps> {
-  private area?: SelectedArea;
+  private area?: Rect;
+  private drawnArea: Rect = new Rect({});
 
   constructor(context: Context) {
     super(context, 'ChartZoomView', defaultStyle);
   }
 
   onDataContainerChanged(dataContainer: DataContainer<any>, oldDataContainer: DataContainer<any> | undefined){
-    if(oldDataContainer){
+    if (oldDataContainer) {
       oldDataContainer.removeEventListener(DataContainerEventType.AREA_SELECT, this.onAreaSelect);
     }
     dataContainer.addEventListener(DataContainerEventType.AREA_SELECT, this.onAreaSelect);
   }
 
   onDestroy(){
-    if(this.dataContainer){
+    if (this.dataContainer) {
       this.dataContainer.removeEventListener(DataContainerEventType.AREA_SELECT, this.onAreaSelect);
     }
   }
@@ -48,9 +52,16 @@ export class ChartZoomView extends ChartView<ChartZoomViewProps> {
   };
 
   onDraw(canvas: ViewCanvas) {
-    if (this.area){
-      canvas.setPaint(this.style.paint);
-      canvas.context.fillRect(this.area.start.x, 0, this.area.end.x-this.area.start.x, this.innerHeight)
+    if (this.area) {
+      this.drawnArea.l = this.area.l;
+      this.drawnArea.r = this.area.r;
+      this.drawnArea.b = this.innerHeight;
+      this.drawnArea.t = 0;
+      canvas.drawRect(
+        this.drawnArea,
+        this.style.paint,
+        this.style.borders,
+      );
     }
   }
 

@@ -12,6 +12,7 @@ import zoomAreaChartNotes from './AreaChart.zoom.notes.md';
 import { layout, Views } from './AreaChart.layouts';
 import { createDataContainer } from './AreaChart.dataContainer';
 import { styles } from './AreaChart.styles';
+import { Paint, Rect, rgba } from '@kanva/core';
 
 export { zoomAreaChartNotes };
 
@@ -35,7 +36,7 @@ export const zoomAreaChartStory = () => {
       },
       listener: handleScale,
       listenerThreshold: 0.001,
-      scroll: false,
+      scroll: true,
       selectArea: true,
       drag: false,
     },
@@ -77,6 +78,10 @@ export const zoomAreaChartStory = () => {
             <ChartZoomView 
               dataContainer={dataContainer}
               layoutParams={layout.areaChart}
+              style={{
+                paint: new Paint().setFillStyle(rgba('#FFF', 0.5)).setStrokeStyle('#FFF'),
+                borders: new Rect({left: 5, right: 5, top: 5, bottom: 5 }),
+              }}
             />
         </ChartGridView>
         <AxisView

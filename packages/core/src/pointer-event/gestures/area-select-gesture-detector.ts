@@ -1,18 +1,13 @@
 import { CanvasPointerEvent, PointerAction } from '../canvas-pointer-event';
 import { GestureDetector } from './gesture-detector';
-import { Point } from '../../canvas';
+import { Point, Rect } from '../../canvas';
 
 const DEFAULT_POINTER_COUNT = 1;
-
-export interface SelectedArea {
-  start: Point;
-  end: Point;
-}
 
 export interface AreaSelectEvent {
   pointerEvent: CanvasPointerEvent;
   isSelecting: boolean;
-  selectedArea?: SelectedArea;
+  selectedArea?: Rect;
 }
 
 export interface AreaSelectGestureDetectorOptions {
@@ -41,7 +36,7 @@ export class AreaSelectGestureDetector extends GestureDetector {
       return false;
     }
     
-    let selectedArea: SelectedArea | undefined = undefined;
+    let selectedArea: Rect | undefined = undefined;
     switch (event.action) {
       case PointerAction.DOWN:
         this.selectStart = new Point(
@@ -52,13 +47,13 @@ export class AreaSelectGestureDetector extends GestureDetector {
         break;
       case PointerAction.MOVE:
         if (event.primaryPointer.pressure === 0) {
-          return true;
+          return false;
         }
         this.selectEnd = new Point(
           event.primaryPointer.x,
           event.primaryPointer.y
         );
-        selectedArea = this.getSelectedArea();
+        selectedArea = this.selectedArea;
         break;
       case PointerAction.UP:
         this.selectEnd = new Point(
@@ -66,7 +61,7 @@ export class AreaSelectGestureDetector extends GestureDetector {
           event.primaryPointer.y
         );
         this.isSelecting = false;
-        selectedArea = this.getSelectedArea();
+        selectedArea = this.selectedArea;
         this.selectStart = undefined;
         this.selectEnd = undefined;
         break;
@@ -86,14 +81,13 @@ export class AreaSelectGestureDetector extends GestureDetector {
     });
   }
 
-  private getSelectedArea = () => this.selectStart && this.selectEnd && ({
-    start: new Point(
-      Math.min(this.selectStart.x, this.selectEnd.x),
-      Math.min(this.selectStart.y, this.selectEnd.y),
-    ),
-    end: new Point(
-      Math.max(this.selectStart.x, this.selectEnd.x),
-      Math.max(this.selectStart.y, this.selectEnd.y),
-    ),
-  });
+  private get selectedArea() {
+    return this.selectStart && this.selectEnd && new Rect({
+      left: Math.min(this.selectStart.x, this.selectEnd.x),
+      bottom: Math.min(this.selectStart.y, this.selectEnd.y),
+      right: Math.max(this.selectStart.x, this.selectEnd.x),
+      top: Math.max(this.selectStart.y, this.selectEnd.y),
+    });
+  }
+  
 }

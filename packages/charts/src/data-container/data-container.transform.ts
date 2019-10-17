@@ -7,7 +7,7 @@ import {
   Point,
   AreaSelectGestureDetector,
   AreaSelectEvent,
-  SelectedArea,
+  Rect,
 } from '@kanva/core';
 import defaultsDeep from 'lodash/defaultsDeep';
 import { XYPoint } from '../chart.types';
@@ -18,7 +18,6 @@ import { DataContainerEventType, GetScalesEvent } from './data-container.events'
 import { DataContainerExtension } from './data-container.extension';
 
 export const TRANSFORM_EXTENSION = 'DataContainerTransformExtension';
-const MIN_SELECTED_AREA_THRESHOLD = 50;
 
 export type SimpleOnScaleListener = (scaleX: number, scaleY: number) => void;
 
@@ -33,7 +32,10 @@ export interface DataContainerTransformExtensionOptions {
     listener?: SimpleOnScaleListener;
     listenerThreshold: number;
     selectArea: boolean;
-    minSelectedAreaThreshold: number;
+    minSelectedAreaThreshold: {
+      x: number;
+      y: number;
+    };
     drag: boolean;
   };
   pan: {
@@ -64,7 +66,10 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         selectArea: false,
         drag: true,
         listenerThreshold: 1,
-        minSelectedAreaThreshold: MIN_SELECTED_AREA_THRESHOLD,
+        minSelectedAreaThreshold: {
+          x: 50,
+          y: 50,
+        },
       },
       pan: {
         pointers: 1,
@@ -98,17 +103,16 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     );
   }
 
-  // TODO: think about better name
-  private zoomToSelectedArea(start: Point, end: Point): boolean {
+  private setSelectedArea(area: Rect): boolean {
     const { limit, listener, listenerThreshold } = this.options.scale;
     
-    if (!this.scales) { return false; }
+    if (!this.scales) { 
+      return false; 
+    }
     const { xScale, yScale } = this.scales;
 
-    start.x = xScale.invert(start.x);
-    start.y = xScale.invert(start.y);
-    end.x = xScale.invert(end.x);
-    end.y = xScale.invert(end.y);
+    const start = new Point(xScale.invert(area.l), xScale.invert(area.t));
+    const end = new Point(xScale.invert(area.r), xScale.invert(area.b));
 
     const scale = new Point(
       this.calculateScale(start.x, end.x, xScale),
@@ -151,7 +155,6 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     const { xScale, yScale } = this.scales;
 
     if (oldScaleX !== scaleX) {
-      // Note: how this translate is connected with drawing the chart? Ask Krzysiek...
       this.translate.x = this.normalizeScaleTranslate(
         this.translate.x,
         center.x,
@@ -281,10 +284,12 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     }
     return false;
   };
-
-  private isMinimumSelectedArea = (selectedArea: SelectedArea) => 
-    selectedArea.end.x - selectedArea.start.x >= this.options.scale.minSelectedAreaThreshold
-    || selectedArea.end.y - selectedArea.start.y >= this.options.scale.minSelectedAreaThreshold;
+  
+  private isSufficientAreaSelected(area: Rect) {
+    return area.width >= this.options.scale.minSelectedAreaThreshold.x
+      || area.height >= this.options.scale.minSelectedAreaThreshold.y;
+  }
+    
 
   private onAreaSelect = (event: AreaSelectEvent): boolean => {
     const { isSelecting, selectedArea } = event;
@@ -294,9 +299,9 @@ export class DataContainerTransformExtension extends DataContainerExtension {
       return true;
     } else {
       this.postEvent(DataContainerEventType.AREA_SELECT, undefined);
-      return selectedArea && this.isMinimumSelectedArea(selectedArea) 
-        ? this.zoomToSelectedArea(selectedArea.start, selectedArea.end)
-        : true;
+      return selectedArea && this.isSufficientAreaSelected(selectedArea)
+          ? this.setSelectedArea(selectedArea)
+          : true;
     }
   }
 }
