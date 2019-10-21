@@ -78,9 +78,13 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
     if (this.dataContainer) {
       this.dataContainer.removeEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     }
+    this.onDataContainerChanged(dataContainer, this.dataContainer);
     this.dataContainer = dataContainer;
     dataContainer.addEventListener(DataContainerEventType.DATA_CHANGE, this.onDataChange);
     this.require(RequiredViewChanges.LAYOUT);
+  }
+
+  onDataContainerChanged(_dataContainer: DataContainer<any>, _oldDataContainer: DataContainer<any> | undefined){
   }
 
   onDestroy() {

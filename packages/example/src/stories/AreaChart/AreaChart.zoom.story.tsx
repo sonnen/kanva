@@ -1,12 +1,18 @@
 import { AxisOrientation, GridLines, DataContainerTransformExtension } from '@kanva/charts';
 import * as React from 'react';
 import { Kanva } from '@kanva/react';
-import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView } from '@kanva/charts-react';
+import { 
+  AreaChartView as AreaChartViewComponent,
+  AxisView,
+  ChartGridView,
+  ChartZoomView,
+} from '@kanva/charts-react';
 import { boolean } from '@storybook/addon-knobs';
 import zoomAreaChartNotes from './AreaChart.zoom.notes.md';
 import { layout, Views } from './AreaChart.layouts';
 import { createDataContainer } from './AreaChart.dataContainer';
 import { styles } from './AreaChart.styles';
+import { Paint, Rect, rgba } from '@kanva/core';
 
 export { zoomAreaChartNotes };
 
@@ -26,10 +32,13 @@ export const zoomAreaChartStory = () => {
   const transformExtension = new DataContainerTransformExtension({
     scale: {
       limit: {
-        x: [1, 10],
+        x: [1, 100],
       },
       listener: handleScale,
       listenerThreshold: 0.001,
+      scroll: true,
+      selectArea: true,
+      drag: false,
     },
   });
 
@@ -65,7 +74,15 @@ export const zoomAreaChartStory = () => {
                 style={styles.series[series.name]}
               />
             ))
-          }
+            }
+            <ChartZoomView 
+              dataContainer={dataContainer}
+              layoutParams={layout.areaChart}
+              style={{
+                paint: new Paint().setFillStyle(rgba('#FFF', 0.5)).setStrokeStyle('#FFF'),
+                borders: new Rect({left: 5, right: 5, top: 5, bottom: 5 }),
+              }}
+            />
         </ChartGridView>
         <AxisView
           id={Views.X_AXIS}

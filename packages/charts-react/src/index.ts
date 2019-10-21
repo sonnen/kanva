@@ -13,6 +13,8 @@ import {
   LineChartViewProps,
   PieChartView as KanvaPieChartView,
   PieChartViewProps,
+  ChartZoomView as KanvaChartZoomView,
+  ChartZoomViewProps,
 } from '@kanva/charts';
 import { createReactView } from '@kanva/react';
 
@@ -23,3 +25,4 @@ export const PieChartView = createReactView<PieChartViewProps>(KanvaPieChartView
 export const BarChartView = createReactView<BarChartViewProps>(KanvaBarChartView);
 export const LegendView = createReactView<LegendViewProps>(KanvaLegendView);
 export const LineChartView = createReactView<LineChartViewProps>(KanvaLineChartView);
+export const ChartZoomView = createReactView<ChartZoomViewProps>(KanvaChartZoomView);

@@ -9,6 +9,7 @@ export interface DragEvent {
 
 export interface DragGestureDetectorOptions {
   onDrag: OnDragListener;
+  drag?: boolean;
   pointers?: number;
 }
 
@@ -21,7 +22,12 @@ export class DragGestureDetector extends GestureDetector {
   }
 
   onGestureEvent(event: CanvasPointerEvent): boolean {
+    return !!this.options.drag && this.handleDragGesture(event);
+  }
+
+  private handleDragGesture(event: CanvasPointerEvent) {
     const { pointers = 1 } = this.options;
+
     // TODO support multiple fingers drag
     if (event.action === PointerAction.MOVE && event.pointerCount === pointers && event.primaryPointer.pressure > 0) {
       const { deltaX, deltaY } = event.primaryPointer;
@@ -29,6 +35,7 @@ export class DragGestureDetector extends GestureDetector {
       if (deltaX === 0 && deltaY === 0) {
         return false;
       }
+      
       return this.options.onDrag({
         pointerEvent: event,
         deltaX,

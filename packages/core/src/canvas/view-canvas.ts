@@ -2,6 +2,8 @@ import { Canvas } from './canvas';
 import { TextAlign } from './font';
 import { Paint, PaintOverrides } from './paint';
 import { Radius } from './radius';
+import { Rect } from './rect';
+import { Line } from './line';
 
 export class ViewCanvas {
   public readonly context: CanvasRenderingContext2D;
@@ -119,4 +121,59 @@ export class ViewCanvas {
       c.stroke();
     }
   }
+
+  line(line: Line) {
+    const c = this.context;
+    c.moveTo(line.startX, line.startY);
+    c.lineTo(line.endX, line.endY);
+  }
+
+  drawRect(
+    rect: Rect,
+    paint: Paint,
+    borders?: Rect,
+  ) {
+    const c = this.context;
+
+    // TODO: resolve the issue of lineWidth set initially to 0 
+    paint.setLineWidth(1);
+
+    this.setPaint(paint);
+    if (paint.canDrawFill()) {
+      c.fillRect(rect.l, rect.t, rect.width, rect.height);
+    }
+
+    if (!borders || !paint.canDrawStroke()) {
+      return;
+    }
+
+    if (borders.l) {
+      c.beginPath();
+      this.line(new Line(rect.l, rect.t, rect.l, rect.b));
+      c.lineWidth = borders.l;
+      c.stroke();
+    }
+
+    if (borders.t) {
+      c.beginPath();
+      this.line(new Line(rect.l, rect.t, rect.r, rect.t));
+      c.lineWidth = borders.t;
+      c.stroke();
+    }
+
+    if (borders.r) {
+      c.beginPath();
+      this.line(new Line(rect.r, rect.t, rect.r, rect.b));
+      c.lineWidth = borders.r;
+      c.stroke();
+    }
+
+    if (borders.b) {
+      c.beginPath();
+      this.line(new Line(rect.l, rect.b, rect.r, rect.b));
+      c.lineWidth = borders.b;
+      c.stroke();
+    }
+  }
+
 }
