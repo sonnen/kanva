@@ -65,11 +65,23 @@ export class ChartZoomView extends ChartView<ChartZoomViewProps> {
     }
   }
 
-  getCanvasPositionForPoint(_point: XYPoint<number>): CanvasPosition {
-    throw new Error('Method not implemented.');
+  getCanvasPositionForPoint(point: XYPoint<number>): CanvasPosition {
+    const { xScale, yScale } = this.getScales();
+    const x = xScale(point.x);
+    const y = yScale(point.y);
+    return {
+      x,
+      y,
+      absoluteX: this.offsetRect.l + x,
+      absoluteY: this.offsetRect.t + y,
+    };
   }
-  getPointForCanvasPosition(_position: XYPoint<number>): XYPoint<number> | undefined {
-    throw new Error('Method not implemented.');
+  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> | undefined {
+    const { xScale, yScale } = this.getScales();
+    return {
+      x: xScale.invert(position.x),
+      y: yScale.invert(position.y),
+    };
   }
 
 }
