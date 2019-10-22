@@ -48,7 +48,7 @@ export class ChartZoomView extends ChartView<ChartZoomViewProps> {
   onAreaSelect = (area: AreaSelectEvent) => {
     this.area = area.payload;
     this.require(RequiredViewChanges.DRAW);
-    return undefined; // TODO
+    return area.payload; // TODO
   };
 
   onDraw(canvas: ViewCanvas) {
