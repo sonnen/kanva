@@ -71,7 +71,7 @@ export class AreaSelectGestureDetector extends GestureDetector {
         this.selectEnd = undefined;
         break;
       default:
-        return true;
+        return false;
     }
 
     return this.options.onAreaSelect({
