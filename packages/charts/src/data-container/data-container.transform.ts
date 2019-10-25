@@ -287,7 +287,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   
   private isSufficientAreaSelected(area: Rect) {
     return area.width >= this.options.scale.minSelectedAreaThreshold.x
-      || area.height >= this.options.scale.minSelectedAreaThreshold.y;
+      && area.height >= this.options.scale.minSelectedAreaThreshold.y;
   }
     
 
