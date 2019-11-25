@@ -43,54 +43,64 @@ export interface DataContainerTransformExtensionOptions {
   };
 }
 
+const DEFAULT_OPTIONS: DataContainerTransformExtensionOptions = {
+  scale: {
+    limit: {
+      x: [1, 1],
+      y: [1, 1],
+    },
+    multitouch: true,
+    scroll: true,
+    selectArea: false,
+    drag: true,
+    listenerThreshold: 1,
+    minSelectedAreaThreshold: {
+      x: 50,
+      y: 0,
+    },
+  },
+  pan: {
+    pointers: 1,
+  },
+};
+
 export class DataContainerTransformExtension extends DataContainerExtension {
   public scale: XYPoint = { x: 1, y: 1 };
   public translate: XYPoint = { x: 0, y: 0 };
 
   private readonly options: DataContainerTransformExtensionOptions;
   private scales?: ScaleFunctions;
-  private scaleGestureDetector: ScaleGestureDetector;
-  private dragGestureDetector: DragGestureDetector;
   private areaSelectGestureDetector: AreaSelectGestureDetector;
+  private dragGestureDetector: DragGestureDetector;
+  private scaleGestureDetector: ScaleGestureDetector;
 
-  constructor(options: DeepPartial<DataContainerTransformExtensionOptions>) {
+  constructor(transformOptions: DeepPartial<DataContainerTransformExtensionOptions>) {
     super(TRANSFORM_EXTENSION);
-    this.options = defaultsDeep(options, {
-      scale: {
-        limit: {
-          x: [1, 1],
-          y: [1, 1],
-        },
-        multitouch: true,
-        scroll: true,
-        selectArea: false,
-        drag: true,
-        listenerThreshold: 1,
-        minSelectedAreaThreshold: {
-          x: 50,
-          y: 50,
-        },
-      },
-      pan: {
-        pointers: 1,
-      },
-    });
-    const { scale } = this.options;
+    const {
+      options,
+      areaSelectGestureDetector,
+      dragGestureDetector,
+      scaleGestureDetector,
+    } = this.createOptions(transformOptions);
 
-    this.scaleGestureDetector = new ScaleGestureDetector({
-      onScale: this.onScale,
-      scroll: scale.scroll,
-      multitouch: scale.multitouch,
-    });
-    this.dragGestureDetector = new DragGestureDetector({
-      onDrag: this.onDrag,
-      drag: scale.drag && !scale.selectArea,
-    });
+    this.options = options;
+    this.areaSelectGestureDetector = areaSelectGestureDetector;
+    this.dragGestureDetector = dragGestureDetector;
+    this.scaleGestureDetector = scaleGestureDetector;
+  }
 
-    this.areaSelectGestureDetector = new AreaSelectGestureDetector({
-      onAreaSelect: this.onAreaSelect,
-      selectArea: scale.selectArea,
-    })
+  setOptions(transformOptions: DeepPartial<DataContainerTransformExtensionOptions>) {
+    const {
+      options,
+      areaSelectGestureDetector,
+      dragGestureDetector,
+      scaleGestureDetector,
+    } = this.createOptions(transformOptions);
+​
+    Object.assign(this.options, options);
+    this.areaSelectGestureDetector = areaSelectGestureDetector;
+    this.dragGestureDetector = dragGestureDetector;
+    this.scaleGestureDetector = scaleGestureDetector;
   }
 
   onChartPointerEvent(event: CanvasPointerEvent) {
@@ -194,6 +204,32 @@ export class DataContainerTransformExtension extends DataContainerExtension {
 
   protected onDetach(dataContainer: DataContainer<any>) {
     dataContainer.removeEventListener(DataContainerEventType.GET_SCALES, this.getScales);
+  }
+
+  // TODO: create setters in all detectors instead of rewriting each time with the new instance to set different options
+  private createOptions(optionsInput: DeepPartial<DataContainerTransformExtensionOptions>) {
+    const options: DataContainerTransformExtensionOptions = defaultsDeep(optionsInput, DEFAULT_OPTIONS);
+    const { scale } = options;
+    const scaleGestureDetector = new ScaleGestureDetector({
+      onScale: this.onScale,
+      scroll: scale.scroll,
+      multitouch: scale.multitouch,
+    });
+    const dragGestureDetector = new DragGestureDetector({
+      onDrag: this.onDrag,
+      drag: scale.drag && !scale.selectArea,
+    });
+    const areaSelectGestureDetector = new AreaSelectGestureDetector({
+      onAreaSelect: this.onAreaSelect,
+      selectArea: scale.selectArea,
+    });
+
+    return {
+      options,
+      scaleGestureDetector,
+      dragGestureDetector,
+      areaSelectGestureDetector,
+    };
   }
 
   private getScales = ({ payload }: GetScalesEvent): ScaleFunctions => ({
