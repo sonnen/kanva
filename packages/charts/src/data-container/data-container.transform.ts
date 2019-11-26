@@ -19,7 +19,12 @@ import { DataContainerExtension } from './data-container.extension';
 
 export const TRANSFORM_EXTENSION = 'DataContainerTransformExtension';
 
-export type SimpleOnScaleListener = (scaleX: number, scaleY: number) => void;
+export interface SimpleOnScaleListenerArgs {
+  scaleX: number;
+  scaleY: number;
+  dataContainers: DataContainer<any>[];
+}
+export type SimpleOnScaleListener = (args: SimpleOnScaleListenerArgs) => void;
 
 export interface DataContainerTransformExtensionOptions {
   scale: {
@@ -149,7 +154,11 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
         floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
       )) {
-        listener(scaleX, scaleY);
+        listener({ 
+          scaleX,
+          scaleY,
+          dataContainers: this.dataContainers,
+        });
       }
       return true;
     }
@@ -192,7 +201,11 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
         floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
       )) {
-        listener(scaleX, scaleY);
+        listener({ 
+          scaleX,
+          scaleY,
+          dataContainers: this.dataContainers,
+        });
       }
       this.postEvent(DataContainerEventType.DATA_CHANGE);
       return true;

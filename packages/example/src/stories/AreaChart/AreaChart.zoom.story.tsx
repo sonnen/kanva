@@ -36,9 +36,9 @@ export const zoomAreaChartStory = () => {
       },
       listener: handleScale,
       listenerThreshold: 0.001,
-      scroll: false,
+      scroll: true,
       selectArea: true,
-      drag: true,
+      drag: false,
     },
   });
 
