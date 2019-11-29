@@ -112,7 +112,7 @@ export class DataContainer<DataPoint> {
         continue;
       }
       extension.detach(this);
-      delete this.extensions[index];
+      this.extensions.splice(index, 1);
     }
 
     return this;
