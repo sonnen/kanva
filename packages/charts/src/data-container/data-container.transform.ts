@@ -82,13 +82,12 @@ export class DataContainerTransformExtension extends DataContainerExtension {
   constructor(transformOptions: DeepPartial<DataContainerTransformExtensionOptions>) {
     super(TRANSFORM_EXTENSION);
 
-    const initialOptions = defaultsDeep(transformOptions, DEFAULT_OPTIONS);
     const {
       options,
       areaSelectGestureDetector,
       dragGestureDetector,
       scaleGestureDetector,
-    } = this.updateOptions(initialOptions);
+    } = this.updateOptions(transformOptions);
 
     this.options = options;
     this.areaSelectGestureDetector = areaSelectGestureDetector;
@@ -223,7 +222,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
 
   // TODO: create setters in all detectors instead of rewriting each time with the new instance to set different options
   private updateOptions(optionsInput: DeepPartial<DataContainerTransformExtensionOptions>) {
-    const options: DataContainerTransformExtensionOptions = defaultsDeep(optionsInput, this.options);
+    const options: DataContainerTransformExtensionOptions = defaultsDeep({}, optionsInput, this.options || DEFAULT_OPTIONS);
     const { scale } = options;
     const scaleGestureDetector = new ScaleGestureDetector({
       onScale: this.onScale,
