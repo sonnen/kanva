@@ -3,10 +3,11 @@ import { DataSeriesGenerator, Distribution } from '../../utils/dataSeries.genera
 
 export const baseTickCount = 11;
 
-const dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
-  .xRange(0, 1000)
+let dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
+  .xRange(0, 500)
   .yRange(0, 1300)
   .addSeries('Series 1', 100, Distribution.EVEN)
+  .xRange(500, 1000)
   .yRange(-200, -40)
   .addSeries('Series 2', 100, Distribution.EVEN)
   .generate();

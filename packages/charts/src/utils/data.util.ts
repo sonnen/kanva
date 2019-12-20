@@ -34,7 +34,7 @@ export const segmentizePoints = <In, Filter, Out = In extends Filter ? never : I
 
 export const findBestMatchInSortedArray = <T>(
   array: T[],
-  matcher: (element: T, index: number) => number,
+  matcher: (element: T) => number,
 ): T | undefined => {
   if (!array || !array.length) {
     return undefined;
@@ -43,7 +43,7 @@ export const findBestMatchInSortedArray = <T>(
   let nearestMatch: T | undefined;
   for (let l = 0, r = array.length - 1; l <= r;) {
     const i = Math.floor((l + r) / 2);
-    const distance = matcher(array[i], i);
+    const distance = matcher(array[i]);
 
     if (Math.abs(distance) < Math.abs(nearestMatchDistance)) {
       nearestMatchDistance = distance;
