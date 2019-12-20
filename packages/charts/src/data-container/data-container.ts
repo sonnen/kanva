@@ -234,13 +234,22 @@ export class DataContainer<DataPoint> {
       if (isNil(series) || isEmpty(series.data)) {
         return yValues;
       }
-      const match = findBestMatchInSortedArray(series.data.filter(Boolean), matcher);
-      yValues[series.name] = match;
-      if (!primary) {
-        primary = match;
+
+      const filteredData = series.data.filter(Boolean);
+
+      if (filteredData.length 
+        && (x < filteredData[0].x || x > filteredData[series.data.length - 1].x)
+      ) {
+        yValues[series.name] = undefined;
+      } else {
+        const match = findBestMatchInSortedArray(filteredData, matcher);
+        yValues[series.name] = match;
       }
+
       return yValues;
     }, {});
+
+    primary = this.findBestMatch(primary, values, matcher);
 
     if (!primary) {
       return undefined;
@@ -295,6 +304,20 @@ export class DataContainer<DataPoint> {
       }
     }
     return false;
+  }
+
+  private findBestMatch(
+    primary: XYPoint | undefined,
+    values: object,
+    matcher: (element: XYPoint) => number,
+  ) {
+    const matchValuesArray: XYPoint[] = [];
+    Object.keys(values).forEach(key => values[key] && matchValuesArray.push(values[key]));
+    if (primary) {
+      matchValuesArray.push(primary);
+    }
+
+    return findBestMatchInSortedArray(matchValuesArray.sort(), matcher);
   }
 
   private processData() {
