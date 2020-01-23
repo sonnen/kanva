@@ -10,8 +10,8 @@
     "kanva"
   ],
   "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
-  "homepage": "https://github.com/headline-1/kanva",
-  "bugs": "https://github.com/headline-1/kanva/issues",
+  "homepage": "https://github.com/sonnen/kanva",
+  "bugs": "https://github.com/sonnen/kanva/issues",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -29,7 +29,7 @@
     "@kanva/core": "^0.7.0"
   },
   "dependencies": {
-    "d3-scale": "^3.0.0"
+    "d3-scale": "^3.2.1"
   },
   "devDependencies": {
     "@kanva/core": "^0.7.74"

@@ -9,8 +9,8 @@
     "kanva"
   ],
   "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
-  "homepage": "https://github.com/headline-1/kanva",
-  "bugs": "https://github.com/headline-1/kanva/issues",
+  "homepage": "https://github.com/sonnen/kanva",
+  "bugs": "https://github.com/sonnen/kanva/issues",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

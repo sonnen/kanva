@@ -10,20 +10,18 @@
     "js"
   ],
   "author": "Krzysztof Miemiec <krzysztof.miemiec@gmail.com>",
-  "homepage": "https://github.com/headline-1/kanva/tree/master/packages/example#readme",
+  "homepage": "https://github.com/sonnen/kanva/tree/master/packages/example#readme",
   "license": "MIT",
-  "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/headline-1/kanva.git"
+    "url": "git+https://github.com/sonnen/kanva.git"
   },
   "private": true,
   "bugs": {
-    "url": "https://github.com/headline-1/kanva/issues"
+    "url": "https://github.com/sonnen/kanva/issues"
   },
   "scripts": {
-    "start": "SKIP_PREFLIGHT_CHECK=true start-storybook -p 9001 -c .storybook",
-    "build": "SKIP_PREFLIGHT_CHECK=true react-app-rewired build"
+    "start": "SKIP_PREFLIGHT_CHECK=true start-storybook -p 9001 -c .storybook"
   },
   "directories": {
     "dist": "dist"
@@ -35,18 +33,18 @@
     "@kanva/react": "^0.7.74"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^5.1.9",
-    "@storybook/addon-knobs": "^5.1.9",
-    "@storybook/addon-notes": "^5.1.9",
-    "@storybook/addon-storysource": "^5.1.9",
-    "@storybook/react": "^5.1.9",
-    "@storybook/theming": "^5.1.9",
-    "@types/storybook__addon-knobs": "^5.0.1",
-    "@types/storybook__react": "^4.0.2",
+    "@storybook/addon-actions": "^5.3.8",
+    "@storybook/addon-knobs": "^5.3.8",
+    "@storybook/addon-notes": "^5.3.8",
+    "@storybook/addon-storysource": "^5.3.8",
+    "@storybook/react": "^5.3.8",
+    "@storybook/theming": "^5.3.8",
+    "@types/storybook__addon-knobs": "^5.2.1",
+    "@types/storybook__react": "^5.2.1",
     "awesome-typescript-loader": "^5.2.1",
-    "react-docgen-typescript-loader": "^3.1.0",
+    "react-docgen-typescript-loader": "^3.6.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-scripts": "^3.0.1"
+    "react-scripts": "^3.3.0"
   },
   "browserslist": [
     ">0.2%",

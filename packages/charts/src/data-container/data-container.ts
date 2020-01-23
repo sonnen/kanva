@@ -39,20 +39,19 @@ export class DataContainer<DataPoint> {
 
   // Data processing properties
   private hasChanged = false;
-  private eventListeners: Record<DataContainerEventType, DataContainerEventListener<any, any>[]> =
-    Object.values(DataContainerEventType)
+  private eventListeners = Object.values(DataContainerEventType)
       .reduce((listeners, id) => {
         listeners[id] = [];
         return listeners;
-      }, {});
+      }, {} as Record<DataContainerEventType, DataContainerEventListener<any>[]>);
 
   // Extensions
   private extensions: DataContainerExtension[] = [];
 
   // Computed values
   private series: DataSeries<XYPoint>[] = [];
-  private total: number = 0;
-  private seriesLength: number = 0;
+  private total = 0;
+  private seriesLength = 0;
   private xScale: ScaleContinuousNumeric<number, number> = getContinuousNumericScale(this.xScaleType);
   private yScale: ScaleContinuousNumeric<number, number> = getContinuousNumericScale(this.xScaleType);
   private xAxis: AxisPoint[] = [];
@@ -237,7 +236,7 @@ export class DataContainer<DataPoint> {
 
       const filteredData = series.data.filter(Boolean);
 
-      if (filteredData.length 
+      if (filteredData.length
         && (x < filteredData[0].x || x > filteredData[series.data.length - 1].x)
       ) {
         yValues[series.name] = undefined;
