@@ -8,7 +8,7 @@ export interface TextViewProps {
 
 export class TextView extends View<TextViewProps> {
   private textPaint: Paint = new Paint();
-  private textString: string = '';
+  private textString = '';
   private text: string[] = [];
 
   constructor(context: Context) {

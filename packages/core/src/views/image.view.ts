@@ -76,8 +76,8 @@ export class ImageView extends View<ImageViewProps> {
   private readonly image: HTMLImageElement;
   private readonly imageRect = new Rect(0);
   private scaleType: ImageScaleType = ImageScaleType.STRETCH;
-  private imageWidth: number = 0;
-  private imageHeight: number = 0;
+  private imageWidth = 0;
+  private imageHeight = 0;
   private source?: string;
 
   constructor(context: Context) {

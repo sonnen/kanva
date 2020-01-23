@@ -72,7 +72,7 @@ export class ViewCanvas {
     }
   }
 
-  drawText(x: number, y: number, text: string, paint: Paint, paintOverrides?: PaintOverrides, maxWidth: number = 0) {
+  drawText(x: number, y: number, text: string, paint: Paint, paintOverrides?: PaintOverrides, maxWidth = 0) {
     if (!paint.canDrawText()) {
       return;
     }

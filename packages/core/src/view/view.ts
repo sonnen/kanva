@@ -71,8 +71,8 @@ export class View<Props extends {} = ViewProps> {
   protected onMount?: (view: View<any>) => void;
   private parent: View | null = null;
   private requiredChanges: RequiredViewChanges = RequiredViewChanges.MEASURE;
-  private hasCapturedPointer: boolean = false;
-  private mounted: boolean = false;
+  private hasCapturedPointer = false;
+  private mounted = false;
 
   // Children
   private children: View[] = [];
@@ -486,7 +486,7 @@ export class View<Props extends {} = ViewProps> {
     return undefined;
   }
 
-  draw(canvas: ViewCanvas, force: boolean = false): void {
+  draw(canvas: ViewCanvas, force = false): void {
     if (!this.requireGuardAndTake(RequiredViewChanges.DRAW, force)) {
       return;
     }
@@ -630,7 +630,7 @@ export class View<Props extends {} = ViewProps> {
     this.mounted = true;
   }
 
-  addChild(child: View, position: number = -1) {
+  addChild(child: View, position = -1) {
     if (child.parent) {
       throw new Error('Child element can not be added to two containers at a time.');
     }
@@ -869,6 +869,7 @@ export class View<Props extends {} = ViewProps> {
   }
 
   getRootView() {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let parent: View = this;
     while (parent.hasParent()) {
       parent = parent.getParent()!;

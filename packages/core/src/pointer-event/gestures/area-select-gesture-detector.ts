@@ -21,7 +21,7 @@ export type OnAreaSelectListener = (areaSelectEvent: AreaSelectEvent) => boolean
 export class AreaSelectGestureDetector extends GestureDetector {
   private selectStart: Point | undefined;
   private selectEnd: Point | undefined;
-  private isSelecting: boolean = false;
+  private isSelecting = false;
 
   constructor(private options: AreaSelectGestureDetectorOptions) {
     super();
@@ -41,7 +41,7 @@ export class AreaSelectGestureDetector extends GestureDetector {
       case PointerAction.DOWN:
         this.selectStart = new Point(
           event.primaryPointer.x,
-          event.primaryPointer.y
+          event.primaryPointer.y,
         );
         this.isSelecting = true;
         break;
@@ -51,14 +51,14 @@ export class AreaSelectGestureDetector extends GestureDetector {
         }
         this.selectEnd = new Point(
           event.primaryPointer.x,
-          event.primaryPointer.y
+          event.primaryPointer.y,
         );
         selectedArea = this.selectedArea;
         break;
       case PointerAction.UP:
         this.selectEnd = new Point(
           event.primaryPointer.x,
-          event.primaryPointer.y
+          event.primaryPointer.y,
         );
         this.isSelecting = false;
         selectedArea = this.selectedArea;

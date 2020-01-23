@@ -41,8 +41,8 @@ export class BarChartView extends ChartView<BarChartViewProps> {
     y: number;
     barY: number;
   }>[] = [];
-  private seriesLength: number = 0;
-  private zeroPoint: number = 0;
+  private seriesLength = 0;
+  private zeroPoint = 0;
 
   constructor(context: Context) {
     super(context, 'BarChartView', defaultStyle);

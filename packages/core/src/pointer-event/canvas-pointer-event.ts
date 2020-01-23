@@ -33,12 +33,12 @@ export interface CanvasPointer extends PointerPosition {
 export class CanvasPointerEvent {
   offset: Offset;
   pointers: CanvasPointer[] = new Array(10).fill(null).map(() => ({}) as any);
-  pointerCount: number = 0;
+  pointerCount = 0;
   target: View;
   action: PointerAction;
-  scrollX: number = 0;
-  scrollY: number = 0;
-  scrollZ: number = 0;
+  scrollX = 0;
+  scrollY = 0;
+  scrollZ = 0;
 
   constructor() {
     this.target = null as any;

@@ -14,7 +14,7 @@ export interface ContextLike {
 }
 
 export class Context implements ContextLike {
-  private static idCounter: number = 0;
+  private static idCounter = 0;
   public debugEnabled = false;
   public readonly imageClass: ImageClass;
   public readonly canvasCreator: CanvasCreator;

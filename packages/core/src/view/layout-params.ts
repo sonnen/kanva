@@ -57,7 +57,7 @@ export class LayoutParams {
   isAnimated = DefaultProps.IS_ANIMATED;
   isAbsolute = DefaultProps.IS_ABSOLUTE;
 
-  dependenciesModified: boolean = false;
+  dependenciesModified = false;
   private props?: LayoutProps;
 
   below(id?: Id) {

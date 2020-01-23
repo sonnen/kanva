@@ -5,10 +5,10 @@ import { Context, RequiredViewChanges, View } from '../view';
 const isBrowser = typeof window !== 'undefined' && window.requestAnimationFrame;
 
 export class RootCanvasView extends View {
-  private shouldRun: boolean = true;
+  private shouldRun = true;
   private readonly canvas: ViewCanvas;
-  private dpr: number = 1;
-  private isRequired: boolean = true;
+  private dpr = 1;
+  private isRequired = true;
   private clearPointerEvents?: () => void;
 
   constructor(context: Context, canvas: Canvas) {

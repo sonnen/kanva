@@ -84,7 +84,8 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
     this.require(RequiredViewChanges.LAYOUT);
   }
 
-  onDataContainerChanged(_dataContainer: DataContainer<any>, _oldDataContainer: DataContainer<any> | undefined){
+  onDataContainerChanged(_dataContainer: DataContainer<any>, _oldDataContainer: DataContainer<any> | undefined) {
+    // Can be implemented by deriving view.
   }
 
   onDestroy() {

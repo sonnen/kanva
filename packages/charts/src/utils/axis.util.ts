@@ -19,7 +19,7 @@ export interface AxisParameters {
 export const prepareAxisValues = (
   scale: ScaleFunction,
   params: AxisParameters,
-  seriesLength: number = 10,
+  seriesLength = 10,
 ): AxisPoint[] => {
   const {
     labelAccessor = String,
