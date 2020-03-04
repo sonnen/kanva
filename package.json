@@ -8,53 +8,67 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "postinstall": "lerna exec -- yarn && lerna bootstrap",
-    "build": "lerna exec tsc",
-    "build:watch": "lerna exec --parallel 'yarn start || tsc -w --preserveWatchOutput'",
-    "start": "yarn build && yarn build:watch",
-    "clean": "rimraf packages/*/{dist,.jest,reports} && rimraf dist",
-    "purge": "yarn clean && rimraf node_modules",
-    "dist": "./scripts/pack.sh",
-    "lint": "eslint ./packages/**/src --ext ts",
+    "postinstall": "lerna bootstrap && yarn generate",
+    "compile:watch": "lerna exec --parallel 'yarn compile:watch'",
+    "generate": "yarn generate:tsconfig && yarn generate:bindings",
+    "generate:bindings": "node ./scripts/generate-bindings.js",
+    "generate:tsconfig": "node ./scripts/generate-tsconfig.js",
+    "compile": "lerna run compile",
+    "docs": "lerna run docs && node ./scripts/generate-docs.js && git add docs/*",
+    "start": "yarn compile && yarn compile:watch",
+    "clean": "rimraf packages/*/dist && rimraf {dist,.jest,reports}",
+    "purge": "git clean -xdf",
+    "prepack": "yarn clean && yarn compile",
+    "release:version": "yarn docs && lerna version --conventional-commits --create-release github -m 'chore(release): publish %s' --force-publish=*",
+    "release:publish": "lerna publish from-git --force-publish=*",
+    "lint": "eslint ./packages/*/src/**/*.ts",
     "link:all": "lerna exec -- yarn link",
     "unlink:all": "lerna exec -- yarn unlink",
-    "pretest": "yarn lint",
-    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --coverage --detectOpenHandles",
-    "test:watch": "lerna exec -- yarn test:watch",
-    "version:new": "yarn version --no-git-tag-version --no-commit-hooks && lerna version --yes --no-git-tag-version --no-commit-hooks",
-    "version:bump": "yarn version --patch --no-git-tag-version --no-commit-hooks && lerna version patch --yes --no-git-tag-version --no-commit-hooks && git add */package.json package.json lerna.json"
+    "test": "jest --config='./jest.config.js' --json --outputFile='./reports/test.json' --testLocationInResults --runInBand --coverage",
+    "test:watch": "jest --config='./jest.config.js' --watch",
+    "verify": "yarn lint && yarn test"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn version:bump",
-      "pre-push": "yarn lint"
+      "pre-commit": "yarn lint",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "release": {
+    "branch": "master"
+  },
   "devDependencies": {
-    "@babel/core": "^7.8.3",
+    "@babel/core": "^7.8.6",
     "@types/d3-scale": "^2.1.1",
     "@types/jest": "^24.9.0",
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.12.25",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
-    "@typescript-eslint/eslint-plugin": "^2.17.0",
-    "@typescript-eslint/parser": "^2.17.0",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
     "babel-jest": "^25.1.0",
     "babel-loader": "^8.0.6",
     "eslint": "^6.8.0",
-    "eslint-config-react-app": "^5.1.0",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-react": "^7.18.0",
+    "eslint-config-react-app": "^5.2.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-react": "^7.18.3",
     "husky": "^4.2.0",
     "jest": "^25.1.0",
     "lerna": "^3.20.2",
+    "lodash": "^4.17.15",
     "react": "^16.12.0",
+    "downlevel-dts": "^0.4.0",
     "react-dom": "^16.12.0",
-    "ts-jest": "^25.0.0",
+    "ts-jest": "^25.2.1",
     "ts-loader": "^6.2.1",
-    "typescript": "^3.7.5",
-    "webpack": "^4.41.5"
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.0"
   },
   "workspaces": [
     "packages/*"

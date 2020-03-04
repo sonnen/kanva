@@ -2,22 +2,35 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es6",
-    "lib": ["es2018", "dom"],
     "jsx": "react",
+    "incremental": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "esModuleInterop": true,
     "sourceMap": true,
-    "declaration": true,
-    "strict": true,
+    "strictFunctionTypes": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
     "moduleResolution": "node",
+    "stripInternal": false,
+    "lib": [
+      "es5",
+      "es2018",
+      "dom"
+    ],
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitReturns": true,
     "importHelpers": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false,
-    "esModuleInterop": true
+    "typeRoots": ["./node_modules/@types"]
   },
   "include": [
-    "./packages/**/*.ts",
-    "./packages/**/*.tsx",
-    "./packages/**/*.json"
+    "./spec/*.ts",
+    "./packages/*/src/**/*.ts",
+    "./packages/*/src/**/*.json"
+  ],
+  "exclude": [
+    "./packages/*/src/**/spec/**",
+    "./packages/*/src/**/*.spec.ts"
   ]
 }

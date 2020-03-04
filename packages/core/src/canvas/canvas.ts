@@ -4,7 +4,7 @@ export interface Canvas {
   toDataURL(type?: 'image/png' | 'image/jpeg', quality?: number): string;
 }
 
-export type ImageClass = new () => (HTMLImageElement & { src: any });
+export type ImageClass = new ()=> (HTMLImageElement & { src: any });
 
 interface CanvasCreatorOptions {
   width: number;

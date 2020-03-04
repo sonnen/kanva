@@ -2,10 +2,28 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
-    "outDir": "./dist"
+    "rootDir": "src",
+    "outDir": "./dist/undefined",
+    "noEmit": true
   },
   "include": [
     "./src"
-  ]
+  ],
+  "typedocOptions": {
+    "inputFiles": [
+      "./src/index.ts"
+    ],
+    "exclude": [
+      "**/*.spec.ts",
+      "**/spec/*.ts"
+    ],
+    "mode": "file",
+    "out": "../../docs/charts-react/api",
+    "readme": "none",
+    "theme": "gitbook",
+    "excludeNotExported": true,
+    "excludePrivate": true,
+    "hideGenerator": true,
+    "hideSources": true
+  }
 }
