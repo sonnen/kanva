@@ -12,10 +12,30 @@
   "homepage": "https://github.com/sonnen/kanva",
   "bugs": "https://github.com/sonnen/kanva/issues",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm5/index.js",
+  "es2015": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "typesVersions": {
+    "<3.7": {
+      "*": [
+        "dist/types-compat/*"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sonnen/kanva.git"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "compile": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.esm5.json ./tsconfig.types.json && yarn compile:types-compat",
+    "compile:types-compat": "downlevel-dts . ./dist/types-compat",
+    "compile:watch": "tsc-watch -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.esm5.json ./tsconfig.types.json --noClear --onSuccess 'yarn compile:types-compat'",
+    "docs": "rimraf ../../docs/http/api && typedoc src"
+  },
   "files": [
-    "dist/"
+    "dist/**/!(*.tsbuildinfo)"
   ],
   "publishConfig": {
     "access": "public"

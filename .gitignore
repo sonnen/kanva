@@ -7,10 +7,12 @@ build
 dist
 reports
 
-# Misc
-*.log
+/packages/*/tsconfig*.json
 
-# misc
+
+# Misc
+*.tsbuildinfo
+*.log
 .DS_Store
 .env.local
 .env.development.local
