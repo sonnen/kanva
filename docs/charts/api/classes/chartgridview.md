@@ -375,7 +375,7 @@ ___
 
 ###  getCanvasPositionForPoint
 
-▸ **getCanvasPositionForPoint**(`_point`: [XYPoint](../interfaces/xypoint.md)): *[CanvasPosition](../interfaces/canvasposition.md)*
+▸ **getCanvasPositionForPoint**(`point`: [XYPoint](../interfaces/xypoint.md)‹number›): *[CanvasPosition](../interfaces/canvasposition.md)*
 
 *Overrides [ChartView](chartview.md).[getCanvasPositionForPoint](chartview.md#abstract-getcanvaspositionforpoint)*
 
@@ -383,7 +383,7 @@ ___
 
 Name | Type |
 ------ | ------ |
-`_point` | [XYPoint](../interfaces/xypoint.md) |
+`point` | [XYPoint](../interfaces/xypoint.md)‹number› |
 
 **Returns:** *[CanvasPosition](../interfaces/canvasposition.md)*
 
@@ -519,7 +519,7 @@ ___
 
 ###  getPointForCanvasPosition
 
-▸ **getPointForCanvasPosition**(`_position`: [XYPoint](../interfaces/xypoint.md)): *[XYPoint](../interfaces/xypoint.md)*
+▸ **getPointForCanvasPosition**(`position`: [XYPoint](../interfaces/xypoint.md)‹number›): *[XYPoint](../interfaces/xypoint.md)‹number› | undefined*
 
 *Overrides [ChartView](chartview.md).[getPointForCanvasPosition](chartview.md#abstract-getpointforcanvasposition)*
 
@@ -527,9 +527,9 @@ ___
 
 Name | Type |
 ------ | ------ |
-`_position` | [XYPoint](../interfaces/xypoint.md) |
+`position` | [XYPoint](../interfaces/xypoint.md)‹number› |
 
-**Returns:** *[XYPoint](../interfaces/xypoint.md)*
+**Returns:** *[XYPoint](../interfaces/xypoint.md)‹number› | undefined*
 
 ___
 
