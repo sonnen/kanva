@@ -1,4 +1,4 @@
-import { 
+import {
   CanvasPointerEvent,
   DragEvent,
   DragGestureDetector,
@@ -23,6 +23,8 @@ export interface SimpleOnScaleListenerArgs {
   scaleX: number;
   scaleY: number;
   dataContainers: DataContainer<any>[];
+  start?: Point;
+  end?: Point;
 }
 export type SimpleOnScaleListener = (args: SimpleOnScaleListenerArgs) => void;
 
@@ -121,9 +123,9 @@ export class DataContainerTransformExtension extends DataContainerExtension {
 
   private setSelectedArea(area: Rect): boolean {
     const { limit, listener, listenerThreshold } = this.options.scale;
-    
-    if (!this.scales) { 
-      return false; 
+
+    if (!this.scales) {
+      return false;
     }
     const { xScale, yScale } = this.scales;
 
@@ -153,10 +155,12 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
         floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
       )) {
-        listener({ 
+        listener({
           scaleX,
           scaleY,
           dataContainers: this.dataContainers,
+          start,
+          end,
         });
       }
       return true;
@@ -200,7 +204,7 @@ export class DataContainerTransformExtension extends DataContainerExtension {
         floorToNearest(oldScaleX, listenerThreshold) !== floorToNearest(scaleX, listenerThreshold) ||
         floorToNearest(oldScaleY, listenerThreshold) !== floorToNearest(scaleY, listenerThreshold)
       )) {
-        listener({ 
+        listener({
           scaleX,
           scaleY,
           dataContainers: this.dataContainers,
@@ -334,12 +338,12 @@ export class DataContainerTransformExtension extends DataContainerExtension {
     }
     return false;
   };
-  
+
   private isSufficientAreaSelected(area: Rect) {
     return area.width >= this.options.scale.minSelectedAreaThreshold.x
       && area.height >= this.options.scale.minSelectedAreaThreshold.y;
   }
-    
+
 
   private onAreaSelect = (event: AreaSelectEvent): boolean => {
     const { isSelecting, selectedArea } = event;
