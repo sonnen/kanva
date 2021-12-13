@@ -6,6 +6,7 @@ import {
   rgba,
   Rect,
 } from '@kanva/core';
+import { isNumber } from 'lodash';
 import { ChartView, ChartViewProps } from './chart.view';
 import { XYPoint, CanvasPosition } from '../chart.types';
 import { DataContainer } from '../data-container';
@@ -65,10 +66,10 @@ export class ChartZoomView extends ChartView<ChartZoomViewProps> {
     }
   }
 
-  getCanvasPositionForPoint(point: XYPoint<number>): CanvasPosition {
+  getCanvasPositionForPoint(point: XYPoint<any>): CanvasPosition {
     const { xScale, yScale } = this.getScales();
     const x = xScale(point.x);
-    const y = yScale(point.y);
+    const y = isNumber(point.y) ? yScale(point.y) : 0;
     return {
       x,
       y,
@@ -76,7 +77,8 @@ export class ChartZoomView extends ChartView<ChartZoomViewProps> {
       absoluteY: this.offsetRect.t + y,
     };
   }
-  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> | undefined {
+
+  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> {
     const { xScale, yScale } = this.getScales();
     return {
       x: xScale.invert(position.x),
