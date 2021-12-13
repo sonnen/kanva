@@ -1,18 +1,18 @@
-import { AxisOrientation, GridLines, DataContainerTransformExtension } from '@kanva/charts';
+import { AxisOrientation, GridLines, DataContainerTransformExtension, SimpleOnScaleListenerArgs } from '@kanva/charts';
 import * as React from 'react';
 import { Kanva } from '@kanva/react';
-import { 
+import {
   AreaChartView as AreaChartViewComponent,
   AxisView,
   ChartGridView,
   ChartZoomView,
 } from '@kanva/charts-react';
+import { Paint, Rect, rgba } from '@kanva/core';
 import { boolean } from '@storybook/addon-knobs';
 import zoomAreaChartNotes from './AreaChart.zoom.notes.md';
 import { layout, Views } from './AreaChart.layouts';
 import { createDataContainer } from './AreaChart.dataContainer';
 import { styles } from './AreaChart.styles';
-import { Paint, Rect, rgba } from '@kanva/core';
 
 export { zoomAreaChartNotes };
 
@@ -21,7 +21,7 @@ export const zoomAreaChartStory = () => {
   const debug = boolean('Debug', false);
   const baseTickCount = 9;
 
-  const handleScale = (scaleX: number) => {
+  const handleScale = ({ scaleX }: SimpleOnScaleListenerArgs) => {
     const newScale = Math.floor(Math.log2(scaleX));
 
     const axisParams = dataContainer.getXAxisParameters();
@@ -75,7 +75,7 @@ export const zoomAreaChartStory = () => {
               />
             ))
             }
-            <ChartZoomView 
+            <ChartZoomView
               dataContainer={dataContainer}
               layoutParams={layout.areaChart}
               style={{

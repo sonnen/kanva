@@ -2,16 +2,17 @@ import * as React from 'react';
 import { Kanva } from '@kanva/react';
 import { LineChartView as LineChartViewComponent, AxisView } from '@kanva/charts-react';
 import { boolean } from '@storybook/addon-knobs';
-import simpleLineChartNotes from './LineChart.simple.notes.md';
-import { layout, Views } from './LineChart.layouts';
-import { MOCK } from './LineChart.mock'
 import {
   LineChartViewStyle,
   DataContainer,
   AxisOrientation,
-  DataContainerTransformExtension
+  DataContainerTransformExtension,
+  SimpleOnScaleListenerArgs,
 } from '@kanva/charts';
 import { Paint } from '@kanva/core';
+import simpleLineChartNotes from './LineChart.simple.notes.md';
+import { layout, Views } from './LineChart.layouts';
+import { MOCK } from './LineChart.mock'
 import { styles } from './LineChart.styles';
 
 export { simpleLineChartNotes };
@@ -38,12 +39,12 @@ const lineChartStyle: LineChartViewStyle = {
   minChunkLength: {
     domain: .1,
     px: 1,
-  }
+  },
 };
 
 const baseTickCount = 9;
 
-const handleScale = (scaleX: number) => {
+const handleScale = ({ scaleX }: SimpleOnScaleListenerArgs) => {
   const newScale = Math.floor(Math.log2(scaleX));
 
   const axisParams = dataContainer.getXAxisParameters();
@@ -63,7 +64,7 @@ const transformExtension = new DataContainerTransformExtension({
 const dataContainer = new DataContainer()
 .setData([{
   name: Series.HEATER_POWER,
-  data: MOCK.consumptionPower.map(({ x, y }: {x: number, y: number }) => ({ x, y: y > 3000 ? 1 : 0 })),
+  data: MOCK.consumptionPower.map(({ x, y }: { x: number; y: number }) => ({ x, y: y > 3000 ? 1 : 0 })),
 }])
 .setXAxisParameters({
   tickCount: baseTickCount,
