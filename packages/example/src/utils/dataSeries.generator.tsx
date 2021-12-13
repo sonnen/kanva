@@ -73,4 +73,27 @@ export class DataSeriesGenerator {
         .sort((a, b) => a.x - b.x),
     }));
   }
+
+  generateYY(): DataSeries<XYPoint<[number, number]>>[] {
+    return this.options.series.map(({
+      name,
+      elements,
+      xRange,
+      yRange,
+      distribution,
+    }) => ({
+      name,
+      data: new Array(elements)
+        .fill(0)
+        .map((_, index) => {
+          const randomMinY = Math.round(randomNumber(yRange));
+
+          return {
+            x: distribution === Distribution.EVEN ? rangedNumber(xRange, index, elements) : randomNumber(xRange),
+            y: [randomMinY, randomMinY + 2] as [number, number],
+          }
+        })
+        .sort((a, b) => a.x - b.x),
+    }));
+  }
 }
