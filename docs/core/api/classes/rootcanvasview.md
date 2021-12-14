@@ -1,8 +1,4 @@
-# Class: RootCanvasView <**Props**>
-
-## Type parameters
-
-▪ **Props**: *object*
+# Class: RootCanvasView
 
 ## Hierarchy
 
@@ -21,12 +17,12 @@
 * [backgroundColor](rootcanvasview.md#protected-optional-backgroundcolor)
 * [borderColor](rootcanvasview.md#protected-optional-bordercolor)
 * [borderRect](rootcanvasview.md#protected-optional-borderrect)
-* [context](rootcanvasview.md#context)
+* [context](rootcanvasview.md#readonly-context)
 * [height](rootcanvasview.md#protected-height)
 * [id](rootcanvasview.md#optional-id)
 * [innerRect](rootcanvasview.md#protected-innerrect)
 * [lp](rootcanvasview.md#protected-lp)
-* [name](rootcanvasview.md#name)
+* [name](rootcanvasview.md#readonly-name)
 * [offsetRect](rootcanvasview.md#offsetrect)
 * [onMount](rootcanvasview.md#protected-optional-onmount)
 * [rect](rootcanvasview.md#protected-rect)
@@ -133,11 +129,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *[Context](context.md)*
 
-*Inherited from [RootCanvasView](rootcanvasview.md).[context](rootcanvasview.md#context)*
+*Inherited from [RootCanvasView](rootcanvasview.md).[context](rootcanvasview.md#readonly-context)*
 
 ___
 
@@ -175,11 +171,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [RootCanvasView](rootcanvasview.md).[name](rootcanvasview.md#name)*
+*Inherited from [RootCanvasView](rootcanvasview.md).[name](rootcanvasview.md#readonly-name)*
 
 ___
 

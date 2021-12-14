@@ -1,4 +1,4 @@
-# Class: AxisView <**DataPoint**>
+# Class: AxisView ‹**DataPoint**›
 
 ## Type parameters
 
@@ -21,12 +21,12 @@
 * [backgroundColor](axisview.md#protected-optional-backgroundcolor)
 * [borderColor](axisview.md#protected-optional-bordercolor)
 * [borderRect](axisview.md#protected-optional-borderrect)
-* [context](axisview.md#context)
+* [context](axisview.md#readonly-context)
 * [height](axisview.md#protected-height)
 * [id](axisview.md#optional-id)
 * [innerRect](axisview.md#protected-innerrect)
 * [lp](axisview.md#protected-lp)
-* [name](axisview.md#name)
+* [name](axisview.md#readonly-name)
 * [offsetRect](axisview.md#offsetrect)
 * [onMount](axisview.md#protected-optional-onmount)
 * [rect](axisview.md#protected-rect)
@@ -134,11 +134,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *Context*
 
-*Inherited from [ChartView](chartview.md).[context](chartview.md#context)*
+*Inherited from [ChartView](chartview.md).[context](chartview.md#readonly-context)*
 
 ___
 
@@ -176,11 +176,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [ChartView](chartview.md).[name](chartview.md#name)*
+*Inherited from [ChartView](chartview.md).[name](chartview.md#readonly-name)*
 
 ___
 

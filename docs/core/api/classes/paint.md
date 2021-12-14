@@ -22,7 +22,7 @@
 * [textAlign](paint.md#textalign)
 * [textBaseline](paint.md#textbaseline)
 * [textDirection](paint.md#textdirection)
-* [DEFAULT](paint.md#static-default)
+* [DEFAULT](paint.md#static-readonly-default)
 
 ### Methods
 
@@ -115,7 +115,7 @@ ___
 
 ___
 
-### `Static` DEFAULT
+### `Static` `Readonly` DEFAULT
 
 ▪ **DEFAULT**: *[DeepReadonly](../README.md#deepreadonly)‹[Paint](paint.md)›* = new Paint()
 

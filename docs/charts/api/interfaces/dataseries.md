@@ -1,4 +1,4 @@
-# Interface: DataSeries <**DataPoint**>
+# Interface: DataSeries ‹**DataPoint**›
 
 ## Type parameters
 

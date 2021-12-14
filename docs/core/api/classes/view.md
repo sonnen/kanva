@@ -1,4 +1,4 @@
-# Class: View <**Props**>
+# Class: View ‹**Props**›
 
 ## Type parameters
 
@@ -25,12 +25,12 @@
 * [backgroundColor](view.md#protected-optional-backgroundcolor)
 * [borderColor](view.md#protected-optional-bordercolor)
 * [borderRect](view.md#protected-optional-borderrect)
-* [context](view.md#context)
+* [context](view.md#readonly-context)
 * [height](view.md#protected-height)
 * [id](view.md#optional-id)
 * [innerRect](view.md#protected-innerrect)
 * [lp](view.md#protected-lp)
-* [name](view.md#name)
+* [name](view.md#readonly-name)
 * [offsetRect](view.md#offsetrect)
 * [onMount](view.md#protected-optional-onmount)
 * [rect](view.md#protected-rect)
@@ -124,7 +124,7 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *[Context](context.md)*
 
@@ -156,7 +156,7 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 

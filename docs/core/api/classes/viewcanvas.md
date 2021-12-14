@@ -12,8 +12,8 @@
 
 ### Properties
 
-* [canvas](viewcanvas.md#protected-canvas)
-* [context](viewcanvas.md#context)
+* [canvas](viewcanvas.md#protected-readonly-canvas)
+* [context](viewcanvas.md#readonly-context)
 
 ### Methods
 
@@ -41,13 +41,13 @@ Name | Type |
 
 ## Properties
 
-### `Protected` canvas
+### `Protected` `Readonly` canvas
 
 • **canvas**: *[Canvas](../interfaces/canvas.md)*
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *CanvasRenderingContext2D*
 

@@ -56,7 +56,7 @@ ___
 
 ### `Const` createReactView
 
-▸ **createReactView**<**Props**>(`viewClass`: object): *ReactViewComponent*
+▸ **createReactView**‹**Props**›(`viewClass`: object): *ReactViewComponent*
 
 **Type parameters:**
 

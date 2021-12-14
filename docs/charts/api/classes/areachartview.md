@@ -1,8 +1,4 @@
-# Class: AreaChartView <**Style**>
-
-## Type parameters
-
-▪ **Style**
+# Class: AreaChartView
 
 ## Hierarchy
 
@@ -21,14 +17,14 @@
 * [backgroundColor](areachartview.md#protected-optional-backgroundcolor)
 * [borderColor](areachartview.md#protected-optional-bordercolor)
 * [borderRect](areachartview.md#protected-optional-borderrect)
-* [context](areachartview.md#context)
+* [context](areachartview.md#readonly-context)
 * [dataContainer](areachartview.md#protected-optional-datacontainer)
 * [dataSeries](areachartview.md#protected-dataseries)
 * [height](areachartview.md#protected-height)
 * [id](areachartview.md#optional-id)
 * [innerRect](areachartview.md#protected-innerrect)
 * [lp](areachartview.md#protected-lp)
-* [name](areachartview.md#name)
+* [name](areachartview.md#readonly-name)
 * [offsetRect](areachartview.md#offsetrect)
 * [onMount](areachartview.md#protected-optional-onmount)
 * [rect](areachartview.md#protected-rect)
@@ -145,11 +141,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *Context*
 
-*Inherited from [ChartView](chartview.md).[context](chartview.md#context)*
+*Inherited from [ChartView](chartview.md).[context](chartview.md#readonly-context)*
 
 ___
 
@@ -203,11 +199,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [ChartView](chartview.md).[name](chartview.md#name)*
+*Inherited from [ChartView](chartview.md).[name](chartview.md#readonly-name)*
 
 ___
 
@@ -241,7 +237,7 @@ ___
 
 ### `Protected` style
 
-• **style**: *Style*
+• **style**: *NonNullable‹ChartProps["style"]›*
 
 *Inherited from [ChartView](chartview.md).[style](chartview.md#protected-style)*
 
@@ -375,7 +371,7 @@ ___
 
 ###  getCanvasPositionForPoint
 
-▸ **getCanvasPositionForPoint**(`point`: [XYPoint](../interfaces/xypoint.md)): *[CanvasPosition](../interfaces/canvasposition.md)*
+▸ **getCanvasPositionForPoint**(`point`: [XYPoint](../interfaces/xypoint.md)‹any›): *[CanvasPosition](../interfaces/canvasposition.md)*
 
 *Overrides [ChartView](chartview.md).[getCanvasPositionForPoint](chartview.md#abstract-getcanvaspositionforpoint)*
 
@@ -383,7 +379,7 @@ ___
 
 Name | Type |
 ------ | ------ |
-`point` | [XYPoint](../interfaces/xypoint.md) |
+`point` | [XYPoint](../interfaces/xypoint.md)‹any› |
 
 **Returns:** *[CanvasPosition](../interfaces/canvasposition.md)*
 
@@ -519,7 +515,7 @@ ___
 
 ###  getPointForCanvasPosition
 
-▸ **getPointForCanvasPosition**(`position`: [XYPoint](../interfaces/xypoint.md)): *[XYPoint](../interfaces/xypoint.md)*
+▸ **getPointForCanvasPosition**(`position`: [XYPoint](../interfaces/xypoint.md)‹number›): *[XYPoint](../interfaces/xypoint.md)‹number›*
 
 *Overrides [ChartView](chartview.md).[getPointForCanvasPosition](chartview.md#abstract-getpointforcanvasposition)*
 
@@ -527,9 +523,9 @@ ___
 
 Name | Type |
 ------ | ------ |
-`position` | [XYPoint](../interfaces/xypoint.md) |
+`position` | [XYPoint](../interfaces/xypoint.md)‹number› |
 
-**Returns:** *[XYPoint](../interfaces/xypoint.md)*
+**Returns:** *[XYPoint](../interfaces/xypoint.md)‹number›*
 
 ___
 
@@ -1062,7 +1058,7 @@ ___
 
 ###  setStyle
 
-▸ **setStyle**(`style`: Style | undefined): *void*
+▸ **setStyle**(`style`: NonNullable‹ChartProps["style"]› | undefined): *void*
 
 *Inherited from [ChartView](chartview.md).[setStyle](chartview.md#setstyle)*
 
@@ -1070,7 +1066,7 @@ ___
 
 Name | Type |
 ------ | ------ |
-`style` | Style &#124; undefined |
+`style` | NonNullable‹ChartProps["style"]› &#124; undefined |
 
 **Returns:** *void*
 

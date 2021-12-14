@@ -17,12 +17,12 @@
 * [backgroundColor](textview.md#protected-optional-backgroundcolor)
 * [borderColor](textview.md#protected-optional-bordercolor)
 * [borderRect](textview.md#protected-optional-borderrect)
-* [context](textview.md#context)
+* [context](textview.md#readonly-context)
 * [height](textview.md#protected-height)
 * [id](textview.md#optional-id)
 * [innerRect](textview.md#protected-innerrect)
 * [lp](textview.md#protected-lp)
-* [name](textview.md#name)
+* [name](textview.md#readonly-name)
 * [offsetRect](textview.md#offsetrect)
 * [onMount](textview.md#protected-optional-onmount)
 * [rect](textview.md#protected-rect)
@@ -128,11 +128,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *[Context](context.md)*
 
-*Inherited from [RootCanvasView](rootcanvasview.md).[context](rootcanvasview.md#context)*
+*Inherited from [RootCanvasView](rootcanvasview.md).[context](rootcanvasview.md#readonly-context)*
 
 ___
 
@@ -170,11 +170,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [RootCanvasView](rootcanvasview.md).[name](rootcanvasview.md#name)*
+*Inherited from [RootCanvasView](rootcanvasview.md).[name](rootcanvasview.md#readonly-name)*
 
 ___
 

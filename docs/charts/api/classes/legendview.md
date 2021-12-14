@@ -1,4 +1,4 @@
-# Class: LegendView <**DataPoint**>
+# Class: LegendView ‹**DataPoint**›
 
 ## Type parameters
 
@@ -21,12 +21,12 @@
 * [backgroundColor](legendview.md#protected-optional-backgroundcolor)
 * [borderColor](legendview.md#protected-optional-bordercolor)
 * [borderRect](legendview.md#protected-optional-borderrect)
-* [context](legendview.md#context)
+* [context](legendview.md#readonly-context)
 * [height](legendview.md#protected-height)
 * [id](legendview.md#optional-id)
 * [innerRect](legendview.md#protected-innerrect)
 * [lp](legendview.md#protected-lp)
-* [name](legendview.md#name)
+* [name](legendview.md#readonly-name)
 * [offsetRect](legendview.md#offsetrect)
 * [onMount](legendview.md#protected-optional-onmount)
 * [rect](legendview.md#protected-rect)
@@ -131,11 +131,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *Context*
 
-*Inherited from [ChartView](chartview.md).[context](chartview.md#context)*
+*Inherited from [ChartView](chartview.md).[context](chartview.md#readonly-context)*
 
 ___
 
@@ -173,11 +173,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [ChartView](chartview.md).[name](chartview.md#name)*
+*Inherited from [ChartView](chartview.md).[name](chartview.md#readonly-name)*
 
 ___
 

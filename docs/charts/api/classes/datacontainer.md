@@ -1,4 +1,4 @@
-# Class: DataContainer <**DataPoint**>
+# Class: DataContainer ‹**DataPoint**›
 
 This is a common base for storing raw point values and converting them to format that can be consumed by ChartViews.
 In case of one-dimensional data (as for PieChart), a sum of Y values passed to series will be used.
@@ -53,7 +53,7 @@ In case of one-dimensional data (as for PieChart), a sum of Y values passed to s
 
 ###  addEventListener
 
-▸ **addEventListener**<**T**, **P**>(`eventType`: T, `listener`: [DataContainerEventListener](../README.md#datacontainereventlistener)‹T, P›): *void*
+▸ **addEventListener**‹**T**, **P**›(`eventType`: T, `listener`: [DataContainerEventListener](../README.md#datacontainereventlistener)‹T, P›): *void*
 
 **Type parameters:**
 
@@ -88,9 +88,9 @@ ___
 
 ###  getAllDataSeries
 
-▸ **getAllDataSeries**(): *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)›[]*
+▸ **getAllDataSeries**(): *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)‹any››[]*
 
-**Returns:** *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)›[]*
+**Returns:** *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)‹any››[]*
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 ###  getDataSeries
 
-▸ **getDataSeries**(`name`: string | undefined): *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)› | undefined*
+▸ **getDataSeries**(`name`: string | undefined): *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)‹any›› | undefined*
 
 **Parameters:**
 
@@ -120,13 +120,13 @@ Name | Type |
 ------ | ------ |
 `name` | string &#124; undefined |
 
-**Returns:** *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)› | undefined*
+**Returns:** *[DataSeries](../interfaces/dataseries.md)‹[XYPoint](../interfaces/xypoint.md)‹any›› | undefined*
 
 ___
 
 ###  getExtension
 
-▸ **getExtension**<**Extension**>(`name`: string): *Extension | undefined*
+▸ **getExtension**‹**Extension**›(`name`: string): *Extension | undefined*
 
 **Type parameters:**
 
@@ -144,9 +144,9 @@ ___
 
 ###  getPointAccessor
 
-▸ **getPointAccessor**(): *undefined | function*
+▸ **getPointAccessor**(): *undefined | [PointAccessor](../README.md#pointaccessor)‹DataPoint›*
 
-**Returns:** *undefined | function*
+**Returns:** *undefined | [PointAccessor](../README.md#pointaccessor)‹DataPoint›*
 
 ___
 
@@ -276,7 +276,7 @@ ___
 
 ###  postEvent
 
-▸ **postEvent**<**T**, **P**>(`eventType`: T, `payload?`: P): *P*
+▸ **postEvent**‹**T**, **P**›(`eventType`: T, `payload?`: P): *P*
 
 **Type parameters:**
 
@@ -297,7 +297,7 @@ ___
 
 ###  removeEventListener
 
-▸ **removeEventListener**<**T**, **P**>(`eventType`: T, `listener`: [DataContainerEventListener](../README.md#datacontainereventlistener)‹T, P›): *void*
+▸ **removeEventListener**‹**T**, **P**›(`eventType`: T, `listener`: [DataContainerEventListener](../README.md#datacontainereventlistener)‹T, P›): *void*
 
 **Type parameters:**
 

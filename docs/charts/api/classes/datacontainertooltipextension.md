@@ -14,8 +14,8 @@
 
 ### Properties
 
-* [dataContainers](datacontainertooltipextension.md#protected-datacontainers)
-* [name](datacontainertooltipextension.md#name)
+* [dataContainers](datacontainertooltipextension.md#protected-readonly-datacontainers)
+* [name](datacontainertooltipextension.md#readonly-name)
 
 ### Methods
 
@@ -45,19 +45,19 @@ Name | Type |
 
 ## Properties
 
-### `Protected` dataContainers
+### `Protected` `Readonly` dataContainers
 
 • **dataContainers**: *[DataContainer](datacontainer.md)‹any›[]* = []
 
-*Inherited from [DataContainerExtension](datacontainerextension.md).[dataContainers](datacontainerextension.md#protected-datacontainers)*
+*Inherited from [DataContainerExtension](datacontainerextension.md).[dataContainers](datacontainerextension.md#protected-readonly-datacontainers)*
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [DataContainerExtension](datacontainerextension.md).[name](datacontainerextension.md#name)*
+*Inherited from [DataContainerExtension](datacontainerextension.md).[name](datacontainerextension.md#readonly-name)*
 
 ## Methods
 
@@ -143,7 +143,7 @@ ___
 
 ### `Protected` postEvent
 
-▸ **postEvent**<**T**, **P**>(`eventType`: T, `payload?`: P): *P*
+▸ **postEvent**‹**T**, **P**›(`eventType`: T, `payload?`: P): *P*
 
 *Inherited from [DataContainerExtension](datacontainerextension.md).[postEvent](datacontainerextension.md#protected-postevent)*
 

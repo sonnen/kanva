@@ -73,7 +73,7 @@
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -141,7 +141,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -209,7 +209,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -277,7 +277,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -345,7 +345,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -413,7 +413,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -481,7 +481,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 
@@ -549,7 +549,7 @@ ___
 
   * **render**(): *Element*
 
-  * **setState**<**K**>(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
+  * **setState**‹**K**›(`state`: object | function | Pick‹object, K› | null, `callback?`: function | undefined): *void*
 
   * **shouldComponentUpdate**(`nextProps`: Readonly‹Partial‹ViewProps & Props››, `nextState`: Readonly‹object›, `nextContext`: any): *boolean*
 

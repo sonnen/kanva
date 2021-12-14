@@ -5,6 +5,7 @@
 ### Enumeration members
 
 * [AREA](datadisplaytype.md#area)
+* [BAND](datadisplaytype.md#band)
 * [LINE](datadisplaytype.md#line)
 * [LINE_STAIRS](datadisplaytype.md#line_stairs)
 * [POINTS](datadisplaytype.md#points)
@@ -14,6 +15,12 @@
 ###  AREA
 
 • **AREA**:
+
+___
+
+###  BAND
+
+• **BAND**:
 
 ___
 
