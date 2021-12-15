@@ -1,5 +1,5 @@
 import { Context, Line, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
-import { isNumber } from 'lodash';
+import { flatten, isArray, isNumber } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { LabelOptions, LabelsHelper, ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -99,24 +99,8 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           array[offset + 1] = array[offset - 1];
           return array;
         }
-        case DataDisplayType.BAND: {
-          const array = new Float64Array(segment.length * 3);
-          for (let i = 0; i < segment.length; i++) {
-            const { x, y } = segment[i];
-            array[i * 3] = x;
-            array[i * 3 + 1] = y[0];
-            array[i * 3 + 2] = y[1];
-          }
-          return array;
-        }
         default: {
-          const array = new Float64Array(segment.length * 2);
-          for (let i = 0; i < segment.length; i++) {
-            const point = segment[i];
-            array[i * 2] = point.x;
-            array[i * 2 + 1] = point.y;
-          }
-          return array;
+          return Float64Array.from(flatten(segment.map(({ x, y }) => isArray(y) ? [x, ...y] : [x, y])));
         }
       }
     });
@@ -150,13 +134,13 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           ctx.lineTo(xScale(data[0]), yScale(center.y));
           break;
         case DataDisplayType.BAND:
-          // stating point
+          // starting point
           ctx.moveTo(xScale(data[0]), yScale(data[1]));
           // iterate over min bounds
           for (let i = 0, l = data.length; i < l; i += 3) {
             ctx.lineTo(xScale(data[i]), yScale(data[i + 1]));
           }
-          // move to the last of max bounds
+          // move to the last element of max bounds
           ctx.lineTo(xScale(data[data.length - 3]), yScale(data[data.length - 1]));
           // iterate over max bounds in reverse
           for (let i = data.length - 1; i > 1; i -= 3) {

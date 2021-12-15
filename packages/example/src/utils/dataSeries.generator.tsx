@@ -55,7 +55,7 @@ export class DataSeriesGenerator {
     });
   }
 
-  generate(): DataSeries<XYPoint>[] {
+  generateXY(): DataSeries<XYPoint>[] {
     return this.options.series.map(({
       name,
       elements,
@@ -74,7 +74,7 @@ export class DataSeriesGenerator {
     }));
   }
 
-  generateYY(): DataSeries<XYPoint<[number, number]>>[] {
+  generateXYY(): DataSeries<XYPoint<[number, number]>>[] {
     return this.options.series.map(({
       name,
       elements,

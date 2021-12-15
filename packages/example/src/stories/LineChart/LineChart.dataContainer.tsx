@@ -9,7 +9,7 @@ const dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
   .addSeries('Series 1', 100, Distribution.EVEN)
   .yRange(-200, -40)
   .addSeries('Series 2', 100, Distribution.EVEN)
-  .generate();
+  .generateXY();
 
 export const createDataContainer = () => new DataContainer<XYPoint<number | null>>()
   .setXAxisParameters({

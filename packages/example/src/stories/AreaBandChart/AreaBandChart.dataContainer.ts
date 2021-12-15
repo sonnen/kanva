@@ -8,7 +8,7 @@ const dataSeries: DataSeries<XYPoint<[number, number]>>[] = new DataSeriesGenera
   .xRange(0, 1440)
   .yRange(20, 25)
   .addSeries('Series 1', 100, Distribution.EVEN)
-  .generateYY();
+  .generateXYY();
 
 export const createDataContainer = () => new DataContainer<any>()
   .setData(dataSeries)
