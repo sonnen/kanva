@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/sonnen/kanva/compare/v0.9.2...v0.10.0) (2021-12-17)
+
+
+### Bug Fixes
+
+* **example:** fix handleScale operating on wrong argument in various storybook stories ([9fe99a7](https://github.com/sonnen/kanva/commit/9fe99a749d6780086e771fd66ddbfff7a1624f0b))
+
+
+### Features
+
+* **example:** add new area band type chart example in storybook ([73382f6](https://github.com/sonnen/kanva/commit/73382f6ebab3759c21f0931514ceebdf05ff3272))
+
+
+
+
+
 ## [0.9.2](https://github.com/sonnen/kanva/compare/v0.9.1...v0.9.2) (2021-08-09)
 
 **Note:** Version bump only for package example
