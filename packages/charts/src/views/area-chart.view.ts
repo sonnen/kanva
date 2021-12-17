@@ -1,4 +1,5 @@
 import { Context, Line, Paint, RequiredViewChanges, ViewCanvas } from '@kanva/core';
+import { flatten, isArray, isNumber } from 'lodash';
 import { CanvasPosition, XYPoint } from '../chart.types';
 import { LabelOptions, LabelsHelper, ScaleFunctions, segmentizePoints } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -8,6 +9,7 @@ export enum DataDisplayType {
   LINE,
   LINE_STAIRS,
   AREA,
+  BAND,
 }
 
 export interface AreaChartViewStyle {
@@ -98,13 +100,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           return array;
         }
         default: {
-          const array = new Float64Array(segment.length * 2);
-          for (let i = 0; i < segment.length; i++) {
-            const point = segment[i];
-            array[i * 2] = point.x;
-            array[i * 2 + 1] = point.y;
-          }
-          return array;
+          return Float64Array.from(flatten(segment.map(({ x, y }) => isArray(y) ? [x, ...y] : [x, y])));
         }
       }
     });
@@ -136,6 +132,21 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
           }
           ctx.lineTo(xScale(data[data.length - 2]), yScale(center.y));
           ctx.lineTo(xScale(data[0]), yScale(center.y));
+          break;
+        case DataDisplayType.BAND:
+          // starting point
+          ctx.moveTo(xScale(data[0]), yScale(data[1]));
+          // iterate over min bounds
+          for (let i = 0, l = data.length; i < l; i += 3) {
+            ctx.lineTo(xScale(data[i]), yScale(data[i + 1]));
+          }
+          // move to the last element of max bounds
+          ctx.lineTo(xScale(data[data.length - 3]), yScale(data[data.length - 1]));
+          // iterate over max bounds in reverse
+          for (let i = data.length - 1; i > 1; i -= 3) {
+            ctx.lineTo(xScale(data[i - 2]), yScale(data[i]));
+          }
+          ctx.closePath();
           break;
         case DataDisplayType.POINTS:
           const size = paint.lineWidth || 1;
@@ -182,10 +193,10 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     }
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+  getCanvasPositionForPoint(point: XYPoint<any>): CanvasPosition {
     const { xScale, yScale } = this.getScales();
     const x = xScale(point.x);
-    const y = yScale(point.y);
+    const y = isNumber(point.y) ? yScale(point.y) : 0;
     return {
       x,
       y,
@@ -194,7 +205,7 @@ export class AreaChartView extends ChartView<AreaChartViewProps> {
     };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
+  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> {
     const { xScale, yScale } = this.getScales();
     return {
       x: xScale.invert(position.x),

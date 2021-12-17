@@ -3,15 +3,15 @@ import { DataSeriesGenerator, Distribution } from '../../utils/dataSeries.genera
 
 export const baseTickCount = 11;
 
-const dataSeries: DataSeries<XYPoint>[] = new DataSeriesGenerator()
-  .xRange(0, 1000)
-  .yRange(0, 1300)
-  .addSeries('Series 1', 100, Distribution.EVEN)
-  .yRange(-200, -40)
-  .addSeries('Series 2', 100, Distribution.EVEN)
-  .generateXY();
 
-export const createDataContainer = () => new DataContainer<XYPoint<number | null>>()
+const dataSeries: DataSeries<XYPoint<[number, number]>>[] = new DataSeriesGenerator()
+  .xRange(0, 1440)
+  .yRange(20, 25)
+  .addSeries('Series 1', 100, Distribution.EVEN)
+  .generateXYY();
+
+export const createDataContainer = () => new DataContainer<any>()
+  .setData(dataSeries)
   .setXAxisParameters({
     tickCount: baseTickCount,
     labelAccessor: String,
@@ -20,4 +20,5 @@ export const createDataContainer = () => new DataContainer<XYPoint<number | null
     useApproximateValues: true,
     tickCount: 10,
     labelAccessor: String,
-  });
+  })
+  .setYBoundsExtension([0, 40])

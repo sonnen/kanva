@@ -16,8 +16,8 @@
 
 ### Properties
 
-* [dataContainers](datacontainerextension.md#protected-datacontainers)
-* [name](datacontainerextension.md#name)
+* [dataContainers](datacontainerextension.md#protected-readonly-datacontainers)
+* [name](datacontainerextension.md#readonly-name)
 
 ### Methods
 
@@ -44,13 +44,13 @@ Name | Type |
 
 ## Properties
 
-### `Protected` dataContainers
+### `Protected` `Readonly` dataContainers
 
 • **dataContainers**: *[DataContainer](datacontainer.md)‹any›[]* = []
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
@@ -128,7 +128,7 @@ ___
 
 ### `Protected` postEvent
 
-▸ **postEvent**<**T**, **P**>(`eventType`: T, `payload?`: P): *P*
+▸ **postEvent**‹**T**, **P**›(`eventType`: T, `payload?`: P): *P*
 
 **Type parameters:**
 

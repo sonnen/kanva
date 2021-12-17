@@ -1,4 +1,4 @@
-# Interface: DataContainerEvent <**T, P**>
+# Interface: DataContainerEvent ‹**T, P**›
 
 ## Type parameters
 

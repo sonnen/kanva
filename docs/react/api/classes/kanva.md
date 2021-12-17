@@ -1,8 +1,4 @@
-# Class: Kanva <**SS**>
-
-## Type parameters
-
-▪ **SS**
+# Class: Kanva
 
 ## Hierarchy
 
@@ -18,7 +14,7 @@
 
 ### Properties
 
-* [state](kanva.md#state)
+* [state](kanva.md#readonly-state)
 
 ### Methods
 
@@ -53,7 +49,7 @@ Name | Type |
 
 ## Properties
 
-###  state
+### `Readonly` state
 
 • **state**: *[State](../interfaces/state.md)*
 
@@ -287,7 +283,7 @@ ___
 
 ### `Optional` getSnapshotBeforeUpdate
 
-▸ **getSnapshotBeforeUpdate**(`prevProps`: Readonly‹[Props](../interfaces/props.md)›, `prevState`: Readonly‹[State](../interfaces/state.md)›): *SS | null*
+▸ **getSnapshotBeforeUpdate**(`prevProps`: Readonly‹[Props](../interfaces/props.md)›, `prevState`: Readonly‹[State](../interfaces/state.md)›): *any | null*
 
 *Inherited from [Kanva](kanva.md).[getSnapshotBeforeUpdate](kanva.md#optional-getsnapshotbeforeupdate)*
 
@@ -305,7 +301,7 @@ Name | Type |
 `prevProps` | Readonly‹[Props](../interfaces/props.md)› |
 `prevState` | Readonly‹[State](../interfaces/state.md)› |
 
-**Returns:** *SS | null*
+**Returns:** *any | null*
 
 ___
 

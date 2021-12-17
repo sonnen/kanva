@@ -1,4 +1,4 @@
-# Interface: ChartViewProps <**Style**>
+# Interface: ChartViewProps ‹**Style**›
 
 ## Type parameters
 

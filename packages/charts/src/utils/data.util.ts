@@ -1,3 +1,4 @@
+import { isArray, isNumber } from 'lodash';
 import { XYPoint } from '../chart.types';
 
 // @TODO: Try better typing
@@ -60,3 +61,7 @@ export const findBestMatchInSortedArray = <T>(
   }
   return nearestMatch;
 };
+
+export const isTupleOfNumbers = (value: unknown): value is [number, number] => {
+  return isArray(value) && value.length === 2 && (isNumber(value[0]) && isNumber(value[1]))
+}

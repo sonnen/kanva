@@ -43,9 +43,9 @@ export abstract class ChartView<ChartProps extends ChartViewProps<any>,
     this.require(RequiredViewChanges.DRAW);
   }
 
-  abstract getCanvasPositionForPoint(point: XYPoint): CanvasPosition;
+  abstract getCanvasPositionForPoint(point: XYPoint<any>): CanvasPosition;
 
-  abstract getPointForCanvasPosition(position: XYPoint): XYPoint | undefined;
+  abstract getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> | undefined;
 
   onPointerEvent(event: CanvasPointerEvent): boolean {
     return !!this.dataContainer && this.dataContainer.onChartPointerEvent(event);

@@ -1,6 +1,6 @@
 import { XYPoint } from '../chart.types';
 
-export const isXYArray = (data: any): data is XYPoint[] =>
+export const isXYArray = (data: any): data is XYPoint<any>[] =>
   Array.isArray(data) && (data.length === 0 || (data[0].x !== undefined && data[0].y !== undefined));
 
 export const mergeXY = (x: number[], y: number[]): XYPoint[] => {

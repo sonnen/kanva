@@ -169,7 +169,7 @@ ___
 
 ###  DeepReadonly
 
-Ƭ **DeepReadonly**: *T extends Primitive ? T : DeepReadonlyObject<T>*
+Ƭ **DeepReadonly**: *T extends Primitive ? T : DeepReadonlyObject‹T›*
 
 ___
 
@@ -366,7 +366,7 @@ ___
 
 ### `Const` supportedDomPointerEvents
 
-• **supportedDomPointerEvents**: *"touchmove" | "mousemove" | "mousedown" | "touchstart" | "mouseover" | "mouseenter" | "touchcancel" | "mouseout" | "mouseup" | "touchend" | "wheel"[]* = [
+• **supportedDomPointerEvents**: *("touchmove" | "mousemove" | "mousedown" | "touchstart" | "mouseover" | "mouseenter" | "touchcancel" | "mouseout" | "mouseup" | "touchend" | "wheel")[]* = [
   'touchmove',
   'mousemove',
   'mousedown',
@@ -413,7 +413,7 @@ ___
 
 ###  createLayoutMap
 
-▸ **createLayoutMap**<**K**>(`t`: Record‹K, [LayoutProps](interfaces/layoutprops.md)›): *object*
+▸ **createLayoutMap**‹**K**›(`t`: Record‹K, [LayoutProps](interfaces/layoutprops.md)›): *object*
 
 **Type parameters:**
 
@@ -431,7 +431,7 @@ ___
 
 ### `Const` deepFreeze
 
-▸ **deepFreeze**<**T**>(`object`: T): *[DeepReadonly](README.md#deepreadonly)‹T›*
+▸ **deepFreeze**‹**T**›(`object`: T): *[DeepReadonly](README.md#deepreadonly)‹T›*
 
 **Type parameters:**
 
@@ -822,7 +822,7 @@ ___
 
 ### `Const` resolveDimensionDependencies
 
-▸ **resolveDimensionDependencies**<**T**>(`children`: T[], `dependencySelector`: function, `context`: [Context](classes/context.md)): *T[]*
+▸ **resolveDimensionDependencies**‹**T**›(`children`: T[], `dependencySelector`: function, `context`: [Context](classes/context.md)): *T[]*
 
 **Type parameters:**
 
@@ -1094,7 +1094,7 @@ ___
 
 ###  textDirection
 
-• **textDirection**: *"ltr" | "rtl" | "inherit"* = 'ltr' as CanvasDirection
+• **textDirection**: *CanvasDirection* = 'ltr' as CanvasDirection
 
 ___
 

@@ -1,4 +1,4 @@
-# Class: ChartView <**ChartProps, Style**>
+# Class: ChartView ‹**ChartProps, Style**›
 
 ## Type parameters
 
@@ -35,14 +35,14 @@
 * [backgroundColor](chartview.md#protected-optional-backgroundcolor)
 * [borderColor](chartview.md#protected-optional-bordercolor)
 * [borderRect](chartview.md#protected-optional-borderrect)
-* [context](chartview.md#context)
+* [context](chartview.md#readonly-context)
 * [dataContainer](chartview.md#protected-optional-datacontainer)
 * [dataSeries](chartview.md#protected-dataseries)
 * [height](chartview.md#protected-height)
 * [id](chartview.md#optional-id)
 * [innerRect](chartview.md#protected-innerrect)
 * [lp](chartview.md#protected-lp)
-* [name](chartview.md#name)
+* [name](chartview.md#readonly-name)
 * [offsetRect](chartview.md#offsetrect)
 * [onMount](chartview.md#protected-optional-onmount)
 * [rect](chartview.md#protected-rect)
@@ -157,11 +157,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *Context*
 
-*Inherited from [ChartView](chartview.md).[context](chartview.md#context)*
+*Inherited from [ChartView](chartview.md).[context](chartview.md#readonly-context)*
 
 ___
 
@@ -211,11 +211,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [ChartView](chartview.md).[name](chartview.md#name)*
+*Inherited from [ChartView](chartview.md).[name](chartview.md#readonly-name)*
 
 ___
 
@@ -381,13 +381,13 @@ ___
 
 ### `Abstract` getCanvasPositionForPoint
 
-▸ **getCanvasPositionForPoint**(`point`: [XYPoint](../interfaces/xypoint.md)): *[CanvasPosition](../interfaces/canvasposition.md)*
+▸ **getCanvasPositionForPoint**(`point`: [XYPoint](../interfaces/xypoint.md)‹any›): *[CanvasPosition](../interfaces/canvasposition.md)*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`point` | [XYPoint](../interfaces/xypoint.md) |
+`point` | [XYPoint](../interfaces/xypoint.md)‹any› |
 
 **Returns:** *[CanvasPosition](../interfaces/canvasposition.md)*
 
@@ -503,15 +503,15 @@ ___
 
 ### `Abstract` getPointForCanvasPosition
 
-▸ **getPointForCanvasPosition**(`position`: [XYPoint](../interfaces/xypoint.md)): *[XYPoint](../interfaces/xypoint.md) | undefined*
+▸ **getPointForCanvasPosition**(`position`: [XYPoint](../interfaces/xypoint.md)‹number›): *[XYPoint](../interfaces/xypoint.md)‹number› | undefined*
 
 **Parameters:**
 
 Name | Type |
 ------ | ------ |
-`position` | [XYPoint](../interfaces/xypoint.md) |
+`position` | [XYPoint](../interfaces/xypoint.md)‹number› |
 
-**Returns:** *[XYPoint](../interfaces/xypoint.md) | undefined*
+**Returns:** *[XYPoint](../interfaces/xypoint.md)‹number› | undefined*
 
 ___
 

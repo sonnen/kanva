@@ -1,22 +1,23 @@
-import { AxisOrientation, GridLines, DataContainerTransformExtension, SimpleOnScaleListenerArgs } from '@kanva/charts';
 import * as React from 'react';
-import { Kanva } from '@kanva/react';
 import {
-  AreaChartView as AreaChartViewComponent,
-  AxisView,
-  ChartGridView,
-  ChartZoomView,
-} from '@kanva/charts-react';
-import { Paint, Rect, rgba } from '@kanva/core';
+  AxisOrientation,
+  GridLines,
+  DataContainerTransformExtension,
+  DataContainerTooltipExtension,
+  SimpleOnScaleListenerArgs,
+} from '@kanva/charts';
+import { Kanva } from '@kanva/react';
+import { AreaChartView as AreaChartViewComponent, AxisView, ChartGridView, ChartZoomView } from '@kanva/charts-react';
 import { boolean } from '@storybook/addon-knobs';
-import zoomAreaChartNotes from './AreaLineChart.zoom.notes.md';
-import { layout, Views } from './AreaLineChart.layouts';
-import { createDataContainer } from './AreaLineChart.dataContainer';
-import { styles } from './AreaLineChart.styles';
+import { action } from '@storybook/addon-actions';
+import { createDataContainer } from './AreaBandChart.dataContainer';
+import { layout, Views } from './AreaBandChart.layouts';
+import { styles } from './AreaBandChart.styles';
+import bandAreaChartNotes from './AreaBandChart.notes.md';
 
-export { zoomAreaChartNotes };
+export { bandAreaChartNotes };
 
-export const zoomAreaChartStory = () => {
+export const bandAreaChartStory = () => {
   const dataContainer = createDataContainer();
   const debug = boolean('Debug', false);
   const baseTickCount = 9;
@@ -36,13 +37,17 @@ export const zoomAreaChartStory = () => {
       },
       listener: handleScale,
       listenerThreshold: 0.001,
-      scroll: true,
+      scroll: false,
       selectArea: true,
       drag: false,
     },
   });
 
-  dataContainer.addExtension(transformExtension);
+  const tooltipExtension = new DataContainerTooltipExtension({
+    onTooltipEvent: action('ChartPointerEvent'),
+  })
+
+  dataContainer.addExtension(transformExtension, tooltipExtension);
 
   const resetScale = () => {
     transformExtension.setScale({ x: 1, y: 1 });
@@ -74,15 +79,12 @@ export const zoomAreaChartStory = () => {
                 style={styles.series[series.name]}
               />
             ))
-            }
-            <ChartZoomView
-              dataContainer={dataContainer}
-              layoutParams={layout.areaChart}
-              style={{
-                paint: new Paint().setFillStyle(rgba('#FFF', 0.5)).setStrokeStyle('#FFF'),
-                borders: new Rect({left: 5, right: 5, top: 5, bottom: 5 }),
-              }}
-            />
+          }
+          <ChartZoomView
+            dataContainer={dataContainer}
+            layoutParams={layout.areaChart}
+            style={styles.zoomArea}
+          />
         </ChartGridView>
         <AxisView
           id={Views.X_AXIS}

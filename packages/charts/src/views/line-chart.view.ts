@@ -171,7 +171,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
     return this.dataContainer!.getScales(this.innerWidth, 1);
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+  getCanvasPositionForPoint(point: XYPoint<any>): CanvasPosition {
     const { xScale, yScale } = this.getScales();
     const x = xScale(point.x);
     const y = yScale(0);
@@ -183,7 +183,7 @@ export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
     };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint {
+  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> {
     const { xScale, yScale } = this.getScales();
     return {
       x: xScale.invert(position.x),

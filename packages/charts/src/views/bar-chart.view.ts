@@ -10,6 +10,7 @@ import {
   Radius,
   ViewCanvas,
 } from '@kanva/core';
+import { isNumber } from 'lodash';
 import { CanvasPosition, DataSeries, XYPoint } from '../chart.types';
 import { LabelOptions, LabelsHelper, ScaleFunctions } from '../utils';
 import { ChartView, ChartViewProps } from './chart.view';
@@ -130,10 +131,10 @@ export class BarChartView extends ChartView<BarChartViewProps> {
     }
   }
 
-  getCanvasPositionForPoint(point: XYPoint): CanvasPosition {
+  getCanvasPositionForPoint(point: XYPoint<any>): CanvasPosition {
     const { yScale } = this.getScales();
     const x = (point.x + X_SCALE_BAR_OFFSET) * this.groupWidth;
-    const y = yScale(point.y);
+    const y = isNumber(point.y) ? yScale(point.y) : 0;
 
     return {
       x,
@@ -143,7 +144,7 @@ export class BarChartView extends ChartView<BarChartViewProps> {
     };
   }
 
-  getPointForCanvasPosition(position: XYPoint): XYPoint | undefined {
+  getPointForCanvasPosition(position: XYPoint<number>): XYPoint<number> | undefined {
     if (!this.dataContainer) {
       return undefined;
     }

@@ -106,6 +106,7 @@
 * [floorToNearest](README.md#const-floortonearest)
 * [getContinuousNumericScale](README.md#const-getcontinuousnumericscale)
 * [getPaint](README.md#const-getpaint)
+* [isTupleOfNumbers](README.md#const-istupleofnumbers)
 * [isXYArray](README.md#const-isxyarray)
 * [mergeXY](README.md#const-mergexy)
 * [performanceCounter](README.md#const-performancecounter)
@@ -320,7 +321,7 @@ ___
 
 ### `Const` findBestMatchInSortedArray
 
-▸ **findBestMatchInSortedArray**<**T**>(`array`: T[], `matcher`: function): *T | undefined*
+▸ **findBestMatchInSortedArray**‹**T**›(`array`: T[], `matcher`: function): *T | undefined*
 
 **Type parameters:**
 
@@ -375,7 +376,7 @@ ___
 
 ### `Const` getPaint
 
-▸ **getPaint**<**P**>(`paint`: P, `contrastPaint`: P | undefined, `backgroundIsBright`: boolean): *P*
+▸ **getPaint**‹**P**›(`paint`: P, `contrastPaint`: P | undefined, `backgroundIsBright`: boolean): *P*
 
 **Type parameters:**
 
@@ -393,9 +394,23 @@ Name | Type |
 
 ___
 
+### `Const` isTupleOfNumbers
+
+▸ **isTupleOfNumbers**(`value`: unknown): *value is [number, number]*
+
+**Parameters:**
+
+Name | Type |
+------ | ------ |
+`value` | unknown |
+
+**Returns:** *value is [number, number]*
+
+___
+
 ### `Const` isXYArray
 
-▸ **isXYArray**(`data`: any): *data is XYPoint[]*
+▸ **isXYArray**(`data`: any): *data is XYPoint‹any›[]*
 
 **Parameters:**
 
@@ -403,7 +418,7 @@ Name | Type |
 ------ | ------ |
 `data` | any |
 
-**Returns:** *data is XYPoint[]*
+**Returns:** *data is XYPoint‹any›[]*
 
 ___
 
@@ -498,7 +513,7 @@ ___
 
 ### `Const` segmentizePoints
 
-▸ **segmentizePoints**<**In**, **Filter**, **Out**>(`data`: [XYPoint](interfaces/xypoint.md)‹In›[], `filterBy`: Filter): *[XYPoint](interfaces/xypoint.md)‹Out›[][]*
+▸ **segmentizePoints**‹**In**, **Filter**, **Out**›(`data`: [XYPoint](interfaces/xypoint.md)‹In›[], `filterBy`: Filter): *[XYPoint](interfaces/xypoint.md)‹Out›[][]*
 
 **Type parameters:**
 

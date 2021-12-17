@@ -1,10 +1,8 @@
-# Class: PieChartView <**DataPoint, Style**>
+# Class: PieChartView ‹**DataPoint**›
 
 ## Type parameters
 
 ▪ **DataPoint**
-
-▪ **Style**
 
 ## Hierarchy
 
@@ -23,14 +21,14 @@
 * [backgroundColor](piechartview.md#protected-optional-backgroundcolor)
 * [borderColor](piechartview.md#protected-optional-bordercolor)
 * [borderRect](piechartview.md#protected-optional-borderrect)
-* [context](piechartview.md#context)
+* [context](piechartview.md#readonly-context)
 * [dataContainer](piechartview.md#protected-optional-datacontainer)
 * [dataSeries](piechartview.md#protected-dataseries)
 * [height](piechartview.md#protected-height)
 * [id](piechartview.md#optional-id)
 * [innerRect](piechartview.md#protected-innerrect)
 * [lp](piechartview.md#protected-lp)
-* [name](piechartview.md#name)
+* [name](piechartview.md#readonly-name)
 * [offsetRect](piechartview.md#offsetrect)
 * [onMount](piechartview.md#protected-optional-onmount)
 * [rect](piechartview.md#protected-rect)
@@ -145,11 +143,11 @@ ___
 
 ___
 
-###  context
+### `Readonly` context
 
 • **context**: *Context*
 
-*Inherited from [ChartView](chartview.md).[context](chartview.md#context)*
+*Inherited from [ChartView](chartview.md).[context](chartview.md#readonly-context)*
 
 ___
 
@@ -203,11 +201,11 @@ ___
 
 ___
 
-###  name
+### `Readonly` name
 
 • **name**: *string*
 
-*Inherited from [ChartView](chartview.md).[name](chartview.md#name)*
+*Inherited from [ChartView](chartview.md).[name](chartview.md#readonly-name)*
 
 ___
 
@@ -241,7 +239,7 @@ ___
 
 ### `Protected` style
 
-• **style**: *Style*
+• **style**: *NonNullable‹ChartProps["style"]›*
 
 *Inherited from [ChartView](chartview.md).[style](chartview.md#protected-style)*
 
@@ -1028,7 +1026,7 @@ ___
 
 ###  setStyle
 
-▸ **setStyle**(`style`: Style | undefined): *void*
+▸ **setStyle**(`style`: NonNullable‹ChartProps["style"]› | undefined): *void*
 
 *Inherited from [ChartView](chartview.md).[setStyle](chartview.md#setstyle)*
 
@@ -1036,7 +1034,7 @@ ___
 
 Name | Type |
 ------ | ------ |
-`style` | Style &#124; undefined |
+`style` | NonNullable‹ChartProps["style"]› &#124; undefined |
 
 **Returns:** *void*
 

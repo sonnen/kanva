@@ -1,4 +1,4 @@
-# Interface: XYPoint <**T**>
+# Interface: XYPoint ‹**T**›
 
 ## Type parameters
 

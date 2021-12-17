@@ -1,6 +1,6 @@
 import { CanvasPointerEvent, Rect, RectLike } from '@kanva/core';
 import { ScaleContinuousNumeric } from 'd3-scale';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty, isNil, isNumber } from 'lodash';
 import { DataScaleType, DataSeries, PointAccessor, ViewPoint, XYPoint, YValuesMatch } from '../chart.types';
 import {
   AxisParameters,
@@ -8,6 +8,7 @@ import {
   findBestMatchInSortedArray,
   getContinuousNumericScale,
   isXYArray,
+  isTupleOfNumbers,
   prepareAxisValues,
   ScaleFunctions,
 } from '../utils';
@@ -49,7 +50,7 @@ export class DataContainer<DataPoint> {
   private extensions: DataContainerExtension[] = [];
 
   // Computed values
-  private series: DataSeries<XYPoint>[] = [];
+  private series: DataSeries<XYPoint<any>>[] = [];
   private total = 0;
   private seriesLength = 0;
   private xScale: ScaleContinuousNumeric<number, number> = getContinuousNumericScale(this.xScaleType);
@@ -203,7 +204,7 @@ export class DataContainer<DataPoint> {
     return this;
   }
 
-  getDataSeries(name: string | undefined): DataSeries<XYPoint> | undefined {
+  getDataSeries(name: string | undefined): DataSeries<XYPoint<any>> | undefined {
     if (!name) {
       return undefined;
     }
@@ -211,7 +212,7 @@ export class DataContainer<DataPoint> {
     return this.series[this.namedData[name]];
   }
 
-  getAllDataSeries(): DataSeries<XYPoint>[] {
+  getAllDataSeries(): DataSeries<XYPoint<any>>[] {
     this.processData();
     return this.series;
   }
@@ -330,7 +331,7 @@ export class DataContainer<DataPoint> {
       return;
     }
 
-    const series: DataSeries<XYPoint & ViewPoint>[] = new Array(rawData.length);
+    const series: DataSeries<XYPoint<any> & ViewPoint>[] = new Array(rawData.length);
     let minX: number = Math.min(...this.xBoundsExtension);
     let maxX: number = Math.max(...this.xBoundsExtension);
     let minY: number = Math.min(...this.yBoundsExtension);
@@ -347,19 +348,33 @@ export class DataContainer<DataPoint> {
       if (data.length) {
         for (let i = 0, l = data.length; i < l; i++) {
           const { x, y } = data[i];
-          if (y < minY) {
-            minY = y;
-          }
-          if (y > maxY) {
-            maxY = y;
-          }
+
           if (x < minX) {
             minX = x;
           }
           if (x > maxX) {
             maxX = x;
           }
-          sum += y;
+
+          if (isNumber(y)) {
+            if (y < minY) {
+              minY = y;
+            }
+            if (y > maxY) {
+              maxY = y;
+            }
+            sum += y;
+          }
+
+          if (isTupleOfNumbers(y)) {
+            const [y1, y2] = y;
+            if (y1 < minY) {
+              minY = y1;
+            }
+            if (y2 > maxY) {
+              maxY = y2;
+            }
+          }
         }
         if (seriesLength < data.length) {
           seriesLength = data.length;
@@ -369,7 +384,7 @@ export class DataContainer<DataPoint> {
       series[i] = {
         name: rawSeries.name,
         sum,
-        data: data as (XYPoint & ViewPoint)[],
+        data: data as (XYPoint<any> & ViewPoint)[],
       };
       total += sum;
     }
@@ -387,12 +402,12 @@ export class DataContainer<DataPoint> {
     this.yAxis = prepareAxisValues(this.yScale, this.yAxisParameters, seriesLength);
   }
 
-  private getNormalizedData(rawSeries: DataSeries<DataPoint>): XYPoint[] {
+  private getNormalizedData(rawSeries: DataSeries<DataPoint>): XYPoint<any>[] {
     if (this.pointAccessor) {
       return rawSeries.data.map(this.pointAccessor);
     }
     if (isXYArray(rawSeries.data)) {
-      return rawSeries.data.map(({ x, y }: XYPoint) => ({ x, y }));
+      return rawSeries.data.map(({ x, y }: XYPoint<any>) => ({ x, y }));
     }
     console.warn('You are probably missing PointAccessor in your DataContainer configuration.');
     return [];

@@ -631,12 +631,12 @@ Name | Type | Default |
 `height` | null &#124; string &#124; number | DefaultProps.HEIGHT |
 `isAbsolute` | boolean | DefaultProps.IS_ABSOLUTE |
 `isAnimated` | boolean | DefaultProps.IS_ANIMATED |
-`margin` | number &#124; [Rect](rect.md)‹› &#124; [RectObjectInput](../interfaces/rectobjectinput.md) | DefaultProps.MARGIN |
+`margin` | [RectLike](../README.md#rectlike) | DefaultProps.MARGIN |
 `maxHeight` | number | DefaultProps.MAX_HEIGHT |
 `maxWidth` | number | DefaultProps.MAX_WIDTH |
 `minHeight` | number | DefaultProps.MIN_HEIGHT |
 `minWidth` | number | DefaultProps.MIN_WIDTH |
-`padding` | number &#124; [Rect](rect.md)‹› &#124; [RectObjectInput](../interfaces/rectobjectinput.md) | DefaultProps.PADDING |
+`padding` | [RectLike](../README.md#rectlike) | DefaultProps.PADDING |
 `posX` | null &#124; string &#124; number | DefaultProps.X |
 `posY` | null &#124; string &#124; number | DefaultProps.Y |
 `toEndOf` | undefined &#124; string &#124; number | DefaultProps.TO_END_OF |

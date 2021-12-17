@@ -16,9 +16,9 @@
 
 ### Properties
 
-* [canvasCreator](context.md#canvascreator)
+* [canvasCreator](context.md#readonly-canvascreator)
 * [debugEnabled](context.md#debugenabled)
-* [imageClass](context.md#imageclass)
+* [imageClass](context.md#readonly-imageclass)
 
 ### Methods
 
@@ -43,7 +43,7 @@ Name | Type | Default |
 
 ## Properties
 
-###  canvasCreator
+### `Readonly` canvasCreator
 
 • **canvasCreator**: *[CanvasCreator](../README.md#canvascreator)*
 
@@ -55,7 +55,7 @@ ___
 
 ___
 
-###  imageClass
+### `Readonly` imageClass
 
 • **imageClass**: *[ImageClass](../README.md#imageclass)*
 
