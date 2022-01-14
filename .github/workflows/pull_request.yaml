@@ -29,4 +29,5 @@ jobs:
     - name: Lint code
       run: yarn lint
     - name: Audit packages
-      run: yarn audit
+      run: bash ./scripts/audit.sh
+      shell: bash
