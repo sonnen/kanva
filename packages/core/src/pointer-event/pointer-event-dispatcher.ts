@@ -18,7 +18,6 @@ export const logPointerEvent = (pointerEvent: CanvasPointerEvent) => {
       `👆 ${pointer.pressure}`,
     ));
   console.groupEnd();
-  console.groupEnd();
 };
 
 export const isTouchEvent = (event: Event): event is TouchEvent => !!(event as any).touches;

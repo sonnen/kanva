@@ -46,7 +46,7 @@ const defaultStyle = {
   alignment: LegendAlignment.ROW,
 };
 
-export class LegendView<DataPoint> extends View<LegendViewProps> {
+export class LegendView<_DataPoint> extends View<LegendViewProps> {
   private style: LegendViewStyle = defaultStyle;
   private dataSeries: LegendDataSeries[] = [];
 

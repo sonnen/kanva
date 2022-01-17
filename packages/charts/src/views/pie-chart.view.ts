@@ -47,7 +47,7 @@ const defaultStyle: PieChartViewStyle = {
   padding: 0,
 };
 
-export class PieChartView<DataPoint> extends ChartView<PieChartViewProps> {
+export class PieChartView<_DataPoint> extends ChartView<PieChartViewProps> {
   private readonly labelsHelper = new LabelsHelper();
   // Internal layout params
   private pieLayout?: PieChartLayout;

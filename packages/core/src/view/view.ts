@@ -48,7 +48,7 @@ export interface ViewProps {
   onMount?: (view: View<any>) => void;
 }
 
-export class View<Props extends {} = ViewProps> {
+export class View<_Props extends Record<string, any> = ViewProps> {
   public id?: number;
   /** This are the bounds of view absolute offset. */
   public offsetRect: Rect = new Rect(0);
