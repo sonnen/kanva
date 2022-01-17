@@ -9,4 +9,4 @@
 # 16 for CRITICAL
 # For example, if only INFO and MODERATE vulnerabilities were found, then the exit code will be 1 + 4 = 5
 
-yarn audit; [[ $? -ge 8 ]] && exit 1 || exit 0
+yarn audit; [[ $? -ge 16 ]] && exit 1 || exit 0

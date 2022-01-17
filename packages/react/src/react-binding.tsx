@@ -33,7 +33,7 @@ export const createReactView = <Props extends {}>(viewClass: (new (...args: any[
   return class ReactViewComponent extends React.PureComponent<ReactViewProps> {
     static contextType = KanvaContext;
     static displayName: string = viewClass.name;
-    context!: React.ContextType<typeof KanvaContext>;
+    declare context: React.ContextType<typeof KanvaContext>;
     view?: View;
     readonly propNames: string[] = [];
     readonly propHandlers: Record<string, { set: (value: any) => void, get: () => any }> = {};

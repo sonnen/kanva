@@ -15,7 +15,8 @@
     "stripInternal": false,
     "lib": [
       "es5",
-      "es2018",
+      "es6",
+      "esnext",
       "dom"
     ],
     "strict": true,

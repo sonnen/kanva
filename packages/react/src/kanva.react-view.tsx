@@ -2,7 +2,6 @@ import { Context, RequiredViewChanges, RootCanvasView, ViewProps } from '@kanva/
 import { ContextOptions } from '@kanva/core';
 import * as React from 'react';
 import { CSSProperties } from 'react';
-import ResizeObserver from 'resize-observer-polyfill';
 import { KanvaContext } from './kanva-context';
 
 interface Props {

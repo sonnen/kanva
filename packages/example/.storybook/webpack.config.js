@@ -7,12 +7,7 @@ module.exports = ({ config }) => {
     test: /\.tsx?$/,
     include: [SRC_PATH],
     use: [
-      {
-        loader: require.resolve('awesome-typescript-loader'),
-        options: {
-          configFileName: './tsconfig.json',
-        },
-      },
+      { loader: require.resolve('ts-loader') },
       { loader: require.resolve('react-docgen-typescript-loader') },
     ],
   });

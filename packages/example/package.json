@@ -33,6 +33,7 @@
     "@kanva/react": "^0.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.5",
     "@storybook/addon-actions": "^5.3.8",
     "@storybook/addon-knobs": "^5.3.8",
     "@storybook/addon-notes": "^5.3.8",
@@ -41,10 +42,10 @@
     "@storybook/theming": "^5.3.8",
     "@types/storybook__addon-knobs": "^5.2.1",
     "@types/storybook__react": "^5.2.1",
-    "awesome-typescript-loader": "^5.2.1",
     "react-docgen-typescript-loader": "^3.6.0",
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
-    "react-scripts": "^3.3.0"
+    "react-scripts": "^3.3.0",
+    "ts-loader": "^8.3.0"
   },
   "browserslist": [
     ">0.2%",
