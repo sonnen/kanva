@@ -1,8 +1,8 @@
-# Class: LineChartView ‹**DataPoint**›
+# Class: LineChartView ‹**_DataPoint**›
 
 ## Type parameters
 
-▪ **DataPoint**
+▪ **_DataPoint**
 
 ## Hierarchy
 

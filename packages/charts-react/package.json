@@ -41,8 +41,8 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@kanva/charts": "^0.7.0",
-    "@kanva/react": "^0.7.0"
+    "@kanva/charts": "^0.10.0",
+    "@kanva/react": "^0.10.0"
   },
   "devDependencies": {
     "@kanva/charts": "^0.10.0",

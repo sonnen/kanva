@@ -66,7 +66,7 @@ const calculateMinLineLength = (start: number, end: number, scale: ScaleFunction
     ? Math.max(scale(end + customMinLength.domain) - scale(start), customMinLength.px || 0)
     : 0;
 
-export class LineChartView<DataPoint> extends ChartView<LineChartViewProps> {
+export class LineChartView<_DataPoint> extends ChartView<LineChartViewProps> {
   // Calculated data
   private data: LineEntry[] = [];
   private normalizeData: DataNormalizer = defaultNormalizeData;

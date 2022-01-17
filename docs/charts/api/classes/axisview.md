@@ -1,8 +1,8 @@
-# Class: AxisView ‹**DataPoint**›
+# Class: AxisView ‹**_DataPoint**›
 
 ## Type parameters
 
-▪ **DataPoint**
+▪ **_DataPoint**
 
 ## Hierarchy
 

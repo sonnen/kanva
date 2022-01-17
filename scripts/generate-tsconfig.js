@@ -7,6 +7,7 @@ const packagesDir = path.resolve('packages');
 
 const processPackage = (projectDir) => {
   const packageName = path.basename(projectDir);
+  const isPackageStorybook = packageName === 'example';
   const writeTsconfig = (base, overrides) => {
     const baseFile = base ? `tsconfig.${base}.json` : 'tsconfig.json';
     const location = path.join(projectDir, baseFile);
@@ -29,7 +30,10 @@ const processPackage = (projectDir) => {
   writeTsconfig('esm');
   writeTsconfig('esm5');
   writeTsconfig(undefined, {
-    compilerOptions: { noEmit: true },
+    compilerOptions: {
+      ...(isPackageStorybook && { module: 'esnext' }),
+      noEmit: !isPackageStorybook,
+    },
     typedocOptions: {
       inputFiles: ['./src/index.ts'],
       exclude: ['**/*.spec.ts', '**/spec/*.ts'],

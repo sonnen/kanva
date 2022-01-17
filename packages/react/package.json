@@ -41,11 +41,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
-    "resize-observer-polyfill": "^1.5.1"
-  },
+  "dependencies": {},
   "peerDependencies": {
-    "@kanva/core": "^0.7.0",
+    "@kanva/core": "^0.10.0",
     "react": "^16.4.0"
   },
   "devDependencies": {

@@ -1,8 +1,8 @@
-# Class: LegendView ‹**DataPoint**›
+# Class: LegendView ‹**_DataPoint**›
 
 ## Type parameters
 
-▪ **DataPoint**
+▪ **_DataPoint**
 
 ## Hierarchy
 

@@ -1,8 +1,8 @@
-# Class: View ‹**Props**›
+# Class: View ‹**_Props**›
 
 ## Type parameters
 
-▪ **Props**: *object*
+▪ **_Props**: *Record‹string, any›*
 
 ## Hierarchy
 

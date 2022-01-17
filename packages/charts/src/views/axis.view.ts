@@ -34,7 +34,7 @@ const defaultStyle = {
   wrapLabelsOnEdge: true,
 };
 
-export class AxisView<DataPoint> extends View<AxisViewProps> {
+export class AxisView<_DataPoint> extends View<AxisViewProps> {
   private dataContainer?: DataContainer<any>;
   private style: AxisViewStyle = defaultStyle;
   private orientation: AxisOrientation = AxisOrientation.HORIZONTAL;

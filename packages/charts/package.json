@@ -42,7 +42,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@kanva/core": "^0.7.0"
+    "@kanva/core": "^0.10.0"
   },
   "dependencies": {
     "d3-scale": "^3.2.1"

@@ -23,7 +23,7 @@
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -91,7 +91,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -159,7 +159,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -227,7 +227,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -295,7 +295,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -363,7 +363,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -431,7 +431,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 
@@ -499,7 +499,7 @@ ___
 
 * **new __type**(`props`: Partial‹ViewProps & Props›): *object*
 
-  * **context**: *ContextObject*
+  * **context**: *React.ContextType‹typeof KanvaContext›*
 
   * **internalProps**: *InternalProps*
 

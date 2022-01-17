@@ -1,8 +1,8 @@
-# Class: PieChartView ‹**DataPoint**›
+# Class: PieChartView ‹**_DataPoint**›
 
 ## Type parameters
 
-▪ **DataPoint**
+▪ **_DataPoint**
 
 ## Hierarchy
 

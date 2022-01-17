@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isNil, omit } from 'lodash';
 import { View } from '../view';
 import { CanvasPointer, CanvasPointerEvent, MouseButton } from './canvas-pointer-event';
 import { domEventToPointerAction, getElementOffset, Offset, supportedDomPointerEvents } from './dom-pointer-event';
@@ -6,10 +6,7 @@ import { domEventToPointerAction, getElementOffset, Offset, supportedDomPointerE
 export const DEBUG_POINTER_EVENTS = false;
 
 export const logPointerEvent = (pointerEvent: CanvasPointerEvent) => {
-  const event = {
-    ...pointerEvent,
-  };
-  delete event.pointers;
+  const event = omit(pointerEvent, 'pointers');
   console.group(`PointerEvent:${pointerEvent.action}`);
   console.log(event);
   pointerEvent.pointers
