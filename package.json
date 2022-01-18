@@ -45,6 +45,9 @@
   "release": {
     "branch": "master"
   },
+  "dependencies": {
+    "tslib": "^2.1.0"
+  },
   "devDependencies": {
     "@types/d3-scale": "^2.1.1",
     "@types/jest": "^27.0.3",
@@ -67,7 +70,6 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "ts-jest": "^27.1.1",
-    "tslib": "^2.3.1",
     "typedoc": "^0.19.2",
     "typedoc-plugin-markdown": "^2.2.17",
     "typescript": "^4.5"
