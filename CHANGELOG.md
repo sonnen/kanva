@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.3](https://github.com/sonnen/kanva/compare/v0.10.2...v0.10.3) (2022-01-18)
+
+
+### Bug Fixes
+
+* **npm:** move tslib from dev dependencies to dependencies ([f7531a5](https://github.com/sonnen/kanva/commit/f7531a57ca0b5777549ba39d3a34c0a8fc112458))
+
+
+
+
+
 ## [0.10.2](https://github.com/sonnen/kanva/compare/v0.10.1...v0.10.2) (2022-01-18)
 
 
