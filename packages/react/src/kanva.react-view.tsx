@@ -70,12 +70,12 @@ export class Kanva extends React.PureComponent<Props, State> {
   setDivElement = (ref: HTMLDivElement) => this.htmlDivElement = ref;
 
   render() {
-    const { className, children, canvasRef } = this.props;
+    const { className, children, canvasRef, style } = this.props;
     const { view } = this.state;
     return (
       <div
         ref={this.setDivElement}
-        style={{ position: 'relative' }}
+        style={{ ...style, position: 'relative' }}
         className={className}
       >
         <canvas
