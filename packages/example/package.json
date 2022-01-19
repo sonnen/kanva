@@ -30,7 +30,8 @@
     "@kanva/charts": "^0.10.4",
     "@kanva/charts-react": "^0.10.4",
     "@kanva/core": "^0.10.4",
-    "@kanva/react": "^0.10.4"
+    "@kanva/react": "^0.10.4",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.5",
