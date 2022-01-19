@@ -45,6 +45,9 @@
     "@kanva/core": "^0.10.0",
     "react": "^16.4.0"
   },
+  "dependencies": {
+    "tslib": "^2.1.0"
+  },
   "devDependencies": {
     "@kanva/core": "^0.10.4"
   }

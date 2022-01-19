@@ -45,9 +45,6 @@
   "release": {
     "branch": "master"
   },
-  "dependencies": {
-    "tslib": "^2.1.0"
-  },
   "devDependencies": {
     "@types/d3-scale": "^2.1.1",
     "@types/jest": "^27.0.3",
