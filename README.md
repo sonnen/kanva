@@ -2,6 +2,8 @@
 
 ![Kanva](docs/assets/kanva.svg)
 
+> **⚠️ Note: This repository is archived and is no longer actively maintained.**
+
  [![codecov](https://img.shields.io/codecov/c/github/sonnen/kanva)](https://codecov.io/gh/headline-1/coolio)
  [![github workflow status](https://img.shields.io/github/workflow/status/sonnen/kanva/Release)](https://github.com/sonnen/kanva/actions?query=workflow%3ARelease)
  [![npm version](https://img.shields.io/npm/v/@kanva/core))](https://www.npmjs.com/package/@kanva/core)
